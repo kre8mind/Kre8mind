@@ -3699,7 +3699,7 @@ button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 15px 28px;
+  padding: 15px 32px;
   background-color: #ffffff;
   border: 1px solid var(--border-light);
   color: var(--text-primary);
@@ -3708,14 +3708,40 @@ button {
   font-weight: var(--fw-medium);
   letter-spacing: -0.01em;
   text-decoration: none;
-  border-radius: 0;
+  border-radius: 100px !important;
   transition: all var(--transition-fast);
 }
 
 .btn-secondary-outline:hover {
   border-color: var(--text-primary);
   background-color: var(--bg-surface);
+  transform: translateY(-1px);
 }
+
+/* ==========================================================================
+   GLOBAL STANDARDIZED PILL RADIUS ARCHITECTURE (100px on all Buttons & Badges)
+   ========================================================================== */
+.btn-secondary-outline,
+.btn-rolling,
+.btn-hero,
+.btn-ghost-arrow,
+.btn-send-request,
+.btn-plan-action,
+.btn-stories-view-more,
+.btn-white,
+.btn-outline,
+.btn-studio,
+.mobile-cta,
+.inquiry-submit-btn,
+.service-tab-btn,
+.das-view-badge,
+.das-category-tag,
+.case-study-glass-tag,
+.case-study-water-badge,
+.journal-water-badge {
+  border-radius: 100px !important;
+}
+
 
 /* ==========================================================================
    FRAMER-QUALITY SCROLL REVEAL MOTION
