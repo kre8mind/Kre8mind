@@ -1,5 +1,7 @@
 {
   "version": 2,
+  "cleanUrls": true,
+  "trailingSlash": false,
   "builds": [
     { "src": "index.html", "use": "@vercel/static" },
     { "src": "projects.html", "use": "@vercel/static" },
@@ -32,19 +34,44 @@
       "dest": "/assets/$1"
     },
     {
-      "src": "/projects(.html)?",
+      "src": "/index(.html)?",
+      "status": 308,
+      "headers": { "Location": "/" }
+    },
+    {
+      "src": "/projects.html",
+      "status": 308,
+      "headers": { "Location": "/projects" }
+    },
+    {
+      "src": "/services.html",
+      "status": 308,
+      "headers": { "Location": "/services" }
+    },
+    {
+      "src": "/journal.html",
+      "status": 308,
+      "headers": { "Location": "/journal" }
+    },
+    {
+      "src": "/admin.html",
+      "status": 308,
+      "headers": { "Location": "/admin" }
+    },
+    {
+      "src": "/projects",
       "dest": "/projects.html"
     },
     {
-      "src": "/services(.html)?",
+      "src": "/services",
       "dest": "/services.html"
     },
     {
-      "src": "/journal(.html)?",
+      "src": "/journal",
       "dest": "/journal.html"
     },
     {
-      "src": "/admin(.html)?",
+      "src": "/admin",
       "dest": "/admin.html"
     },
     {

@@ -81,8 +81,12 @@ app.all('/api/*', (req, res) => {
   res.status(404).json({ error: 'API endpoint not found' });
 });
 
-// Local development static server fallback
+// Local development clean route mapping
 if (!process.env.VERCEL) {
+  app.get('/projects', (req, res) => res.sendFile(path.join(__dirname, 'projects.html')));
+  app.get('/services', (req, res) => res.sendFile(path.join(__dirname, 'services.html')));
+  app.get('/journal', (req, res) => res.sendFile(path.join(__dirname, 'journal.html')));
+  app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'admin.html')));
   app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
   });
