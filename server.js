@@ -4,12 +4,12 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 
-import requestsRouter from './api/requests.js';
-import projectsRouter from './api/projects.js';
-import journalRouter from './api/journal.js';
-import authRouter from './api/auth.js';
-import analyticsRouter from './api/analytics.js';
-import testimonialsRouter from './api/testimonials.js';
+import requestsRouter from './routes/requests.js';
+import projectsRouter from './routes/projects.js';
+import journalRouter from './routes/journal.js';
+import authRouter from './routes/auth.js';
+import analyticsRouter from './routes/analytics.js';
+import testimonialsRouter from './routes/testimonials.js';
 
 dotenv.config();
 
@@ -76,7 +76,7 @@ app.use('/api/auth', authRouter);
 app.use('/api/analytics', analyticsRouter);
 app.use('/api/testimonials', testimonialsRouter);
 
-// Fallback to index.html for undefined routes
+// Fallback to index.html for undefined frontend routes
 app.get('*', (req, res) => {
   if (req.path.startsWith('/api')) {
     return res.status(404).json({ error: 'API endpoint not found' });
@@ -84,12 +84,18 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Start Server
-app.listen(PORT, () => {
-  console.log(`\n==================================================`);
-  console.log(`✨ KRE8MIND STUDIO API & BACKEND ONLINE`);
-  console.log(`🚀 Local Server:    http://localhost:${PORT}`);
-  console.log(`📊 Admin Dashboard: http://localhost:${PORT}/admin.html`);
-  console.log(`🩺 Health Check:    http://localhost:${PORT}/api/health`);
-  console.log(`==================================================\n`);
-});
+// Export app for Vercel Serverless
+export default app;
+
+// Start local server if not running on Vercel
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`\n==================================================`);
+    console.log(`✨ KRE8MIND STUDIO API & BACKEND ONLINE`);
+    console.log(`🚀 Local Server:    http://localhost:${PORT}`);
+    console.log(`📊 Admin Dashboard: http://localhost:${PORT}/admin.html`);
+    console.log(`🩺 Health Check:    http://localhost:${PORT}/api/health`);
+    console.log(`==================================================\n`);
+  });
+}
+

@@ -255,6 +255,30 @@
   },
   "analytics": [
     {
+      "id": "v_1788522393717_xhu8j",
+      "visitorId": "f05153d1c977",
+      "path": "index.html",
+      "referrer": "localhost",
+      "device": "Desktop",
+      "createdAt": "2026-09-04T11:46:33.717Z"
+    },
+    {
+      "id": "v_1788522324910_75wqf",
+      "visitorId": "f05153d1c977",
+      "path": "journal.html",
+      "referrer": "localhost",
+      "device": "Desktop",
+      "createdAt": "2026-09-04T11:45:24.911Z"
+    },
+    {
+      "id": "v_1788522177161_al0tv",
+      "visitorId": "f05153d1c977",
+      "path": "index.html",
+      "referrer": "localhost",
+      "device": "Desktop",
+      "createdAt": "2026-09-04T11:42:57.161Z"
+    },
+    {
       "id": "v_1788521907994_98lug",
       "visitorId": "f05153d1c977",
       "path": "index.html",
