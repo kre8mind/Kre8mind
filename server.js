@@ -76,13 +76,17 @@ app.use('/api/auth', authRouter);
 app.use('/api/analytics', analyticsRouter);
 app.use('/api/testimonials', testimonialsRouter);
 
-// Fallback to index.html for undefined frontend routes
-app.get('*', (req, res) => {
-  if (req.path.startsWith('/api')) {
-    return res.status(404).json({ error: 'API endpoint not found' });
-  }
-  res.sendFile(path.join(__dirname, 'index.html'));
+// Strict 404 for unknown API endpoints
+app.all('/api/*', (req, res) => {
+  res.status(404).json({ error: 'API endpoint not found' });
 });
+
+// Local development static server fallback
+if (!process.env.VERCEL) {
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+  });
+}
 
 // Export app for Vercel Serverless
 export default app;
@@ -98,4 +102,5 @@ if (!process.env.VERCEL) {
     console.log(`==================================================\n`);
   });
 }
+
 
