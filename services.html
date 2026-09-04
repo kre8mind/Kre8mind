@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Services — Kre8mind | Clarity By Design</title>
+  <meta name="description" content="Comprehensive product design, web architecture, and design system services by Kre8mind Studio.">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Floating Header -->
+  <header class="site-header" id="header">
+    <div class="header-container">
+      <a href="index.html" class="brand-logo" aria-label="Kre8mind Home">
+        <img src="assets/kre8mind-logo.png" alt="Kre8mind Logo" class="brand-logo-img" />
+      </a>
+
+      <nav class="nav-links">
+        <a href="index.html" class="nav-link"><span class="link-text" data-text="Home">Home</span></a>
+        <a href="services.html" class="nav-link active"><span class="link-text" data-text="Service">Service</span></a>
+        <a href="projects.html" class="nav-link"><span class="link-text" data-text="Projects">Projects</span></a>
+        <a href="journal.html" class="nav-link"><span class="link-text" data-text="Journal">Journal</span></a>
+      </nav>
+
+      <div class="header-actions">
+        <a href="https://cal.com/kre8mind/project-discovery" class="btn-rolling btn-dark btn-lets-talk">
+          <span class="btn-text">
+            <span class="primary-text">Book a Call <span class="arrow">→</span></span>
+            <span class="hover-text">Book a Call <span class="arrow">→</span></span>
+          </span>
+        </a>
+        <button class="mobile-toggle" id="mobileToggle" aria-label="Toggle Navigation">
+          <span class="bar"></span>
+          <span class="bar"></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Dropdown -->
+    <div class="mobile-menu" id="mobileMenu">
+      <nav class="mobile-nav">
+        <a href="index.html" class="mobile-link">Home</a>
+        <a href="services.html" class="mobile-link active">Service</a>
+        <a href="projects.html" class="mobile-link">Projects</a>
+        <a href="journal.html" class="mobile-link">Journal</a>
+        <a href="https://cal.com/kre8mind/project-discovery" class="mobile-link mobile-cta btn-lets-talk">Book a Call →</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- PAGE HERO -->
+    <section class="services-hero-section">
+      <div class="section-container">
+        <div class="stories-header-row">
+          <h1 class="stories-main-title">OUR<br>SERVICES</h1>
+          <p class="stories-sub-desc">
+            From redesigning what isn't working to bringing a new product to life, we create clear digital experiences that help businesses move forward.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SERVICE CATEGORY TABS & SHOWCASE CARDS -->
+    <section class="services-section" id="serviceCards">
+      <div class="section-container">
+        
+        <!-- Centered Category Switcher Tabs -->
+        <div class="services-tabs-nav">
+          <button class="service-tab-btn active" data-tab="redesign">01 — REDESIGN</button>
+          <button class="service-tab-btn" data-tab="website">02 — WEBSITE</button>
+          <button class="service-tab-btn" data-tab="app">03 — APP</button>
+        </div>
+
+        <!-- Tab Panel 1: REDESIGN -->
+        <div class="service-tab-panel active" id="tabPanelRedesign">
+          
+          <div class="services-carousel-wrapper" id="servicesCarouselRedesign">
+            <div class="services-carousel-track">
+              
+              <!-- Slide 1: APPLICATION REDESIGN -->
+              <article class="service-showcase-slide">
+                <div class="service-card-left">
+                  <h2 class="service-card-title">APPLICATION REDESIGN</h2>
+                  <p class="service-card-pitch">Your product works. The experience doesn't.</p>
+                  <p class="service-card-desc">
+                    We rethink the structure, flows and interface of an existing application so users can understand it, navigate it and get value from it with less friction.
+                  </p>
+                  <ul class="service-features-list">
+                    <li class="service-feature-item">
+                      <img src="assets/ICON.png" alt="" class="service-feature-icon" />
+                      <span>UX + UI redesign</span>
+                    </li>
+                    <li class="service-feature-item">
+                      <img src="assets/ICON.png" alt="" class="service-feature-icon" />
+                      <span>User flow & experience improvements</span>
+                    </li>
+                    <li class="service-feature-item">
+                      <img src="assets/ICON.png" alt="" class="service-feature-icon" />
+                      <span>Responsive interface design</span>
+                    </li>
+                    <li class="service-feature-item">
+                      <img src="assets/ICON.png" alt="" class="service-feature-icon" />
+                      <span>Developer-ready Figma handoff</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <div class="service-card-right">
+                  <div class="service-purple-card">
+                    <div class="purple-card-top-tag">KRE8MIND</div>
+                    <div class="purple-card-mid">
+                      <span class="purple-card-service-name">APPLICATION REDESIGN</span>
+                      <div class="purple-card-price">$2,000</div>
+                    </div>
+                    <div class="purple-card-note">* Final pricing depends on scope and complexity</div>
+                  </div>
+
+                  <a href="mailto:hello@kre8mind.com?subject=Application%20Redesign%20Request" class="btn-send-request">
+                    SEND REQUEST ↗
+                  </a>
+
+                  <div class="service-card-prompt">
+                    Not sure what needs fixing?<br>
+                    <a href="mailto:hello@kre8mind.com">Let's talk.</a>
+                  </div>
+                </div>
+              </article>
+
+              <!-- Slide 2: WEBSITE REDESIGN -->
+              <article class="service-showcase-slide">
+                <div class="service-card-left">
+                  <h2 class="service-card-title">WEBSITE REDESIGN</h2>
+                  <p class="service-card-pitch">Your business has changed. Your website hasn't.</p>
+                  <p class="service-card-desc">
+                    We reshape existing websites so the story is clearer, the experience feels intentional, and visitors know what to do next.
+                  </p>
+                  <ul class="service-features-list">
+                    <li class="service-feature-item">
+                      <img src="assets/ICON.png" alt="" class="service-feature-icon" />
+                      <span>UX + UI redesign</span>
+                    </li>
+                    <li class="service-feature-item">
+                      <img src="assets/ICON.png" alt="" class="service-feature-icon" />
+                      <span>Information architecture & flow improvements</span>
+                    </li>
+                    <li class="service-feature-item">
+                      <img src="assets/ICON.png" alt="" class="service-feature-icon" />
+                      <span>Responsive interface design</span>
+                    </li>
+                    <li class="service-feature-item">
+                      <img src="assets/ICON.png" alt="" class="service-feature-icon" />
+                      <span>Developer-ready Figma handoff</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <div class="service-card-right">
+                  <div class="service-purple-card">
+                    <div class="purple-card-top-tag">KRE8MIND</div>
+                    <div class="purple-card-mid">
+                      <span class="purple-card-service-name">WEBSITE REDESIGN</span>
+                      <div class="purple-card-price">$1,500</div>
+                    </div>
+                    <div class="purple-card-note">* Final pricing depends on scope and complexity</div>
+                  </div>
+
+                  <a href="mailto:hello@kre8mind.com?subject=Website%20Redesign%20Request" class="btn-send-request">
+                    SEND REQUEST ↗
+                  </a>
+
+                  <div class="service-card-prompt">
+                    Not sure what needs fixing?<br>
+                    <a href="mailto:hello@kre8mind.com">Let's talk.</a>
+                  </div>
+                </div>
+              </article>
+
+              <!-- Slide 3: ONBOARDING REDESIGN -->
+              <article class="service-showcase-slide">
+                <div class="service-card-left">
+                  <h2 class="service-card-title">ONBOARDING REDESIGN</h2>
+                  <p class="service-card-pitch">Don't lose people before they get started.</p>
+                  <p class="service-card-desc">
+                    We rethink the first moments of your product so users understand what they're doing, why it matters, and how to get moving.
+                  </p>
+                  <ul class="service-features-list">
+                    <li class="service-feature-item">
+                      <img src="assets/ICON.png" alt="" class="service-feature-icon" />
+                      <span>Onboarding flow redesign</span>
+                    </li>
+                    <li class="service-feature-item">
+                      <img src="assets/ICON.png" alt="" class="service-feature-icon" />
+                      <span>UX + UI improvements</span>
+                    </li>
+                    <li class="service-feature-item">
+                      <img src="assets/ICON.png" alt="" class="service-feature-icon" />
+                      <span>Activation-focused experience</span>
+                    </li>
+                    <li class="service-feature-item">
+                      <img src="assets/ICON.png" alt="" class="service-feature-icon" />
+                      <span>Developer-ready Figma handoff</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <div class="service-card-right">
+                  <div class="service-purple-card">
+                    <div class="purple-card-top-tag">KRE8MIND</div>
+                    <div class="purple-card-mid">
+                      <span class="purple-card-service-name">ONBOARDING REDESIGN</span>
+                      <div class="purple-card-price">$1,200</div>
+                    </div>
+                    <div class="purple-card-note">* Final pricing depends on scope and complexity</div>
+                  </div>
+
+                  <a href="mailto:hello@kre8mind.com?subject=Onboarding%20Redesign%20Request" class="btn-send-request">
+                    SEND REQUEST ↗
+                  </a>
+
+                  <div class="service-card-prompt">
+                    People dropping off early?<br>
+                    <a href="mailto:hello@kre8mind.com">Let's talk.</a>
+                  </div>
+                </div>
+              </article>
+
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Tab Panel 2: WEBSITE -->
+        <div class="service-tab-panel" id="tabPanelWebsite">
+          <div class="services-carousel-wrapper" id="servicesCarouselWebsite">
+            <div class="services-carousel-track">
+              
+              <!-- Slide 1: LANDING PAGE -->
+              <article class="service-showcase-slide">
+                <div class="service-card-left">
+                  <h2 class="service-card-title">LANDING PAGE</h2>
+                  <p class="service-card-pitch">A high-converting, single-page experience designed to capture attention and drive a specific action.</p>
+                  
+                  <div class="service-addon-box">
+                    <div class="service-addon-row">
+                      <div class="service-addon-info">
+                        <span class="service-addon-label">Add Development</span>
+                        <span class="service-addon-price">+$500</span>
+                      </div>
+                      <label class="addon-switch">
+                        <input type="checkbox">
+                        <span class="addon-slider"></span>
+                      </label>
+                    </div>
+                  </div>
+
+                  <ul class="service-features-list">
+                    <li class="service-feature-item">
+                      <img src="assets/ICON.png" alt="" class="service-feature-icon" />
+                      <span>Strategic layout & copywriting direction</span>
+                    </li>
+                    <li class="service-feature-item">
+                      <img src="assets/ICON.png" alt="" class="service-feature-icon" />
+                      <span>High-end UI design</span>
+                    </li>
+                    <li class="service-feature-item">
+                      <img src="assets/ICON.png" alt="" class="service-feature-icon" />
+                      <span>Conversion optimization</span>
+                    </li>
+                    <li class="service-feature-item">
+                      <img src="assets/ICON.png" alt="" class="service-feature-icon" />
+                      <span>Developer-ready Figma handoff</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <div class="service-card-right">
+                  <div class="service-purple-card">
+                    <div class="purple-card-top-tag">KRE8MIND</div>
+                    <div class="purple-card-mid">
+                      <span class="purple-card-service-name">LANDING PAGE</span>
+                      <div class="purple-card-price">$800</div>
+                    </div>
+                    <div class="purple-card-note">* Development adds $500 (Framer/React)</div>
+                  </div>
+
+                  <a href="mailto:hello@kre8mind.com?subject=Landing%20Page%20Request" class="btn-send-request">
+                    SEND REQUEST ↗
+                  </a>
+
+                  <div class="service-card-prompt">
+                    Don't know what you need yet?<br>
+                    <a href="mailto:hello@kre8mind.com">Let's talk.</a>
+                  </div>
+                </div>
+              </article>
+
+              <!-- Slide 2: PERSONAL WEBSITE -->
+              <article class="service-showcase-slide">
+                <div class="service-card-left">
+                  <h2 class="service-card-title">PERSONAL WEBSITE</h2>
+                  <p class="service-card-pitch">A premium digital presence for founders, creators, and consultants to showcase their expertise and portfolio.</p>
+                  
+                  <div class="service-addon-box">
+                    <div class="service-addon-row">
+                      <div class="service-addon-info">
+                        <span class="service-addon-label">Add Development</span>
+                        <span class="service-addon-price">+$800</span>
+                      </div>
+                      <label class="addon-switch">
+                        <input type="checkbox">
+                        <span class="addon-slider"></span>
+                      </label>
+                    </div>
+                  </div>
+
+                  <ul class="service-features-list">
+                    <li class="service-feature-item">
+                      <img src="assets/ICON.png" alt="" class="service-feature-icon" />
+                      <span>Custom portfolio structure</span>
+                    </li>
+                    <li class="service-feature-item">
+                      <img src="assets/ICON.png" alt="" class="service-feature-icon" />
+                      <span>Personal brand integration</span>
+                    </li>
+                    <li class="service-feature-item">
+                      <img src="assets/ICON.png" alt="" class="service-feature-icon" />
+                      <span>CMS for easy updates</span>
+                    </li>
+                    <li class="service-feature-item">
+                      <img src="assets/ICON.png" alt="" class="service-feature-icon" />
+                      <span>Developer-ready Figma handoff</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <div class="service-card-right">
+                  <div class="service-purple-card">
+                    <div class="purple-card-top-tag">KRE8MIND</div>
+                    <div class="purple-card-mid">
+                      <span class="purple-card-service-name">PERSONAL SITE</span>
+                      <div class="purple-card-price">$1,500</div>
+                    </div>
+                    <div class="purple-card-note">* Development adds $800 (Framer/React)</div>
+                  </div>
+
+                  <a href="mailto:hello@kre8mind.com?subject=Personal%20Website%20Request" class="btn-send-request">
+                    SEND REQUEST ↗
+                  </a>
+
+                  <div class="service-card-prompt">
+                    Don't know what you need yet?<br>
+                    <a href="mailto:hello@kre8mind.com">Let's talk.</a>
+                  </div>
+                </div>
+              </article>
+
+              <!-- Slide 3: FULL WEBSITE -->
+              <article class="service-showcase-slide">
+                <div class="service-card-left">
+                  <h2 class="service-card-title">FULL WEBSITE</h2>
+                  <p class="service-card-pitch">For businesses that need a complete digital presence built around their goals.</p>
+                  
+                  <div class="service-addon-box">
+                    <div class="service-addon-row">
+                      <div class="service-addon-info">
+                        <span class="service-addon-label">Add Development</span>
+                        <span class="service-addon-price">+$2,500</span>
+                      </div>
+                      <label class="addon-switch">
+                        <input type="checkbox">
+                        <span class="addon-slider"></span>
+                      </label>
+                    </div>
+                    <div class="service-addon-row">
+                      <div class="service-addon-info">
+                        <span class="service-addon-label">Extra Pages</span>
+                        <span class="service-addon-price">+$300/PAGE</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <ul class="service-features-list">
+                    <li class="service-feature-item">
+                      <img src="assets/ICON.png" alt="" class="service-feature-icon" />
+                      <span>4 pages minimum</span>
+                    </li>
+                    <li class="service-feature-item">
+                      <img src="assets/ICON.png" alt="" class="service-feature-icon" />
+                      <span>Custom wireframe & layout</span>
+                    </li>
+                    <li class="service-feature-item">
+                      <img src="assets/ICON.png" alt="" class="service-feature-icon" />
+                      <span>Desktop, tablet & mobile responsive</span>
+                    </li>
+                    <li class="service-feature-item">
+                      <img src="assets/ICON.png" alt="" class="service-feature-icon" />
+                      <span>Organized Figma file</span>
+                    </li>
+                    <li class="service-feature-item">
+                      <img src="assets/ICON.png" alt="" class="service-feature-icon" />
+                      <span>Unlimited revisions</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <div class="service-card-right">
+                  <div class="service-purple-card">
+                    <div class="purple-card-top-tag">KRE8MIND</div>
+                    <div class="purple-card-mid">
+                      <span class="purple-card-service-name">FULL WEBSITE</span>
+                      <div class="purple-card-price">$2,000</div>
+                    </div>
+                    <div class="purple-card-note">* Final price depends on scope and complexity.</div>
+                  </div>
+
+                  <a href="mailto:hello@kre8mind.com?subject=Full%20Website%20Request" class="btn-send-request">
+                    SEND REQUEST ↗
+                  </a>
+
+                  <div class="service-card-prompt">
+                    Don't know what you need yet?<br>
+                    <a href="mailto:hello@kre8mind.com">Let's talk.</a>
+                  </div>
+                </div>
+              </article>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab Panel 3: APP -->
+        <div class="service-tab-panel" id="tabPanelApp">
+          <div class="services-carousel-wrapper" id="servicesCarouselApp">
+            <div class="services-carousel-track">
+              
+              <!-- Slide 1: MVP APP DESIGN -->
+              <article class="service-showcase-slide">
+                <div class="service-card-left">
+                  <h2 class="service-card-title">MVP APP DESIGN</h2>
+                  <p class="service-card-pitch">For founders turning an idea into a focused, launch-ready first version.</p>
+
+                  <ul class="service-features-list">
+                    <li class="service-feature-item">
+                      <img src="assets/ICON.png" alt="" class="service-feature-icon" />
+                      <span>Product structure & user flows</span>
+                    </li>
+                    <li class="service-feature-item">
+                      <img src="assets/ICON.png" alt="" class="service-feature-icon" />
+                      <span>Core UX & interface design</span>
+                    </li>
+                    <li class="service-feature-item">
+                      <img src="assets/ICON.png" alt="" class="service-feature-icon" />
+                      <span>Component system</span>
+                    </li>
+                    <li class="service-feature-item">
+                      <img src="assets/ICON.png" alt="" class="service-feature-icon" />
+                      <span>Responsive / platform-ready screens</span>
+                    </li>
+                    <li class="service-feature-item">
+                      <img src="assets/ICON.png" alt="" class="service-feature-icon" />
+                      <span>Organized Figma delivery</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <div class="service-card-right">
+                  <div class="service-purple-card">
+                    <div class="purple-card-top-tag">KRE8MIND</div>
+                    <div class="purple-card-mid">
+                      <span class="purple-card-service-name">MVP APP DESIGN</span>
+                      <div class="purple-card-price">$3,000</div>
+                    </div>
+                    <div class="purple-card-note">* Final price depends on scope and complexity.</div>
+                  </div>
+
+                  <a href="mailto:hello@kre8mind.com?subject=MVP%20App%20Design%20Request" class="btn-send-request">
+                    SEND REQUEST ↗
+                  </a>
+
+                  <div class="service-card-prompt">
+                    Don't know what you need yet?<br>
+                    <a href="mailto:hello@kre8mind.com">Let's talk.</a>
+                  </div>
+                </div>
+              </article>
+
+              <!-- Slide 2: FULL APP DESIGN -->
+              <article class="service-showcase-slide">
+                <div class="service-card-left">
+                  <h2 class="service-card-title">FULL APP DESIGN</h2>
+                  <p class="service-card-pitch">For teams building a complete product from idea to polished experience.</p>
+
+                  <ul class="service-features-list">
+                    <li class="service-feature-item">
+                      <img src="assets/ICON.png" alt="" class="service-feature-icon" />
+                      <span>Product strategy & structure</span>
+                    </li>
+                    <li class="service-feature-item">
+                      <img src="assets/ICON.png" alt="" class="service-feature-icon" />
+                      <span>Complete user flows & UX</span>
+                    </li>
+                    <li class="service-feature-item">
+                      <img src="assets/ICON.png" alt="" class="service-feature-icon" />
+                      <span>Full interface design</span>
+                    </li>
+                    <li class="service-feature-item">
+                      <img src="assets/ICON.png" alt="" class="service-feature-icon" />
+                      <span>Design system & components</span>
+                    </li>
+                    <li class="service-feature-item">
+                      <img src="assets/ICON.png" alt="" class="service-feature-icon" />
+                      <span>Developer-ready Figma</span>
+                    </li>
+                    <li class="service-feature-item">
+                      <img src="assets/ICON.png" alt="" class="service-feature-icon" />
+                      <span>Complete product experience</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <div class="service-card-right">
+                  <div class="service-purple-card">
+                    <div class="purple-card-top-tag">KRE8MIND</div>
+                    <div class="purple-card-mid">
+                      <span class="purple-card-service-name">FULL APP DESIGN</span>
+                      <div class="purple-card-price price-text">Contact for pricing</div>
+                    </div>
+                    <div class="purple-card-note">* Pricing depends on product scope and complexity.</div>
+                  </div>
+
+                  <a href="mailto:hello@kre8mind.com?subject=Full%20App%20Design%20Request" class="btn-send-request">
+                    SEND REQUEST ↗
+                  </a>
+
+                  <div class="service-card-prompt">
+                    Don't know what you need yet?<br>
+                    <a href="mailto:hello@kre8mind.com">Let's talk.</a>
+                  </div>
+                </div>
+              </article>
+
+              <!-- Slide 3: APP STORE ASSETS -->
+              <article class="service-showcase-slide">
+                <div class="service-card-left">
+                  <h2 class="service-card-title">APP STORE ASSETS</h2>
+                  <p class="service-card-pitch">For products ready to launch and needing a stronger first impression. Includes 6 screens.</p>
+
+                  <div class="service-addon-box">
+                    <div class="service-addon-row">
+                      <div class="service-addon-info">
+                        <span class="service-addon-label">Extra screen</span>
+                        <span class="service-addon-price">+$50</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <ul class="service-features-list">
+                    <li class="service-feature-item">
+                      <img src="assets/ICON.png" alt="" class="service-feature-icon" />
+                      <span>App Store & Google Play visuals</span>
+                    </li>
+                    <li class="service-feature-item">
+                      <img src="assets/ICON.png" alt="" class="service-feature-icon" />
+                      <span>Strategic visual storytelling</span>
+                    </li>
+                    <li class="service-feature-item">
+                      <img src="assets/ICON.png" alt="" class="service-feature-icon" />
+                      <span>Custom device mockups</span>
+                    </li>
+                    <li class="service-feature-item">
+                      <img src="assets/ICON.png" alt="" class="service-feature-icon" />
+                      <span>Store-ready assets</span>
+                    </li>
+                    <li class="service-feature-item">
+                      <img src="assets/ICON.png" alt="" class="service-feature-icon" />
+                      <span>Unlimited revisions</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <div class="service-card-right">
+                  <div class="service-purple-card">
+                    <div class="purple-card-top-tag">KRE8MIND</div>
+                    <div class="purple-card-mid">
+                      <span class="purple-card-service-name">APP STORE ASSETS</span>
+                      <div class="purple-card-price">$400</div>
+                    </div>
+                    <div class="purple-card-note">* Final price depends on scope and complexity.</div>
+                  </div>
+
+                  <a href="mailto:hello@kre8mind.com?subject=App%20Store%20Assets%20Request" class="btn-send-request">
+                    SEND REQUEST ↗
+                  </a>
+
+                  <div class="service-card-prompt">
+                    Don't know what you need yet?<br>
+                    <a href="mailto:hello@kre8mind.com">Let's talk.</a>
+                  </div>
+                </div>
+              </article>
+
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- KRE8MIND PLANS SECTION -->
+    <section class="plans-section" id="plans">
+      <div class="section-container">
+        
+        <div class="stories-header-row" style="margin-bottom: 56px;">
+          <h2 class="das-heading-sup">KRE8MIND<br>PLANS</h2>
+        </div>
+
+        <div class="plans-grid">
+          
+          <!-- Card 1: UX AUDIT -->
+          <div class="plan-premium-card">
+            <div class="plan-card-header-banner">
+              <img src="assets/card hader.png" alt="Kre8mind 3D Chrome Header" class="plan-card-header-img" />
+            </div>
+
+            <div class="plan-card-top">
+              <h3 class="plan-card-title">UX AUDIT</h3>
+              <p class="plan-card-pitch">Find what's unclear. Know what to fix.</p>
+              <p class="plan-card-desc">
+                A focused review of your existing product or website to uncover friction, usability issues, and opportunities to create a clearer experience.
+              </p>
+              
+              <div class="plan-divider"></div>
+              
+              <div class="plan-what-you-get-title">WHAT YOU GET</div>
+              <ul class="plan-features-list">
+                <li class="plan-feature-item">
+                  <img src="assets/ICON.png" alt="" class="service-feature-icon" />
+                  <span>UX review</span>
+                </li>
+                <li class="plan-feature-item">
+                  <img src="assets/ICON.png" alt="" class="service-feature-icon" />
+                  <span>Key usability issues</span>
+                </li>
+                <li class="plan-feature-item">
+                  <img src="assets/ICON.png" alt="" class="service-feature-icon" />
+                  <span>Clear recommendations</span>
+                </li>
+                <li class="plan-feature-item">
+                  <img src="assets/ICON.png" alt="" class="service-feature-icon" />
+                  <span>Prioritized improvements</span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="plan-card-bottom">
+              <a href="mailto:hello@kre8mind.com?subject=UX%20Audit%20Pricing%20Request" class="btn-plan-action">
+                CONTACT FOR PRICING ↗
+              </a>
+            </div>
+          </div>
+
+          <!-- Card 2: CONTRACT DESIGN -->
+          <div class="plan-premium-card">
+            <div class="plan-card-header-banner">
+              <img src="assets/card hader.png" alt="Kre8mind 3D Chrome Header" class="plan-card-header-img" />
+            </div>
+
+            <div class="plan-card-top">
+              <h3 class="plan-card-title">CONTRACT DESIGN</h3>
+              <p class="plan-card-pitch">Keep great design moving.</p>
+              <p class="plan-card-desc">
+                Ongoing design support for businesses that need a reliable product designer beyond a single project.
+              </p>
+              
+              <div class="plan-divider"></div>
+              
+              <div class="plan-what-you-get-title">WHAT YOU GET</div>
+              <ul class="plan-features-list">
+                <li class="plan-feature-item">
+                  <img src="assets/ICON.png" alt="" class="service-feature-icon" />
+                  <span>Ongoing product design</span>
+                </li>
+                <li class="plan-feature-item">
+                  <img src="assets/ICON.png" alt="" class="service-feature-icon" />
+                  <span>UX & UI support</span>
+                </li>
+                <li class="plan-feature-item">
+                  <img src="assets/ICON.png" alt="" class="service-feature-icon" />
+                  <span>New features & improvements</span>
+                </li>
+                <li class="plan-feature-item">
+                  <img src="assets/ICON.png" alt="" class="service-feature-icon" />
+                  <span>Consistent design support</span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="plan-card-bottom">
+              <a href="mailto:hello@kre8mind.com?subject=Contract%20Design%20Inquiry" class="btn-plan-action">
+                CONTACT US ↗
+              </a>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SERVICE FAQ ACCORDION (QUESTIONS, ANSWERED.) -->
+    <section class="faq-section" id="faq">
+      <div class="section-container">
+        
+        <!-- Section Header Row -->
+        <div class="stories-header-row" style="margin-bottom: 56px;">
+          <h2 class="das-heading-sup">QUESTIONS,<br>ANSWERED.</h2>
+        </div>
+
+        <!-- Precision Das Studio FAQ Accordion List -->
+        <div class="faq-das-list" id="faqDasList">
+          
+          <!-- Q1 -->
+          <div class="faq-das-item active">
+            <button class="faq-das-header" aria-expanded="true">
+              <div class="faq-das-left">
+                <span class="faq-das-num">01</span>
+                <h3 class="faq-das-title">What's included in your services?</h3>
+              </div>
+              <div class="faq-das-toggle">
+                <span class="faq-das-icon">−</span>
+              </div>
+            </button>
+            <div class="faq-das-body">
+              <div class="faq-das-content">
+                <p>Each service has its own scope and deliverables. You'll see exactly what's included when you select a service.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q2 -->
+          <div class="faq-das-item">
+            <button class="faq-das-header" aria-expanded="false">
+              <div class="faq-das-left">
+                <span class="faq-das-num">02</span>
+                <h3 class="faq-das-title">How much does a project cost?</h3>
+              </div>
+              <div class="faq-das-toggle">
+                <span class="faq-das-icon">+</span>
+              </div>
+            </button>
+            <div class="faq-das-body">
+              <div class="faq-das-content">
+                <p>Our core services have starting prices. The final price depends on the scope and complexity of your project.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q3 -->
+          <div class="faq-das-item">
+            <button class="faq-das-header" aria-expanded="false">
+              <div class="faq-das-left">
+                <span class="faq-das-num">03</span>
+                <h3 class="faq-das-title">Do you offer development?</h3>
+              </div>
+              <div class="faq-das-toggle">
+                <span class="faq-das-icon">+</span>
+              </div>
+            </button>
+            <div class="faq-das-body">
+              <div class="faq-das-content">
+                <p>Yes. Website projects can be delivered as design-only or design + development.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q4 -->
+          <div class="faq-das-item">
+            <button class="faq-das-header" aria-expanded="false">
+              <div class="faq-das-left">
+                <span class="faq-das-num">04</span>
+                <h3 class="faq-das-title">Can I hire Kre8mind for ongoing design work?</h3>
+              </div>
+              <div class="faq-das-toggle">
+                <span class="faq-das-icon">+</span>
+              </div>
+            </button>
+            <div class="faq-das-body">
+              <div class="faq-das-content">
+                <p>Yes. Our Contract Design plan is built for ongoing design support.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q5 -->
+          <div class="faq-das-item">
+            <button class="faq-das-header" aria-expanded="false">
+              <div class="faq-das-left">
+                <span class="faq-das-num">05</span>
+                <h3 class="faq-das-title">I don't know which service I need. What should I do?</h3>
+              </div>
+              <div class="faq-das-toggle">
+                <span class="faq-das-icon">+</span>
+              </div>
+            </button>
+            <div class="faq-das-body">
+              <div class="faq-das-content">
+                <p>Reach out to us and tell us what you're building or what's not working. We'll help you figure out the right service.</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- CTA BANNER -->
+    <section class="cta-banner-section">
+      <div class="section-container">
+        <div class="cta-banner-box">
+          <h2 class="cta-title">NOT SURE WHICH<br>SERVICE YOU NEED?</h2>
+          <p class="cta-desc">Tell us what you're building, what's not working, or what you're trying to achieve.</p>
+          <div class="cta-buttons">
+            <a href="https://cal.com/kre8mind/project-discovery" class="btn-rolling btn-dark btn-hero btn-lets-talk">
+              <span class="btn-text">
+                <span class="primary-text">Book a Call <span class="arrow">→</span></span>
+                <span class="hover-text">Book a Call <span class="arrow">→</span></span>
+              </span>
+            </a>
+            <a href="mailto:hello@kre8mind.com" class="btn-secondary-outline">
+              hello@kre8mind.com
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="footer-container">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <a href="index.html" class="brand-logo">
+            <img src="assets/kre8mind-logo.png" alt="Kre8mind Logo" class="brand-logo-img" />
+          </a>
+          <p class="footer-tagline">Clarity By Design.</p>
+        </div>
+
+        <div class="footer-nav">
+          <a href="index.html">Home</a>
+          <a href="services.html">Service</a>
+          <a href="projects.html">Projects</a>
+          <a href="journal.html">Journal</a>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p class="copyright">© 2026 Kre8mind Studio. All rights reserved.</p>
+        <div class="footer-socials">
+          <a href="https://linkedin.com" target="_blank" rel="noopener">LinkedIn</a>
+          <a href="https://contra.com" target="_blank" rel="noopener">Contra</a>
+          <a href="https://x.com" target="_blank" rel="noopener">X / Twitter</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://unpkg.com/lenis@1.1.18/dist/lenis.min.js"></script>
+  <script src="js/main.js"></script>
+  <script>lucide.createIcons();</script>
+</body>
+</html>

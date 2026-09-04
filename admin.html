@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Kre8mind — Studio Control Center</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #ffffff;
+      --surface: #f9f9fb;
+      --card: #ffffff;
+      --border: #e4e4e7;
+      --border-subtle: #f0f0f3;
+      --text: #0a0a0a;
+      --text-muted: #71717a;
+      --text-secondary: #52525b;
+      --accent: #0a0a0a;
+      --brand-purple: #6C3BFF;
+      --font-sans: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'Geist Mono', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; border-radius: 0 !important; box-shadow: none !important; }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Auth Gate */
+    #auth-screen {
+      position: fixed;
+      inset: 0;
+      background: #f4f4f5;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .auth-box {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      max-width: 380px;
+      width: 100%;
+      padding: 36px 32px;
+    }
+    .auth-badge {
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      color: var(--text-muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      display: block;
+    }
+    .auth-title {
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+    }
+
+    /* Header */
+    header.studio-header {
+      background: #ffffff;
+      border-bottom: 1px solid var(--border);
+      padding: 16px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      gap: 16px;
+    }
+    .brand-mark {
+      font-weight: 600;
+      font-size: 14px;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      white-space: nowrap;
+    }
+    .brand-pill {
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      padding: 2px 7px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      text-transform: uppercase;
+    }
+    .nav-tabs {
+      display: flex;
+      gap: 4px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+    .nav-tabs::-webkit-scrollbar { display: none; }
+    .tab-btn {
+      background: none;
+      border: 1px solid transparent;
+      color: var(--text-muted);
+      font-family: var(--font-sans);
+      font-size: 13px;
+      font-weight: 500;
+      padding: 8px 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .tab-btn:hover {
+      color: var(--text);
+    }
+    .tab-btn.active {
+      color: var(--text);
+      font-weight: 600;
+      border-color: var(--border);
+      background: var(--surface);
+    }
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+    }
+    .site-link {
+      font-family: var(--font-sans);
+      font-size: 12.5px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      text-decoration: none;
+      padding: 6px 12px;
+      border: 1px solid var(--border);
+      background: #fff;
+      transition: all 0.2s;
+    }
+    .site-link:hover { color: var(--text); border-color: #09090b; }
+
+    /* Layout */
+    .studio-main {
+      max-width: 1280px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 32px 32px 80px 32px;
+      flex: 1;
+    }
+
+    /* Views */
+    .view-pane { display: none; }
+    .view-pane.active { display: block; }
+
+    /* Summary Bar */
+    .status-summary-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      border: 1px solid var(--border);
+      background: var(--surface);
+      margin-bottom: 32px;
+    }
+    .stat-cell {
+      padding: 20px 24px;
+      border-right: 1px solid var(--border);
+    }
+    .stat-cell:last-child { border-right: none; }
+    .stat-meta {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 4px;
+    }
+    .stat-number {
+      font-size: 24px;
+      font-weight: 600;
+      letter-spacing: -0.03em;
+    }
+
+    /* Action Headers */
+    .view-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+      gap: 12px;
+    }
+    .view-title {
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      text-transform: uppercase;
+    }
+    .btn-studio {
+      background: #09090b;
+      color: #fff;
+      border: 1px solid #09090b;
+      padding: 9px 16px;
+      font-family: var(--font-sans);
+      font-size: 12.5px;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.2s;
+    }
+    .btn-studio:hover { background: #27272a; border-color: #27272a; }
+    .btn-studio.secondary {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+    }
+    .btn-studio.secondary:hover { color: #000; border-color: #000; }
+    .btn-studio.danger {
+      background: #dc2626;
+      border-color: #dc2626;
+      color: #fff;
+    }
+    .btn-studio.danger:hover { background: #b91c1c; border-color: #b91c1c; }
+
+    /* Tables */
+    .studio-table-container {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    table.studio-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      min-width: 600px;
+    }
+    table.studio-table th {
+      padding: 12px 18px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+    table.studio-table td {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+      font-size: 13.5px;
+      color: var(--text);
+    }
+    table.studio-table tr:last-child td { border-bottom: none; }
+    table.studio-table tr:hover td { background: #fafafa; }
+
+    .badge-status {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      padding: 2px 7px;
+      text-transform: uppercase;
+      display: inline-block;
+      border: 1px solid #d4d4d8;
+      background: #f4f4f5;
+      color: #18181b;
+    }
+
+    /* Modals */
+    .studio-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 10, 12, 0.65);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .studio-modal-backdrop.open { display: flex; }
+    .studio-modal-card {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      max-width: 680px;
+      width: 100%;
+      padding: 32px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .studio-modal-card.confirm-card {
+      max-width: 440px;
+      padding: 28px;
+    }
+    .form-group {
+      margin-bottom: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .form-row-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .form-label {
+      font-family: var(--font-sans);
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .form-input, .form-select, .form-textarea {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 10px 12px;
+      font-family: var(--font-sans);
+      font-size: 13.5px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      border-color: #09090b;
+    }
+    .form-textarea { min-height: 90px; resize: vertical; }
+
+    /* Case Study Upload Area (Behance style) */
+    .case-study-toggle-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 14px 16px;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+    }
+    .case-study-toggle-box input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: #09090b;
+      cursor: pointer;
+    }
+    .case-study-expand-area {
+      display: none;
+      border-left: 2px solid #09090b;
+      padding-left: 18px;
+      margin-bottom: 18px;
+    }
+    .case-study-expand-area.show { display: block; }
+
+    .slices-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .slice-card {
+      position: relative;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .slice-media-thumb {
+      width: 100%;
+      aspect-ratio: 16/10;
+      object-fit: cover;
+      background: #000;
+    }
+    .slice-card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+    .slice-remove-btn {
+      background: none;
+      border: none;
+      color: #ef4444;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: bold;
+    }
+    .file-drop-zone {
+      border: 1px dashed var(--border);
+      background: var(--surface);
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      font-size: 12.5px;
+      color: var(--text-muted);
+      transition: border-color 0.2s;
+      display: block;
+    }
+    .file-drop-zone:hover {
+      border-color: #09090b;
+      color: #09090b;
+    }
+
+    /* Live Preview Box */
+    .live-media-preview {
+      width: 100%;
+      max-height: 180px;
+      object-fit: contain;
+      background: #f4f4f5;
+      border: 1px solid var(--border);
+      margin-top: 8px;
+      display: none;
+    }
+
+    /* Journal Toolbar */
+    .journal-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-bottom: none;
+      padding: 6px 8px;
+    }
+    .tool-btn {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      padding: 4px 8px;
+      font-family: var(--font-sans);
+      font-size: 11.5px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .tool-btn:hover {
+      background: #09090b;
+      color: #fff;
+    }
+
+    /* Toast Notification */
+    #studio-toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 10000;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      pointer-events: none;
+    }
+    .studio-toast {
+      background: #0a0a0a;
+      color: #ffffff;
+      border: 1px solid #27272a;
+      padding: 12px 18px;
+      font-size: 13px;
+      font-family: var(--font-sans);
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      pointer-events: auto;
+      transform: translateY(12px);
+      opacity: 0;
+      transition: all 0.25s ease;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      max-width: 360px;
+    }
+    .studio-toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    .studio-toast.success { border-left: 4px solid #16a34a; }
+    .studio-toast.error { border-left: 4px solid #dc2626; }
+    .studio-toast.info { border-left: 4px solid #6C3BFF; }
+
+    /* Analytics Charts & Grids */
+    .analytics-dashboard-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+    .analytics-card {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .analytics-card-title {
+      font-size: 13.5px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+      color: var(--text);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .chart-container {
+      width: 100%;
+      height: 220px;
+      position: relative;
+    }
+    .chart-svg {
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+    .device-bar-row {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .device-bar-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .device-bar-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .device-progress-track {
+      width: 100%;
+      height: 6px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+    .device-progress-fill {
+      height: 100%;
+      background: #0a0a0a;
+      transition: width 0.4s ease;
+    }
+    .stream-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border-subtle);
+      font-size: 12.5px;
+    }
+    .stream-item:last-child { border-bottom: none; }
+    .stream-path {
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      color: var(--text-primary);
+    }
+
+    /* Mobile Responsiveness */
+    @media (max-width: 900px) {
+      header.studio-header {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 14px 18px;
+        gap: 12px;
+      }
+      .brand-row-mobile {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .studio-main {
+        padding: 20px 18px 60px 18px;
+      }
+      .status-summary-bar {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .stat-cell:nth-child(2) { border-right: none; }
+      .stat-cell:nth-child(1), .stat-cell:nth-child(2) { border-bottom: 1px solid var(--border); }
+      .analytics-dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+      .form-row-2 {
+        grid-template-columns: 1fr;
+      }
+      .studio-modal-card {
+        padding: 24px 18px;
+      }
+      #studio-toast-container {
+        left: 18px;
+        right: 18px;
+        bottom: 18px;
+      }
+      .studio-toast {
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- AUTH SCREEN -->
+  <div id="auth-screen">
+    <div class="auth-box">
+      <span class="auth-badge">Studio Access</span>
+      <h2 class="auth-title">KRE8MIND CMS</h2>
+      <form id="auth-form">
+        <div class="form-group">
+          <label class="form-label" for="admin-pass">Studio Password</label>
+          <input type="password" id="admin-pass" class="form-input" placeholder="••••••••" required autofocus>
+        </div>
+        <button type="submit" class="btn-studio" style="width: 100%; justify-content: center; padding: 12px;">ENTER DASHBOARD ↗</button>
+        <div id="auth-error" style="color: #ef4444; font-size: 12px; margin-top: 10px; display: none;"></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- HEADER -->
+  <header class="studio-header">
+    <div class="brand-row-mobile">
+      <div class="brand-mark">
+        <span>KRE8MIND</span>
+        <span class="brand-pill">STUDIO CONTROL</span>
+      </div>
+      <div class="header-actions">
+        <a href="index.html" class="site-link" target="_blank">Live Site ↗</a>
+        <button id="logout-btn" class="site-link" style="cursor:pointer;">Log Out</button>
+      </div>
+    </div>
+
+    <nav class="nav-tabs">
+      <button class="tab-btn active" data-tab="inquiries">Requests & Calls</button>
+      <button class="tab-btn" data-tab="projects">Projects & Case Studies</button>
+      <button class="tab-btn" data-tab="journal">Journal</button>
+      <button class="tab-btn" data-tab="testimonials">Client Stories</button>
+      <button class="tab-btn" data-tab="analytics">Analytics & Traffic</button>
+      <button class="tab-btn" data-tab="security">Security</button>
+    </nav>
+  </header>
+
+  <!-- MAIN -->
+  <main class="studio-main">
+
+    <!-- METRICS -->
+    <div class="status-summary-bar" style="grid-template-columns: repeat(5, 1fr);">
+      <div class="stat-cell">
+        <div class="stat-meta">Inquiries Total</div>
+        <div class="stat-number" id="stat-total-inquiries">0</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-meta">Pending Review</div>
+        <div class="stat-number" id="stat-pending-inquiries">0</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-meta">Cal.com Calls</div>
+        <div class="stat-number" id="stat-cal-calls">0</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-meta">Live Showcases</div>
+        <div class="stat-number" id="stat-total-projects">0</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-meta">Client Stories</div>
+        <div class="stat-number" id="stat-total-testimonials">0</div>
+      </div>
+    </div>
+
+    <!-- TAB 1: INQUIRIES & CALLS -->
+    <div id="view-inquiries" class="view-pane active">
+      <div class="view-header">
+        <h2 class="view-title">Inquiries & Cal.com Booked Calls</h2>
+        <button class="btn-studio secondary" id="refresh-inquiries-btn">Refresh</button>
+      </div>
+
+      <div class="studio-table-container">
+        <table class="studio-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Client</th>
+              <th>Selected Service</th>
+              <th>Price</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="inquiries-tbody">
+            <tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 30px;">Loading requests...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB 2: PROJECTS & BEHANCE CASE STUDIES -->
+    <div id="view-projects" class="view-pane">
+      <div class="view-header">
+        <div>
+          <h2 class="view-title">Projects & Behance-Style Case Studies</h2>
+          <p style="font-size: 12.5px; color: var(--text-muted); margin-top: 4px;">Manage your portfolio, reorder display sequence, and choose which 4 projects are featured on the Home Screen.</p>
+        </div>
+        <button class="btn-studio" id="btn-open-project-modal">+ Add Project</button>
+      </div>
+
+      <div class="studio-table-container">
+        <table class="studio-table">
+          <thead>
+            <tr>
+              <th style="width: 80px;">Order</th>
+              <th>Cover</th>
+              <th>Project Title</th>
+              <th>Category</th>
+              <th>Home Feature</th>
+              <th>Case Study</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="projects-tbody">
+            <tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 30px;">Loading projects...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB 3: JOURNAL -->
+    <div id="view-journal" class="view-pane">
+      <div class="view-header">
+        <h2 class="view-title">Journal Insights</h2>
+        <button class="btn-studio" id="btn-open-journal-modal">+ New Article</button>
+      </div>
+
+      <div class="studio-table-container">
+        <table class="studio-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Title</th>
+              <th>Category</th>
+              <th>Read Time</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="journal-tbody">
+            <tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 30px;">Loading articles...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB 4: TESTIMONIALS & CLIENT STORIES -->
+    <div id="view-testimonials" class="view-pane">
+      <div class="view-header">
+        <h2 class="view-title">Client Stories & Endorsements</h2>
+        <button class="btn-studio" id="btn-open-testimonial-modal">+ Add Client Story</button>
+      </div>
+
+      <div class="studio-table-container">
+        <table class="studio-table">
+          <thead>
+            <tr>
+              <th>Avatar / Logo</th>
+              <th>Client Name & Role</th>
+              <th>Company</th>
+              <th>Testimonial Quote</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="testimonials-tbody">
+            <tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 30px;">Loading client stories...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB 4: ANALYTICS & TRAFFIC (Interactive Charts & Live Stream) -->
+    <div id="view-analytics" class="view-pane">
+      <div class="view-header">
+        <h2 class="view-title">Studio Traffic & Conversion Insights</h2>
+        <button class="btn-studio secondary" id="refresh-analytics-btn">Refresh Metrics</button>
+      </div>
+
+      <div class="analytics-dashboard-grid">
+        <!-- Traffic Chart Card -->
+        <div class="analytics-card">
+          <div class="analytics-card-title">
+            <span>7-Day Visitor Volume & Leads</span>
+            <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);" id="analytics-date-range">Last 7 Days</span>
+          </div>
+          <div class="chart-container" id="traffic-chart-container">
+            <svg class="chart-svg" id="traffic-chart-svg" viewBox="0 0 600 200" preserveAspectRatio="none">
+              <!-- SVG chart elements populated by JS -->
+            </svg>
+          </div>
+          <div style="display: flex; gap: 20px; font-size: 11.5px; font-weight: 500; color: var(--text-secondary);">
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span style="width: 10px; height: 10px; background: #0a0a0a; display: inline-block;"></span> Page Visits
+            </div>
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span style="width: 10px; height: 10px; background: var(--brand-purple); display: inline-block;"></span> Project Inquiries
+            </div>
+          </div>
+        </div>
+
+        <!-- Conversion & Device Breakdown -->
+        <div class="analytics-card">
+          <div class="analytics-card-title">Device Breakdown</div>
+          <div class="device-bar-row">
+            <div class="device-bar-item">
+              <div class="device-bar-header"><span>Desktop</span><span id="device-pct-desktop">0%</span></div>
+              <div class="device-progress-track"><div class="device-progress-fill" id="device-bar-desktop" style="width: 0%;"></div></div>
+            </div>
+            <div class="device-bar-item">
+              <div class="device-bar-header"><span>Mobile</span><span id="device-pct-mobile">0%</span></div>
+              <div class="device-progress-track"><div class="device-progress-fill" id="device-bar-mobile" style="width: 0%;"></div></div>
+            </div>
+            <div class="device-bar-item">
+              <div class="device-bar-header"><span>Tablet</span><span id="device-pct-tablet">0%</span></div>
+              <div class="device-progress-track"><div class="device-progress-fill" id="device-bar-tablet" style="width: 0%;"></div></div>
+            </div>
+          </div>
+
+          <div style="border-top: 1px solid var(--border); padding-top: 16px; margin-top: auto;">
+            <div class="stat-meta">Inquiry Conversion Rate</div>
+            <div style="font-size: 24px; font-weight: 600; margin-top: 4px;" id="analytics-conv-rate">0.0%</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="analytics-dashboard-grid">
+        <!-- Top Pages -->
+        <div class="analytics-card">
+          <div class="analytics-card-title">Top Viewed Pages</div>
+          <div class="studio-table-container" style="border: none;">
+            <table class="studio-table" style="min-width: 100%;">
+              <thead>
+                <tr>
+                  <th>Page / Route</th>
+                  <th style="text-align: right;">Total Views</th>
+                </tr>
+              </thead>
+              <tbody id="top-pages-tbody">
+                <tr><td colspan="2" style="text-align: center; color: var(--text-muted);">No page data yet.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Live Visitor Activity Feed -->
+        <div class="analytics-card">
+          <div class="analytics-card-title">Recent Visitor Feed</div>
+          <div id="recent-stream-list" style="display: flex; flex-direction: column;">
+            <div style="color: var(--text-muted); font-size: 13px;">No recent traffic recorded.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 5: SECURITY & CREDENTIALS -->
+    <div id="view-security" class="view-pane">
+      <div class="view-header">
+        <h2 class="view-title">Studio Access & Security Management</h2>
+      </div>
+
+      <div style="max-width: 520px; background: #ffffff; border: 1px solid var(--border); padding: 32px;">
+        <h3 style="font-size: 15px; font-weight: 600; margin-bottom: 6px; text-transform: uppercase;">Change Studio Password</h3>
+        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 24px; line-height: 1.5;">
+          Update your administrative control center password. Minimum 8 characters.
+        </p>
+
+        <form id="change-password-form">
+          <div class="form-group">
+            <label class="form-label" for="current-pwd">Current Password *</label>
+            <input type="password" id="current-pwd" class="form-input" required placeholder="••••••••">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="new-pwd">New Password *</label>
+            <input type="password" id="new-pwd" class="form-input" minlength="8" required placeholder="Minimum 8 characters">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="confirm-new-pwd">Confirm New Password *</label>
+            <input type="password" id="confirm-new-pwd" class="form-input" minlength="8" required placeholder="Repeat new password">
+          </div>
+          <button type="submit" class="btn-studio" style="width: 100%; justify-content: center; margin-top: 10px;">
+            UPDATE PASSWORD ↗
+          </button>
+        </form>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- CUSTOM STUDIO CONFIRMATION DIALOG (Replaces native browser confirm) -->
+  <div id="studio-confirm-modal" class="studio-modal-backdrop">
+    <div class="studio-modal-card confirm-card">
+      <span class="auth-badge" id="confirm-badge">ACTION REQUIRED</span>
+      <h3 style="font-size: 17px; font-weight: 600; margin-bottom: 10px; text-transform: uppercase;" id="confirm-title">Confirm Action</h3>
+      <p style="font-size: 13.5px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 24px;" id="confirm-message">
+        Are you sure you want to proceed?
+      </p>
+      <div style="display: flex; gap: 10px; justify-content: flex-end;">
+        <button type="button" class="btn-studio secondary" id="confirm-cancel-btn">Cancel</button>
+        <button type="button" class="btn-studio danger" id="confirm-ok-btn">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROJECT & BEHANCE CASE STUDY MODAL -->
+  <div id="project-modal" class="studio-modal-backdrop">
+    <div class="studio-modal-card">
+      <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 18px; text-transform: uppercase;" id="modal-project-title">Add Project Showcase</h3>
+      <form id="project-form">
+        <input type="hidden" id="proj-id">
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-label" for="proj-name">Project Title *</label>
+            <input type="text" id="proj-name" class="form-input" placeholder="e.g. Verve Mobility" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="proj-category">Category / Sector *</label>
+            <input type="text" id="proj-category" class="form-input" placeholder="FINTECH & SAAS" required>
+          </div>
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-label" for="proj-date">Year / Date</label>
+            <input type="text" id="proj-date" class="form-input" value="2026">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="proj-layout">Display Layout</label>
+            <select id="proj-layout" class="form-select">
+              <option value="16:9 Standard">16:9 Standard Grid</option>
+              <option value="Full Bleed">Full Bleed Hero</option>
+              <option value="Split Editorial">Split Editorial</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Cover Image / Video Upload -->
+        <div class="form-group">
+          <label class="form-label">Cover Media (Image or Video)</label>
+          <div style="display: flex; gap: 8px;">
+            <input type="text" id="proj-media" class="form-input" placeholder="assets/showcase/project.jpg" style="flex: 1;">
+            <label class="btn-studio secondary" style="cursor: pointer; padding: 10px 14px; white-space: nowrap;">
+              Upload File
+              <input type="file" id="proj-cover-file" accept="image/*,video/*" style="display: none;">
+            </label>
+          </div>
+          <div id="proj-cover-preview" style="margin-top: 8px; display: none;"></div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="proj-summary">Short Summary</label>
+          <textarea id="proj-summary" class="form-textarea" placeholder="Overview sentence for project list cards..."></textarea>
+        </div>
+
+        <!-- Feature on Home Screen Toggle -->
+        <label class="case-study-toggle-box" for="proj-featured" style="margin-bottom: 12px; border-color: rgba(9, 9, 11, 0.15); background: #fafafa;">
+          <input type="checkbox" id="proj-featured" checked>
+          <div>
+            <div style="font-weight: 600; font-size: 13.5px;">★ Feature on Home Screen</div>
+            <div style="font-size: 11.5px; color: var(--text-muted);">Displays in the 4 flagship project cards on the Homepage (index.html).</div>
+          </div>
+        </label>
+
+        <!-- Case Study Checkbox (Behance Style) -->
+        <label class="case-study-toggle-box" for="proj-has-casestudy">
+          <input type="checkbox" id="proj-has-casestudy">
+          <div>
+            <div style="font-weight: 600; font-size: 13.5px;">Add Behance-Style Case Study</div>
+            <div style="font-size: 11.5px; color: var(--text-muted);">Upload Figma presentation slices (Images & Videos) for full case study viewing.</div>
+          </div>
+        </label>
+
+        <div id="case-study-fields" class="case-study-expand-area">
+          <div class="form-group">
+            <label class="form-label">Upload Presentation Slices (Images & Videos)</label>
+            <label class="file-drop-zone" style="display: block;">
+              <span>+ Click to upload Figma exported images or video demos (JPG/PNG/WebP/MP4)</span>
+              <input type="file" id="proj-slices-file" accept="image/*,video/*" multiple style="display: none;">
+            </label>
+            <div id="slices-container" class="slices-list"></div>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+          <button type="button" class="btn-studio secondary" id="btn-cancel-project">Cancel</button>
+          <button type="submit" class="btn-studio">Save Project</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- JOURNAL MODAL -->
+  <div id="journal-modal" class="studio-modal-backdrop">
+    <div class="studio-modal-card">
+      <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 18px; text-transform: uppercase;" id="modal-journal-title">Write Journal Article</h3>
+      <form id="journal-form">
+        <input type="hidden" id="art-id">
+        <div class="form-group">
+          <label class="form-label" for="art-title">Title *</label>
+          <input type="text" id="art-title" class="form-input" required>
+        </div>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-label" for="art-category">Category</label>
+            <input type="text" id="art-category" class="form-input" value="DESIGN PHILOSOPHY">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="art-readtime">Read Time</label>
+            <input type="text" id="art-readtime" class="form-input" value="5 MIN READ">
+          </div>
+        </div>
+
+        <!-- Cover Image -->
+        <div class="form-group">
+          <label class="form-label">Article Cover Image</label>
+          <div style="display: flex; gap: 8px;">
+            <input type="text" id="art-image" class="form-input" placeholder="assets/showcase/journal-1.jpg" style="flex: 1;">
+            <label class="btn-studio secondary" style="cursor: pointer; padding: 10px 14px; white-space: nowrap;">
+              Upload Image
+              <input type="file" id="art-cover-file" accept="image/*" style="display: none;">
+            </label>
+          </div>
+          <div id="art-cover-preview" style="margin-top: 8px; display: none;"></div>
+        </div>
+
+        <!-- Text Formatting Toolbar -->
+        <div class="form-group">
+          <label class="form-label">Article Content</label>
+          <div class="journal-toolbar">
+            <button type="button" class="tool-btn" onclick="insertFormat('bold')"><b>B</b> Bold</button>
+            <button type="button" class="tool-btn" onclick="insertFormat('italic')"><i>I</i> Italic</button>
+            <button type="button" class="tool-btn" onclick="insertFormat('heading')">H2 Heading</button>
+            <button type="button" class="tool-btn" onclick="insertFormat('quote')">" Quote</button>
+            <button type="button" class="tool-btn" onclick="insertFormat('break')">— Line Break</button>
+          </div>
+          <textarea id="art-content" class="form-textarea" style="min-height: 160px; border-top: none;" placeholder="Write your insight essay..." required></textarea>
+        </div>
+
+        <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+          <button type="button" class="btn-studio secondary" id="btn-cancel-journal">Cancel</button>
+          <button type="submit" class="btn-studio">Publish Article</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- TESTIMONIAL MODAL -->
+  <div id="testimonial-modal" class="studio-modal-backdrop">
+    <div class="studio-modal-card">
+      <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 18px; text-transform: uppercase;" id="modal-testimonial-title">Add Client Story</h3>
+      <form id="testimonial-form">
+        <input type="hidden" id="testi-id">
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-label" for="testi-name">Client Name *</label>
+            <input type="text" id="testi-name" class="form-input" placeholder="e.g. Tife Ojo" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="testi-role">Role / Position</label>
+            <input type="text" id="testi-role" class="form-input" placeholder="e.g. Founder">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="testi-company">Company / Organization *</label>
+          <input type="text" id="testi-company" class="form-input" placeholder="e.g. Tife Ojo Consults" required>
+        </div>
+
+        <!-- Avatar / Logo Upload -->
+        <div class="form-group">
+          <label class="form-label">Client Avatar or Company Logo</label>
+          <div style="display: flex; gap: 8px;">
+            <input type="text" id="testi-avatar" class="form-input" placeholder="assets/clients/logo.png" style="flex: 1;">
+            <label class="btn-studio secondary" style="cursor: pointer; padding: 10px 14px; white-space: nowrap;">
+              Upload Logo/Photo
+              <input type="file" id="testi-avatar-file" accept="image/*" style="display: none;">
+            </label>
+          </div>
+          <div id="testi-avatar-preview" style="margin-top: 8px; display: none;"></div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="testi-quote">Client Testimonial Quote *</label>
+          <textarea id="testi-quote" class="form-textarea" style="min-height: 120px;" placeholder="What did the client say about working with Kre8mind?" required></textarea>
+        </div>
+
+        <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+          <button type="button" class="btn-studio secondary" id="btn-cancel-testimonial">Cancel</button>
+          <button type="submit" class="btn-studio">Save Client Story</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- TOAST CONTAINER -->
+  <div id="studio-toast-container"></div>
+
+  <script src="js/admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Journal — Kre8mind | Clarity By Design</title>
+  <meta name="description" content="Thoughts and perspectives on product design, UX clarity, and building modern software.">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Floating Header -->
+  <header class="site-header" id="header">
+    <div class="header-container">
+      <a href="index.html" class="brand-logo" aria-label="Kre8mind Home">
+        <img src="assets/kre8mind-logo.png" alt="Kre8mind Logo" class="brand-logo-img" />
+      </a>
+
+      <nav class="nav-links">
+        <a href="index.html" class="nav-link"><span class="link-text" data-text="Home">Home</span></a>
+        <a href="services.html" class="nav-link"><span class="link-text" data-text="Service">Service</span></a>
+        <a href="projects.html" class="nav-link"><span class="link-text" data-text="Projects">Projects</span></a>
+        <a href="journal.html" class="nav-link active"><span class="link-text" data-text="Journal">Journal</span></a>
+      </nav>
+
+      <div class="header-actions">
+        <a href="https://cal.com/kre8mind/project-discovery" class="btn-rolling btn-dark btn-lets-talk">
+          <span class="btn-text">
+            <span class="primary-text">Book a Call <span class="arrow">→</span></span>
+            <span class="hover-text">Book a Call <span class="arrow">→</span></span>
+          </span>
+        </a>
+        <button class="mobile-toggle" id="mobileToggle" aria-label="Toggle Navigation">
+          <span class="bar"></span>
+          <span class="bar"></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Dropdown -->
+    <div class="mobile-menu" id="mobileMenu">
+      <nav class="mobile-nav">
+        <a href="index.html" class="mobile-link">Home</a>
+        <a href="services.html" class="mobile-link">Service</a>
+        <a href="projects.html" class="mobile-link">Projects</a>
+        <a href="journal.html" class="mobile-link active">Journal</a>
+        <a href="https://cal.com/kre8mind/project-discovery" class="mobile-link mobile-cta btn-lets-talk">Book a Call →</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- PAGE HERO -->
+    <section class="subpage-hero-section">
+      <div class="section-container">
+        <div class="subpage-hero-row">
+          <h1 class="subpage-hero-title">JOURNAL &<br>INSIGHTS</h1>
+          <p class="subpage-hero-subtext">
+            Discussions on interface clarity, user psychology, design systems, and avoiding common UX pitfalls in early-stage products.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- LUXURY EDITORIAL ARTICLES / DYNAMIC JOURNAL -->
+    <section class="journal-section">
+      <div class="section-container" id="journalContainer">
+        <!-- Dynamically rendered via initJournal() in main.js -->
+        <div class="journal-empty-state-wrap">
+          <div class="journal-empty-box">
+            <span class="journal-water-badge">PUBLISHING SOON</span>
+            <h2 class="journal-empty-title">JOURNAL COMING SOON</h2>
+            <p class="journal-empty-desc">
+              We are currently writing and curating our perspectives on interface clarity, user psychology, design systems, and modern digital engineering.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA BANNER -->
+    <section class="cta-banner-section">
+      <div class="section-container">
+        <div class="cta-banner-box">
+          <h2 class="cta-title">HAVE A PROJECT IN MIND?<br>LET'S BRING CLARITY TO IT.</h2>
+          <p class="cta-desc">Book an introductory call or send your brief directly to our team.</p>
+          <div class="cta-buttons">
+            <a href="https://cal.com/kre8mind/project-discovery" class="btn-rolling btn-dark btn-hero btn-lets-talk">
+              <span class="btn-text">
+                <span class="primary-text">Book a Call <span class="arrow">→</span></span>
+                <span class="hover-text">Book a Call <span class="arrow">→</span></span>
+              </span>
+            </a>
+            <a href="mailto:hello@kre8mind.com" class="btn-secondary-outline">
+              hello@kre8mind.com
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="footer-container">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <a href="index.html" class="brand-logo">
+            <img src="assets/kre8mind-logo.png" alt="Kre8mind Logo" class="brand-logo-img" />
+          </a>
+          <p class="footer-tagline">Clarity By Design.</p>
+        </div>
+
+        <div class="footer-nav">
+          <a href="index.html">Home</a>
+          <a href="services.html">Service</a>
+          <a href="projects.html">Projects</a>
+          <a href="journal.html">Journal</a>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p class="copyright">© 2026 Kre8mind Studio. All rights reserved.</p>
+        <div class="footer-socials">
+          <a href="https://linkedin.com" target="_blank" rel="noopener">LinkedIn</a>
+          <a href="https://contra.com" target="_blank" rel="noopener">Contra</a>
+          <a href="https://x.com" target="_blank" rel="noopener">X / Twitter</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://unpkg.com/lenis@1.1.18/dist/lenis.min.js"></script>
+  <script src="js/main.js"></script>
+  <script>lucide.createIcons();</script>
+</body>
+</html>
