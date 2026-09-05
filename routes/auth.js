@@ -22,27 +22,47 @@ function getIpAttempts(ip) {
 const SECRET_SALT = process.env.SESSION_SECRET || 'kre8mind_studio_super_secret_key_2026';
 
 export function generateToken(payload = {}) {
-  const dataStr = JSON.stringify({ ...payload, ts: Date.now() });
-  const hmac = crypto.createHmac('sha256', SECRET_SALT).update(dataStr).digest('hex');
-  return Buffer.from(`${dataStr}.${hmac}`).toString('base64');
+  const cleanPayload = { ...payload, ts: Date.now() };
+  const b64Data = Buffer.from(JSON.stringify(cleanPayload), 'utf-8').toString('base64url');
+  const signature = crypto.createHmac('sha256', SECRET_SALT).update(b64Data).digest('hex');
+  return `${b64Data}.${signature}`;
 }
 
 export function verifyAdminToken(token) {
-  if (!token) return false;
+  if (!token || typeof token !== 'string') return false;
   try {
-    const raw = Buffer.from(token, 'base64').toString('utf-8');
-    const [dataStr, signature] = raw.split('.');
-    if (!dataStr || !signature) return false;
-
-    const expectedHmac = crypto.createHmac('sha256', SECRET_SALT).update(dataStr).digest('hex');
-    if (signature !== expectedHmac) return false;
-
-    const parsed = JSON.parse(dataStr);
-    // Token valid for 7 days
-    if (Date.now() - parsed.ts > 7 * 24 * 60 * 60 * 1000) {
-      return false;
+    // 1. Format: b64Data.signature
+    const dotIndex = token.indexOf('.');
+    if (dotIndex !== -1) {
+      const b64Data = token.substring(0, dotIndex);
+      const signature = token.substring(dotIndex + 1);
+      const expectedSig = crypto.createHmac('sha256', SECRET_SALT).update(b64Data).digest('hex');
+      if (signature === expectedSig) {
+        const rawJson = Buffer.from(b64Data, 'base64url').toString('utf-8');
+        const parsed = JSON.parse(rawJson);
+        // Token valid for 30 days
+        if (Date.now() - parsed.ts < 30 * 24 * 60 * 60 * 1000) {
+          return true;
+        }
+      }
     }
-    return true;
+
+    // 2. Backward compatibility fallback for legacy tokens
+    const raw = Buffer.from(token, 'base64').toString('utf-8');
+    const lastDot = raw.lastIndexOf('.');
+    if (lastDot !== -1) {
+      const dataStr = raw.substring(0, lastDot);
+      const signature = raw.substring(lastDot + 1);
+      const expectedHmac = crypto.createHmac('sha256', SECRET_SALT).update(dataStr).digest('hex');
+      if (signature === expectedHmac) {
+        const parsed = JSON.parse(dataStr);
+        if (Date.now() - parsed.ts < 30 * 24 * 60 * 60 * 1000) {
+          return true;
+        }
+      }
+    }
+
+    return false;
   } catch {
     return false;
   }

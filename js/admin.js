@@ -122,6 +122,7 @@ function initAuth() {
     .then(data => {
       if (data.authenticated) {
         if (authScreen) authScreen.style.display = 'none';
+        loadDashboardData();
       } else {
         localStorage.removeItem('kre8_token');
         if (authScreen) authScreen.style.display = 'flex';
@@ -129,7 +130,10 @@ function initAuth() {
     })
     .catch(() => {
       if (authScreen) authScreen.style.display = 'none';
+      loadDashboardData();
     });
+  } else {
+    if (authScreen) authScreen.style.display = 'flex';
   }
 
   authForm?.addEventListener('submit', async (e) => {
@@ -150,7 +154,7 @@ function initAuth() {
         localStorage.setItem('kre8_token', data.token);
         if (authScreen) authScreen.style.display = 'none';
         showToast('Logged into Studio Control Center', 'success');
-        window.location.reload();
+        loadDashboardData();
       } else {
         if (authError) {
           authError.textContent = data.error || 'Access denied';
@@ -170,7 +174,8 @@ function initAuth() {
       const confirmed = await showCustomConfirm('Log Out', 'Are you sure you want to end your studio session?', 'Log Out', false);
       if (confirmed) {
         localStorage.removeItem('kre8_token');
-        window.location.reload();
+        if (authScreen) authScreen.style.display = 'flex';
+        showToast('Logged out of Studio Control Center', 'info');
       }
     });
   }
