@@ -30,6 +30,27 @@ app.use(express.urlencoded({ extended: true, limit: '20mb' }));
 // Serve static assets (CSS, JS, Images, Fonts)
 app.use(express.static(__dirname, { index: false }));
 
+// Direct Favicon & Social Cover Endpoints
+app.get(['/favicon.ico', '/favicon.jpg', '/favicon.png'], (req, res) => {
+  const icoPath = path.join(__dirname, 'assets', 'FAVICON.jpg');
+  if (fs.existsSync(icoPath)) {
+    res.setHeader('Content-Type', 'image/jpeg');
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+    return res.sendFile(icoPath);
+  }
+  res.status(404).end();
+});
+
+app.get('/social-cover.jpg', (req, res) => {
+  const coverPath = path.join(__dirname, 'assets', 'social-cover.jpg');
+  if (fs.existsSync(coverPath)) {
+    res.setHeader('Content-Type', 'image/jpeg');
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+    return res.sendFile(coverPath);
+  }
+  res.status(404).end();
+});
+
 // Health Check
 app.get('/api/health', (req, res) => {
   res.json({
@@ -200,6 +221,9 @@ function renderHtmlWithSocialMeta(filename, meta, req) {
   <meta property="og:image" content="${imageUrl}">
   <meta property="og:image:secure_url" content="${imageUrl}">
   <meta property="og:image:type" content="image/jpeg">
+  <meta property="og:image:width" content="1600">
+  <meta property="og:image:height" content="987">
+  <meta property="og:image:alt" content="${escapeHtml(title)}">
   <meta property="og:url" content="${pageUrl}">
   <meta property="og:type" content="${type}">
   
@@ -207,7 +231,12 @@ function renderHtmlWithSocialMeta(filename, meta, req) {
   <meta name="twitter:site" content="@kre8mind">
   <meta name="twitter:title" content="${escapeHtml(title)}">
   <meta name="twitter:description" content="${escapeHtml(description)}">
-  <meta name="twitter:image" content="${imageUrl}">`;
+  <meta name="twitter:image" content="${imageUrl}">
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/jpeg" href="${baseUrl}/assets/FAVICON.jpg">
+  <link rel="shortcut icon" href="${baseUrl}/favicon.ico">
+  <link rel="apple-touch-icon" href="${baseUrl}/assets/FAVICON.jpg">`;
 
     return html.replace('</head>', `${dynamicMeta}\n</head>`);
   } catch (err) {
