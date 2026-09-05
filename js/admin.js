@@ -3,6 +3,11 @@
  * Client Management, Case Studies, Journal, Testimonials, Analytics & Security
  */
 
+// API Root Host (Handles direct file:/// and multi-port local dev)
+const API_BASE = (window.location.protocol === 'file:' || (window.location.port && window.location.port !== '5000' && window.location.hostname === 'localhost'))
+  ? 'http://localhost:5000'
+  : '';
+
 // Global State
 let inquiriesData = [];
 let projectsData = [];
@@ -110,7 +115,7 @@ function initAuth() {
 
   const token = localStorage.getItem('kre8_token');
   if (token) {
-    fetch('/api/auth/verify', {
+    fetch(`${API_BASE}/api/auth/verify`, {
       headers: { 'Authorization': `Bearer ${token}` }
     })
     .then(r => r.json())
@@ -135,7 +140,7 @@ function initAuth() {
     const password = document.getElementById('admin-pass').value;
 
     try {
-      const res = await fetch('/api/auth/login', {
+      const res = await fetch(`${API_BASE}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password })
@@ -225,7 +230,7 @@ function loadDashboardData() {
 async function fetchInquiries() {
   const tbody = document.getElementById('inquiries-tbody');
   try {
-    const res = await fetch('/api/requests');
+    const res = await fetch(`${API_BASE}/api/requests`);
     const json = await res.json();
 
     if (json.success) {
@@ -260,6 +265,11 @@ function renderInquiries() {
         </td>
         <td><span style="font-family: var(--font-sans); font-size: 12px; font-weight: 600;">${escapeHtml(item.serviceTier || 'General Inquiry')}</span></td>
         <td style="font-family: var(--font-mono); font-size: 11.5px;">${escapeHtml(item.budget || '—')}</td>
+        <td style="max-width: 260px;">
+          <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.4; word-break: break-word;">
+            ${item.details ? escapeHtml(item.details) : '<span style="color: var(--text-muted); font-style: italic;">No notes provided</span>'}
+          </div>
+        </td>
         <td>
           <select class="form-select" onchange="changeInquiryStatus('${item.id}', this.value)" style="padding: 4px 8px; font-size: 11px; font-family: var(--font-mono); width: auto; background:#fff; cursor: pointer;">
             <option value="NEW" ${currentStatus === 'NEW' ? 'selected' : ''}>New Inquiry</option>
@@ -279,7 +289,7 @@ function renderInquiries() {
 
 window.changeInquiryStatus = async function(id, newStatus) {
   try {
-    const res = await fetch(`/api/requests/${id}/status`, {
+    const res = await fetch(`${API_BASE}/api/requests/${id}/status`, {
       method: 'PATCH',
       headers: getAuthHeaders(),
       body: JSON.stringify({ status: newStatus })
@@ -301,7 +311,7 @@ window.deleteInquiry = async function(id) {
   if (!confirmed) return;
 
   try {
-    const res = await fetch(`/api/requests/${id}`, {
+    const res = await fetch(`${API_BASE}/api/requests/${id}`, {
       method: 'DELETE',
       headers: getAuthHeaders()
     });
@@ -361,7 +371,7 @@ function initProjectsCMS() {
 
     try {
       showToast('Uploading cover media...', 'info');
-      const res = await fetch('/api/upload', {
+      const res = await fetch(`${API_BASE}/api/upload`, {
         method: 'POST',
         body: formData
       });
@@ -387,7 +397,7 @@ function initProjectsCMS() {
 
     try {
       showToast(`Uploading ${files.length} slices...`, 'info');
-      const res = await fetch('/api/upload-multiple', {
+      const res = await fetch(`${API_BASE}/api/upload-multiple`, {
         method: 'POST',
         body: formData
       });
@@ -510,7 +520,7 @@ window.removeSlice = function(idx) {
 async function fetchProjects() {
   const tbody = document.getElementById('projects-tbody');
   try {
-    const res = await fetch('/api/projects');
+    const res = await fetch(`${API_BASE}/api/projects`);
     const json = await res.json();
     if (json.success) {
       projectsData = json.data || json.projects || [];
@@ -585,7 +595,7 @@ window.toggleProjectFeatured = async function(id) {
 
   const newFeatured = !(p.featured !== false);
   try {
-    const res = await fetch(`/api/projects/${id}`, {
+    const res = await fetch(`${API_BASE}/api/projects/${id}`, {
       method: 'PUT',
       headers: getAuthHeaders(),
       body: JSON.stringify({ featured: newFeatured })
@@ -628,7 +638,7 @@ window.moveProjectDown = async function(id) {
 
 async function saveProjectsReorder(projectIds) {
   try {
-    const res = await fetch('/api/projects/reorder', {
+    const res = await fetch(`${API_BASE}/api/projects/reorder`, {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify({ projectIds })
@@ -677,7 +687,7 @@ window.deleteProject = async function(id) {
   if (!confirmed) return;
 
   try {
-    const res = await fetch(`/api/projects/${id}`, {
+    const res = await fetch(`${API_BASE}/api/projects/${id}`, {
       method: 'DELETE',
       headers: getAuthHeaders()
     });
@@ -722,7 +732,7 @@ function initJournalCMS() {
 
     try {
       showToast('Uploading article cover image...', 'info');
-      const res = await fetch('/api/upload', {
+      const res = await fetch(`${API_BASE}/api/upload`, {
         method: 'POST',
         body: formData
       });
@@ -822,7 +832,7 @@ window.insertFormat = function(type) {
 async function fetchJournal() {
   const tbody = document.getElementById('journal-tbody');
   try {
-    const res = await fetch('/api/journal');
+    const res = await fetch(`${API_BASE}/api/journal`);
     const json = await res.json();
     if (json.success) {
       journalData = json.data || json.articles || [];
@@ -863,7 +873,7 @@ window.deleteArticle = async function(id) {
   if (!confirmed) return;
 
   try {
-    const res = await fetch(`/api/journal/${id}`, {
+    const res = await fetch(`${API_BASE}/api/journal/${id}`, {
       method: 'DELETE',
       headers: getAuthHeaders()
     });
@@ -908,7 +918,7 @@ function initTestimonialsCMS() {
 
     try {
       showToast('Uploading client avatar/logo...', 'info');
-      const res = await fetch('/api/upload', {
+      const res = await fetch(`${API_BASE}/api/upload`, {
         method: 'POST',
         body: formData
       });
@@ -980,7 +990,7 @@ function renderTestimonialAvatarPreview(url) {
 async function fetchTestimonials() {
   const tbody = document.getElementById('testimonials-tbody');
   try {
-    const res = await fetch('/api/testimonials');
+    const res = await fetch(`${API_BASE}/api/testimonials`);
     const json = await res.json();
     if (json.success) {
       testimonialsData = json.data || json.testimonials || [];
@@ -1045,7 +1055,7 @@ window.deleteTestimonial = async function(id) {
   if (!confirmed) return;
 
   try {
-    const res = await fetch(`/api/testimonials/${id}`, {
+    const res = await fetch(`${API_BASE}/api/testimonials/${id}`, {
       method: 'DELETE',
       headers: getAuthHeaders()
     });
@@ -1068,7 +1078,7 @@ function initAnalytics() {}
 
 async function fetchAnalyticsOverview() {
   try {
-    const res = await fetch('/api/analytics/overview');
+    const res = await fetch(`${API_BASE}/api/analytics/overview`);
     const json = await res.json();
     if (json.success && json.data) {
       renderAnalyticsDashboard(json.data);
@@ -1227,13 +1237,14 @@ function initSecurity() {
     }
 
     try {
-      const res = await fetch('/api/auth/change-password', {
+      const res = await fetch(`${API_BASE}/api/auth/change-password`, {
         method: 'POST',
         headers: getAuthHeaders(),
         body: JSON.stringify({ currentPassword, newPassword })
       });
       const data = await res.json();
       if (data.success) {
+        if (data.token) localStorage.setItem('kre8_token', data.token);
         showToast('Studio password updated successfully', 'success');
         form.reset();
       } else {

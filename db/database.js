@@ -137,13 +137,20 @@ export const db = {
   },
   write: (data) => {
     try {
-      const tempPath = `${DB_FILE}.tmp`;
-      fs.writeFileSync(tempPath, JSON.stringify(data, null, 2), 'utf-8');
-      fs.renameSync(tempPath, DB_FILE);
+      const jsonStr = JSON.stringify(data, null, 2);
+      fs.writeFileSync(DB_FILE, jsonStr, 'utf-8');
       return true;
     } catch (err) {
-      console.error('Error writing database file:', err);
-      return false;
+      try {
+        const tempPath = `${DB_FILE}.tmp`;
+        fs.writeFileSync(tempPath, JSON.stringify(data, null, 2), 'utf-8');
+        fs.copyFileSync(tempPath, DB_FILE);
+        fs.unlinkSync(tempPath);
+        return true;
+      } catch (err2) {
+        console.error('Error writing database file:', err2);
+        return false;
+      }
     }
   }
 };

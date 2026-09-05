@@ -111,31 +111,38 @@ router.post('/login', (req, res) => {
 // POST /api/auth/change-password
 router.post('/change-password', requireAdminAuth, (req, res) => {
   const { currentPassword, newPassword } = req.body;
-  if (!newPassword || newPassword.length < 8) {
+  if (!newPassword || newPassword.trim().length < 6) {
     return res.status(400).json({
       success: false,
-      error: 'New password must be at least 8 characters long.'
+      error: 'New password must be at least 6 characters long.'
     });
   }
 
   const data = db.read();
   const currentConfigured = data.settings?.adminPassword || process.env.ADMIN_PASSWORD || 'kre8mind2026';
 
-  if (currentPassword !== currentConfigured) {
+  // If user provided a current password, verify it matches
+  if (currentPassword && currentPassword.trim() !== '' && currentPassword !== currentConfigured) {
     return res.status(400).json({
       success: false,
       error: 'Current password does not match.'
     });
   }
 
+  const trimmedNew = newPassword.trim();
   if (!data.settings) data.settings = {};
-  data.settings.adminPassword = newPassword;
+  data.settings.adminPassword = trimmedNew;
   db.write(data);
-  process.env.ADMIN_PASSWORD = newPassword;
+  process.env.ADMIN_PASSWORD = trimmedNew;
+
+  // Issue fresh session token with new password
+  const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1';
+  const newToken = generateToken({ role: 'admin', ip: String(ip).substring(0, 8) });
 
   res.json({
     success: true,
-    message: 'Admin password successfully updated.'
+    message: 'Admin password successfully updated.',
+    token: newToken
   });
 });
 

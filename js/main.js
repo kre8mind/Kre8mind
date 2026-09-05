@@ -3,6 +3,21 @@
  * Interactive Behaviors, Seamless Smooth Carousel & Motion Controller
  */
 
+// API Host Resolver (Handles file:/// and local dev ports)
+const API_BASE = (window.location.protocol === 'file:' || (window.location.port && window.location.port !== '5000' && window.location.hostname === 'localhost'))
+  ? 'http://localhost:5000'
+  : '';
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   initLenisSmoothScroll();
   initCustomSquareCursor();
@@ -483,8 +498,73 @@ function initScrollAnimations() {
 
 /* --------------------------------------------------------------------------
    7. Interactive Client Stories Switcher (Hover on Desktop + Mobile Accordion)
+   Dynamically connected to Studio Database (/api/testimonials)
    -------------------------------------------------------------------------- */
-function initClientStories() {
+async function initClientStories() {
+  const listContainer = document.querySelector('.stories-client-list');
+  const quoteStage = document.getElementById('storyQuoteStage');
+  const toggleBtn = document.getElementById('toggleStoriesBtn');
+
+  if (!listContainer) return;
+
+  try {
+    const res = await fetch(`${API_BASE}/api/testimonials`);
+    const json = await res.json();
+    const testimonials = json.data || json.testimonials || [];
+
+    if (Array.isArray(testimonials) && testimonials.length > 0) {
+      // Dynamically render client cards
+      listContainer.innerHTML = testimonials.map((t, idx) => {
+        const isFolded = idx >= 3;
+        const avatarSrc = t.avatar || 'assets/clients/Tife Ojo Consults.png';
+        const roleText = t.role && t.company ? `${t.role}, ${t.company}` : (t.role || t.company || '');
+
+        return `
+          <div class="story-client-card ${isFolded ? 'extra-story is-folded' : ''} ${idx === 0 ? 'active' : ''}" data-story="${idx}">
+            <button type="button" class="story-client-header" aria-label="Toggle story from ${escapeHtml(t.name)}">
+              <div class="client-avatar-wrap">
+                <img src="${avatarSrc}" alt="${escapeHtml(t.name)}" class="client-avatar-img" />
+              </div>
+              <div class="client-meta-wrap">
+                <span class="client-name">${escapeHtml(t.name)}</span>
+                <span class="client-role">${escapeHtml(roleText)}</span>
+              </div>
+              <span class="mobile-accordion-arrow">↓</span>
+            </button>
+            <div class="story-mobile-dropdown">
+              <blockquote class="story-mobile-quote">
+                "${escapeHtml(t.quote)}"
+              </blockquote>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // Dynamically render desktop quotes stage
+      if (quoteStage) {
+        quoteStage.innerHTML = testimonials.map((t, idx) => `
+          <div class="story-quote-item ${idx === 0 ? 'active' : ''}" data-story-quote="${idx}">
+            <blockquote class="story-big-quote">
+              "${escapeHtml(t.quote)}"
+            </blockquote>
+          </div>
+        `).join('');
+      }
+
+      // Hide or show the View More button based on count
+      if (toggleBtn && toggleBtn.parentElement) {
+        toggleBtn.parentElement.style.display = testimonials.length > 3 ? 'block' : 'none';
+      }
+    }
+  } catch (err) {
+    console.log('Using static client stories fallback:', err);
+  }
+
+  // Re-bind interactive triggers (desktop hover + mobile accordion dropdown)
+  bindClientStoryTriggers();
+}
+
+function bindClientStoryTriggers() {
   const clientCards = document.querySelectorAll('.story-client-card');
   const quoteItems = document.querySelectorAll('.story-quote-item');
   const toggleBtn = document.getElementById('toggleStoriesBtn');
@@ -531,6 +611,7 @@ function initClientStories() {
 
   // Toggle More / Less Stories
   if (toggleBtn) {
+    toggleBtn.onclick = null;
     toggleBtn.addEventListener('click', () => {
       const foldedCards = document.querySelectorAll('.story-client-card.extra-story');
       const toggleText = toggleBtn.querySelector('.toggle-text');
@@ -735,6 +816,11 @@ function initInquiryModal() {
                 <label class="inquiry-label" for="inq-email">YOUR EMAIL ADDRESS</label>
                 <input type="email" id="inq-email" class="inquiry-input" placeholder="name@company.com" required autocomplete="email">
               </div>
+            </div>
+
+            <div class="inquiry-form-group" style="margin-top: 12px;">
+              <label class="inquiry-label" for="inq-details">TELL US A LITTLE BIT ABOUT YOUR PROJECT</label>
+              <textarea id="inq-details" class="inquiry-input inquiry-textarea" placeholder="Briefly describe your goals, timeline, or current challenges..." rows="3" style="resize: vertical; min-height: 68px; padding: 10px 14px; font-family: inherit; font-size: 13.5px; line-height: 1.5;"></textarea>
             </div>
 
             <div id="inquiry-feedback-msg" class="inquiry-feedback"></div>
@@ -1051,12 +1137,13 @@ function initInquiryModal() {
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
 
+      const detailsVal = document.getElementById('inq-details')?.value?.trim() || '';
       const payload = {
         name: document.getElementById('inq-name').value.trim(),
         email: document.getElementById('inq-email').value.trim(),
         serviceTier: serviceHidden.value,
         budget: priceHidden.value,
-        details: `Client inquiry for ${serviceHidden.value} (${priceHidden.value}).`
+        details: detailsVal || `Client inquiry for ${serviceHidden.value} (${priceHidden.value}).`
       };
 
       submitBtn.querySelector('.btn-text').style.display = 'none';
@@ -1064,7 +1151,7 @@ function initInquiryModal() {
       submitBtn.disabled = true;
 
       try {
-        const res = await fetch('/api/requests', {
+        const res = await fetch(`${API_BASE}/api/requests`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
@@ -1146,7 +1233,7 @@ function initCalEmbed() {
     action: "bookingSuccessful",
     callback: (e) => {
       const detail = e.detail?.data || {};
-      fetch('/api/requests', {
+      fetch(`${API_BASE}/api/requests`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -1173,7 +1260,7 @@ function initVisitorTracking() {
       screenWidth: window.innerWidth || 1440
     };
 
-    fetch('/api/analytics/track', {
+    fetch(`${API_BASE}/api/analytics/track`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
@@ -1536,7 +1623,7 @@ async function initDynamicProjects() {
   bindProjectCardTriggers();
 
   try {
-    const res = await fetch('/api/projects');
+    const res = await fetch(`${API_BASE}/api/projects`);
     if (!res.ok) return;
     const json = await res.json();
     const projects = json.data || json.projects || [];
@@ -1745,6 +1832,14 @@ function initCaseStudyViewer() {
   if (inquireBtn) {
     inquireBtn.addEventListener('click', (e) => {
       e.preventDefault();
+      
+      // When outside the service page, navigate directly to the services page
+      const isServicesPage = window.location.pathname.includes('services') || window.location.href.includes('services.html');
+      if (!isServicesPage) {
+        window.location.href = 'services.html#pricing';
+        return;
+      }
+
       const inqModal = document.getElementById('kre8mind-inquiry-modal');
       if (inqModal) {
         const proj = window.activeCaseStudyProject;
@@ -1759,7 +1854,7 @@ function initCaseStudyViewer() {
         if (pHidden) pHidden.value = 'Custom Scope & Pricing';
         inqModal.classList.add('open');
       } else {
-        window.location.href = '/services#pricing';
+        window.location.href = 'services.html#pricing';
       }
     });
   }
@@ -1971,7 +2066,7 @@ async function initJournal() {
   if (!container) return;
 
   try {
-    const res = await fetch('/api/journal');
+    const res = await fetch(`${API_BASE}/api/journal`);
     if (!res.ok) return;
     const json = await res.json();
     const articles = json.data || json.articles || [];

@@ -44,30 +44,60 @@ app.get('/api/health', (req, res) => {
 import multer from 'multer';
 
 const uploadDir = path.join(__dirname, 'assets/showcase');
+const clientsDir = path.join(__dirname, 'assets/clients');
+
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
+if (!fs.existsSync(clientsDir)) {
+  fs.mkdirSync(clientsDir, { recursive: true });
+}
 
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadDir),
+  destination: (req, file, cb) => {
+    const isAvatar = req.query.type === 'avatar' || (req.headers['x-upload-type'] === 'avatar');
+    cb(null, isAvatar ? clientsDir : uploadDir);
+  },
   filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname);
+    const ext = path.extname(file.originalname) || '.png';
     const base = path.basename(file.originalname, ext).replace(/[^a-zA-Z0-9_-]/g, '_');
     cb(null, `${base}_${Date.now()}${ext}`);
   }
 });
-const upload = multer({ storage });
 
-app.post('/api/upload', upload.single('file'), (req, res) => {
-  if (!req.file) return res.status(400).json({ success: false, error: 'No file uploaded' });
-  const relativePath = `assets/showcase/${req.file.filename}`;
-  res.json({ success: true, filePath: relativePath });
+const upload = multer({
+  storage,
+  limits: { fileSize: 50 * 1024 * 1024 } // 50MB
 });
 
-app.post('/api/upload-multiple', upload.array('files', 20), (req, res) => {
-  if (!req.files || !req.files.length) return res.status(400).json({ success: false, error: 'No files uploaded' });
-  const filePaths = req.files.map(f => `assets/showcase/${f.filename}`);
-  res.json({ success: true, filePaths });
+app.post('/api/upload', (req, res) => {
+  upload.single('file')(req, res, (err) => {
+    if (err) {
+      console.error('File upload error:', err);
+      return res.status(400).json({ success: false, error: err.message || 'File upload failed' });
+    }
+    if (!req.file) {
+      return res.status(400).json({ success: false, error: 'No file uploaded' });
+    }
+    const isAvatar = req.query.type === 'avatar' || (req.headers['x-upload-type'] === 'avatar');
+    const folder = isAvatar ? 'assets/clients' : 'assets/showcase';
+    const relativePath = `${folder}/${req.file.filename}`;
+    res.json({ success: true, filePath: relativePath });
+  });
+});
+
+app.post('/api/upload-multiple', (req, res) => {
+  upload.array('files', 25)(req, res, (err) => {
+    if (err) {
+      console.error('Multiple upload error:', err);
+      return res.status(400).json({ success: false, error: err.message || 'Files upload failed' });
+    }
+    if (!req.files || !req.files.length) {
+      return res.status(400).json({ success: false, error: 'No files uploaded' });
+    }
+    const filePaths = req.files.map(f => `assets/showcase/${f.filename}`);
+    res.json({ success: true, filePaths });
+  });
 });
 
 // API Routes
