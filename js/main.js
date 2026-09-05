@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initSeamlessShowcaseCarousel();
   initSolutionSwitcher();
   initDynamicProjects();
+  initTransformationSweep();
   initCaseStudyViewer();
   initJournal();
   initClientStories();
@@ -259,12 +260,8 @@ function initSeamlessShowcaseCarousel() {
     startAutoplay();
   };
 
-  if (wrapper) {
-    wrapper.addEventListener('mouseenter', stopAutoplay);
-    wrapper.addEventListener('mouseleave', startAutoplay);
-    wrapper.addEventListener('touchstart', stopAutoplay, { passive: true });
-    wrapper.addEventListener('touchend', startAutoplay, { passive: true });
-  }
+  // Keep carousel looping continuously even on hover so visitors can watch it
+
 
   // Sync index on manual drag/scroll
   let isDragging = false;
@@ -459,6 +456,8 @@ function initScrollAnimations() {
   animatedElements.forEach(el => {
     observer.observe(el);
   });
+
+  initWhyStatsCounter();
 }
 
 /* --------------------------------------------------------------------------
@@ -1400,6 +1399,151 @@ function initClientStories() {
   startAutoTimer();
 }
 
+/* --------------------------------------------------------------------------
+   8.5 Auto-Sweep & Interactive Before/After Transformation Scanner
+   -------------------------------------------------------------------------- */
+function initTransformationSweep() {
+  const frame = document.getElementById('sweepScreenFrame');
+  const divider = document.getElementById('sweepDividerLine');
+  const layerAfter = document.getElementById('sweepLayerAfter');
+  const tabBtns = document.querySelectorAll('.sweep-tab-btn');
+  const imgBefore = document.getElementById('sweepImgBefore');
+  const imgAfter = document.getElementById('sweepImgAfter');
+  const projectTitle = document.getElementById('sweepProjectTitle');
+  const projectSummary = document.getElementById('sweepProjectSummary');
+  const statNum = document.getElementById('sweepStatNum');
+  const statLabel = document.getElementById('sweepStatLabel');
+
+  if (!frame || !divider || !layerAfter) return;
+
+  const transformations = [
+    {
+      title: "AVENOR PROPTECH FLAGSHIP",
+      summary: "Complete spatial redesign from high-friction multi-step confusion to an intuitive, high-converting commercial landing experience.",
+      beforeImg: "assets/showcase/before-after-strip.png",
+      afterImg: "assets/showcase/ave_cover_1788514443500.jpg",
+      statNum: "+64%",
+      statLabel: "Qualified Conversion Surge"
+    },
+    {
+      title: "FLOWMETRIC TRADING DASHBOARD",
+      summary: "Distilled high-density financial telemetry into ergonomic, legible data visualization for institutional traders.",
+      beforeImg: "assets/showcase/before-after-wysa.png",
+      afterImg: "assets/showcase/mockup-1.jpg",
+      statNum: "-44%",
+      statLabel: "User Drop-off Reduction"
+    },
+    {
+      title: "HOSPITALITY HEALTHCARE SUITE",
+      summary: "Turned clinical data onboarding chaos into total clarity, eliminating patient friction and accelerating trial conversion.",
+      beforeImg: "assets/showcase/mockup-3.jpg",
+      afterImg: "assets/showcase/HWCH/how we help 2.png",
+      statNum: "3.2x",
+      statLabel: "Faster Onboarding Speed"
+    }
+  ];
+
+  let currentPercent = 50;
+  let targetPercent = 50;
+  let isDragging = false;
+  let isHovering = false;
+  let sweepDirection = 1;
+  const sweepSpeed = 0.26; // Hypnotic, buttery smooth auto-sweep speed
+
+  function updateSweepPosition(pct) {
+    pct = Math.max(0, Math.min(100, pct));
+    currentPercent = pct;
+    frame.style.setProperty('--sweep-pct', `${pct}%`);
+  }
+
+  // Smooth Continuous Auto-Sweep Animation Loop
+  function autoSweepLoop() {
+    if (!isDragging && !isHovering) {
+      targetPercent += sweepSpeed * sweepDirection;
+      if (targetPercent >= 86) {
+        targetPercent = 86;
+        sweepDirection = -1;
+      } else if (targetPercent <= 14) {
+        targetPercent = 14;
+        sweepDirection = 1;
+      }
+      currentPercent += (targetPercent - currentPercent) * 0.07;
+      updateSweepPosition(currentPercent);
+    }
+    requestAnimationFrame(autoSweepLoop);
+  }
+
+  requestAnimationFrame(autoSweepLoop);
+
+  // Compute position percentage relative to frame
+  function getEventPercent(e) {
+    const rect = frame.getBoundingClientRect();
+    const clientX = e.touches && e.touches[0] ? e.touches[0].clientX : e.clientX;
+    const x = clientX - rect.left;
+    return (x / rect.width) * 100;
+  }
+
+  // Pointer & Drag Interactions
+  frame.addEventListener('pointerdown', (e) => {
+    isDragging = true;
+    isHovering = true;
+    try { frame.setPointerCapture(e.pointerId); } catch (_) {}
+    updateSweepPosition(getEventPercent(e));
+  });
+
+  window.addEventListener('pointermove', (e) => {
+    if (isDragging) {
+      updateSweepPosition(getEventPercent(e));
+    }
+  });
+
+  window.addEventListener('pointerup', () => {
+    isDragging = false;
+  });
+
+  frame.addEventListener('mousemove', (e) => {
+    isHovering = true;
+    if (!isDragging) {
+      const pct = getEventPercent(e);
+      currentPercent += (pct - currentPercent) * 0.15;
+      updateSweepPosition(currentPercent);
+    }
+  });
+
+  frame.addEventListener('mouseleave', () => {
+    isHovering = false;
+    isDragging = false;
+    targetPercent = currentPercent;
+  });
+
+  // Transformation Switcher Tabs
+  tabBtns.forEach((btn, idx) => {
+    btn.addEventListener('click', () => {
+      tabBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      const data = transformations[idx];
+      if (!data) return;
+
+      if (imgBefore) imgBefore.src = data.beforeImg;
+      if (imgAfter) imgAfter.src = data.afterImg;
+      if (projectTitle) projectTitle.textContent = data.title;
+      if (projectSummary) projectSummary.textContent = data.summary;
+      if (statNum) statNum.textContent = data.statNum;
+      if (statLabel) statLabel.textContent = data.statLabel;
+
+      // Animate sweep reveal on tab switch
+      currentPercent = 15;
+      targetPercent = 65;
+      updateSweepPosition(currentPercent);
+    });
+  });
+
+  // Initial Position
+  updateSweepPosition(50);
+}
+
+
 
 /* --------------------------------------------------------------------------
    14. Dynamic Project Portfolio & Case Study Showcase Loader
@@ -1569,9 +1713,11 @@ async function initDynamicProjects() {
 
     // Rebind click triggers for newly rendered project cards
     bindProjectCardTriggers();
+    checkDeepLinkProject();
   } catch (err) {
     console.log('Project loader using static markup fallback');
     bindProjectCardTriggers();
+    checkDeepLinkProject();
   }
 }
 
@@ -1625,6 +1771,14 @@ function initCaseStudyViewer() {
               <h4 id="cs-viewer-title" class="case-study-topbar-title">PROJECT TITLE</h4>
             </div>
             <div class="case-study-topbar-actions">
+              <button id="cs-viewer-share-btn" class="case-study-share-btn" aria-label="Share Case Study" title="Copy Share Link">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
+                  <polyline points="16 6 12 2 8 6"></polyline>
+                  <line x1="12" y1="2" x2="12" y2="15"></line>
+                </svg>
+                <span class="cs-share-label">SHARE</span>
+              </button>
               <button id="cs-viewer-close-btn" class="case-study-close-btn" aria-label="Close Case Study">✕</button>
             </div>
           </div>
@@ -1684,13 +1838,54 @@ function initCaseStudyViewer() {
 
   const modal = document.getElementById('kre8mind-case-study-viewer');
   const closeBtn = document.getElementById('cs-viewer-close-btn');
+  const shareBtn = document.getElementById('cs-viewer-share-btn');
 
   const closeModal = () => {
     if (modal) modal.classList.remove('open');
     document.body.style.overflow = '';
+    
+    // Restore URL when closing modal if on deep-link path
+    if (window.history && window.history.replaceState) {
+      const p = window.location.pathname;
+      if (p.startsWith('/project/') || p.startsWith('/case-study/')) {
+        window.history.replaceState({}, document.title, '/projects');
+      }
+    }
   };
 
   if (closeBtn) closeBtn.addEventListener('click', closeModal);
+
+  if (shareBtn) {
+    shareBtn.addEventListener('click', async () => {
+      const proj = window.activeCaseStudyProject;
+      if (!proj) return;
+
+      const shareUrl = `${window.location.origin}/project/${proj.id}`;
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(shareUrl);
+        } else {
+          const tempInput = document.createElement('input');
+          tempInput.value = shareUrl;
+          document.body.appendChild(tempInput);
+          tempInput.select();
+          document.execCommand('copy');
+          document.body.removeChild(tempInput);
+        }
+
+        const label = shareBtn.querySelector('.cs-share-label');
+        if (label) label.textContent = 'COPIED!';
+        shareBtn.classList.add('copied');
+
+        setTimeout(() => {
+          if (label) label.textContent = 'SHARE';
+          shareBtn.classList.remove('copied');
+        }, 2200);
+      } catch (err) {
+        console.error('Failed to copy share link:', err);
+      }
+    });
+  }
   
   if (modal) {
     modal.addEventListener('click', (e) => {
@@ -1708,6 +1903,15 @@ function initCaseStudyViewer() {
 
   window.openCaseStudy = (proj) => {
     if (!proj) return;
+    window.activeCaseStudyProject = proj;
+
+    // Update browser address bar seamlessly without page reload
+    if (window.history && window.history.replaceState) {
+      const targetUrl = `/project/${proj.id}`;
+      if (!window.location.pathname.endsWith(targetUrl)) {
+        window.history.replaceState({ projectId: proj.id }, `${proj.title} — Kre8mind Case Study`, targetUrl);
+      }
+    }
 
     const catBadge = document.getElementById('cs-viewer-category');
     const titleBar = document.getElementById('cs-viewer-title');
@@ -1782,6 +1986,35 @@ function initCaseStudyViewer() {
 
   // Initial trigger binding
   bindProjectCardTriggers();
+  checkDeepLinkProject();
+}
+
+// Global deep-link project detector
+function checkDeepLinkProject() {
+  let targetId = null;
+  const path = window.location.pathname;
+  const match = path.match(/^\/(?:project|case-study)\/([^/?#]+)/i);
+  if (match) {
+    targetId = decodeURIComponent(match[1]);
+  } else {
+    const params = new URLSearchParams(window.location.search);
+    targetId = params.get('id') || params.get('project');
+  }
+
+  if (!targetId) return;
+
+  const cleanTarget = targetId.trim().toLowerCase();
+  const found = (cachedStudioProjects || []).find(p => 
+    (p.id && p.id.toLowerCase() === cleanTarget) ||
+    (p.title && p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-') === cleanTarget) ||
+    (p.title && p.title.toLowerCase() === cleanTarget)
+  );
+
+  if (found) {
+    setTimeout(() => {
+      window.openCaseStudy(found);
+    }, 120);
+  }
 }
 
 /* --------------------------------------------------------------------------
@@ -1840,5 +2073,56 @@ async function initJournal() {
   }
 }
 
+/* --------------------------------------------------------------------------
+   17. Why Kre8mind Animated Stats Counter
+   -------------------------------------------------------------------------- */
+function initWhyStatsCounter() {
+  const statNumbers = document.querySelectorAll('.why-stat-number[data-target]');
+  if (!statNumbers || statNumbers.length === 0) return;
 
+  const section = document.getElementById('why-kre8mind') || document.querySelector('.why-section');
+  if (!section) return;
 
+  let hasAnimated = false;
+
+  const animateCount = (el) => {
+    const target = parseFloat(el.getAttribute('data-target')) || 0;
+    const suffix = el.getAttribute('data-suffix') || '';
+    const duration = 1600; // 1.6s smooth duration
+    const startTime = performance.now();
+
+    const updateNumber = (now) => {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      // Smooth ease-out cubic curve
+      const easedProgress = 1 - Math.pow(1 - progress, 3);
+      const current = Math.floor(easedProgress * target);
+
+      el.textContent = current + suffix;
+
+      if (progress < 1) {
+        requestAnimationFrame(updateNumber);
+      } else {
+        el.textContent = target + suffix;
+      }
+    };
+
+    requestAnimationFrame(updateNumber);
+  };
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting && !hasAnimated) {
+        hasAnimated = true;
+        statNumbers.forEach((statEl) => {
+          animateCount(statEl);
+        });
+        observer.disconnect();
+      }
+    });
+  }, {
+    threshold: 0.2
+  });
+
+  observer.observe(section);
+}

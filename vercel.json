@@ -13,7 +13,13 @@
     { "src": "assets/**", "use": "@vercel/static" },
     { "src": "CLIENTS/**", "use": "@vercel/static" },
     { "src": "Hero moving images/**", "use": "@vercel/static" },
-    { "src": "api/index.js", "use": "@vercel/node" }
+    { 
+      "src": "api/index.js", 
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": ["*.html", "data/**"]
+      }
+    }
   ],
   "routes": [
     {
@@ -59,16 +65,28 @@
       "headers": { "Location": "/admin" }
     },
     {
+      "src": "/project/(.*)",
+      "dest": "/api/index.js"
+    },
+    {
+      "src": "/case-study/(.*)",
+      "dest": "/api/index.js"
+    },
+    {
       "src": "/projects",
-      "dest": "/projects.html"
+      "dest": "/api/index.js"
     },
     {
       "src": "/services",
       "dest": "/services.html"
     },
     {
+      "src": "/journal/(.*)",
+      "dest": "/api/index.js"
+    },
+    {
       "src": "/journal",
-      "dest": "/journal.html"
+      "dest": "/api/index.js"
     },
     {
       "src": "/admin",

@@ -255,6 +255,118 @@
   },
   "analytics": [
     {
+      "id": "v_1788578003463_rdl0j",
+      "visitorId": "f05153d1c977",
+      "path": "projects",
+      "referrer": "Direct",
+      "device": "Desktop",
+      "createdAt": "2026-09-05T03:13:23.473Z"
+    },
+    {
+      "id": "v_1788568846051_2433j",
+      "visitorId": "f05153d1c977",
+      "path": "home",
+      "referrer": "Direct",
+      "device": "Desktop",
+      "createdAt": "2026-09-05T00:40:46.052Z"
+    },
+    {
+      "id": "v_1788566711865_u8421",
+      "visitorId": "f05153d1c977",
+      "path": "home",
+      "referrer": "Direct",
+      "device": "Mobile",
+      "createdAt": "2026-09-05T00:05:11.866Z"
+    },
+    {
+      "id": "v_1788566405990_fzrh0",
+      "visitorId": "f05153d1c977",
+      "path": "home",
+      "referrer": "Direct",
+      "device": "Mobile",
+      "createdAt": "2026-09-05T00:00:05.991Z"
+    },
+    {
+      "id": "v_1788565991190_74ebw",
+      "visitorId": "f05153d1c977",
+      "path": "home",
+      "referrer": "Direct",
+      "device": "Desktop",
+      "createdAt": "2026-09-04T23:53:11.191Z"
+    },
+    {
+      "id": "v_1788563593159_pxmv1",
+      "visitorId": "f05153d1c977",
+      "path": "home",
+      "referrer": "localhost",
+      "device": "Desktop",
+      "createdAt": "2026-09-04T23:13:13.159Z"
+    },
+    {
+      "id": "v_1788562711893_6p8ia",
+      "visitorId": "f05153d1c977",
+      "path": "home",
+      "referrer": "localhost",
+      "device": "Desktop",
+      "createdAt": "2026-09-04T22:58:32.019Z"
+    },
+    {
+      "id": "v_1788561891811_45sx0",
+      "visitorId": "f05153d1c977",
+      "path": "home",
+      "referrer": "Direct",
+      "device": "Desktop",
+      "createdAt": "2026-09-04T22:44:51.814Z"
+    },
+    {
+      "id": "v_1788560313583_eixl3",
+      "visitorId": "f05153d1c977",
+      "path": "home",
+      "referrer": "Direct",
+      "device": "Desktop",
+      "createdAt": "2026-09-04T22:18:33.584Z"
+    },
+    {
+      "id": "v_1788553856025_vmfso",
+      "visitorId": "f05153d1c977",
+      "path": "home",
+      "referrer": "Direct",
+      "device": "Desktop",
+      "createdAt": "2026-09-04T20:30:56.026Z"
+    },
+    {
+      "id": "v_1788553565464_qfk7t",
+      "visitorId": "f05153d1c977",
+      "path": "home",
+      "referrer": "Direct",
+      "device": "Desktop",
+      "createdAt": "2026-09-04T20:26:05.465Z"
+    },
+    {
+      "id": "v_1788553228623_oke87",
+      "visitorId": "f05153d1c977",
+      "path": "home",
+      "referrer": "Direct",
+      "device": "Desktop",
+      "createdAt": "2026-09-04T20:20:28.624Z"
+    },
+    {
+      "id": "v_1788546802462_mf9xm",
+      "visitorId": "f05153d1c977",
+      "path": "index.html",
+      "referrer": "localhost",
+      "device": "Desktop",
+      "createdAt": "2026-09-04T18:33:22.463Z"
+    },
+    {
+      "id": "v_1788546147521_hjn57",
+      "visitorId": "f05153d1c977",
+      "path": "index.html",
+      "referrer": "localhost",
+      "device": "Desktop",
+      "createdAt": "2026-09-04T18:22:27.531Z"
+    },
+    {
       "id": "v_1788522393717_xhu8j",
       "visitorId": "f05153d1c977",
       "path": "index.html",
