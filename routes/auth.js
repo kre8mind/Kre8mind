@@ -1,6 +1,6 @@
 import express from 'express';
 import crypto from 'crypto';
-import { db } from '../db/database.js';
+import { getStudioSettings, updateStudioSettings } from '../db/mongodb.js';
 
 const router = express.Router();
 
@@ -20,6 +20,7 @@ function getIpAttempts(ip) {
 
 // Generate secure session token with HMAC
 const SECRET_SALT = process.env.SESSION_SECRET || 'kre8mind_studio_super_secret_key_2026';
+
 export function generateToken(payload = {}) {
   const dataStr = JSON.stringify({ ...payload, ts: Date.now() });
   const hmac = crypto.createHmac('sha256', SECRET_SALT).update(dataStr).digest('hex');
@@ -62,7 +63,7 @@ export function requireAdminAuth(req, res, next) {
 }
 
 // POST /api/auth/login
-router.post('/login', (req, res) => {
+router.post('/login', async (req, res) => {
   const { password } = req.body;
   const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1';
   const attempts = getIpAttempts(ip);
@@ -76,8 +77,8 @@ router.post('/login', (req, res) => {
     });
   }
 
-  const data = db.read();
-  const configuredPassword = data.settings?.adminPassword || process.env.ADMIN_PASSWORD || 'kre8mind2026';
+  const settings = await getStudioSettings();
+  const configuredPassword = settings.adminPassword || process.env.ADMIN_PASSWORD || 'kre8mind2026';
 
   if (!password || password !== configuredPassword) {
     attempts.count += 1;
@@ -99,7 +100,7 @@ router.post('/login', (req, res) => {
   loginAttempts.delete(ip);
 
   // Issue secure signed session token
-  const token = generateToken({ role: 'admin', ip: ip.substring(0, 8) });
+  const token = generateToken({ role: 'admin', ip: String(ip).substring(0, 8) });
 
   res.json({
     success: true,
@@ -109,7 +110,7 @@ router.post('/login', (req, res) => {
 });
 
 // POST /api/auth/change-password
-router.post('/change-password', requireAdminAuth, (req, res) => {
+router.post('/change-password', requireAdminAuth, async (req, res) => {
   const { currentPassword, newPassword } = req.body;
   if (!newPassword || newPassword.trim().length < 6) {
     return res.status(400).json({
@@ -118,8 +119,8 @@ router.post('/change-password', requireAdminAuth, (req, res) => {
     });
   }
 
-  const data = db.read();
-  const currentConfigured = data.settings?.adminPassword || process.env.ADMIN_PASSWORD || 'kre8mind2026';
+  const settings = await getStudioSettings();
+  const currentConfigured = settings.adminPassword || process.env.ADMIN_PASSWORD || 'kre8mind2026';
 
   // If user provided a current password, verify it matches
   if (currentPassword && currentPassword.trim() !== '' && currentPassword !== currentConfigured) {
@@ -130,9 +131,7 @@ router.post('/change-password', requireAdminAuth, (req, res) => {
   }
 
   const trimmedNew = newPassword.trim();
-  if (!data.settings) data.settings = {};
-  data.settings.adminPassword = trimmedNew;
-  db.write(data);
+  await updateStudioSettings({ adminPassword: trimmedNew });
   process.env.ADMIN_PASSWORD = trimmedNew;
 
   // Issue fresh session token with new password

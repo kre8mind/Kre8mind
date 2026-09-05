@@ -1,79 +1,100 @@
 import express from 'express';
-import { db } from '../db/database.js';
+import { getCollection } from '../db/mongodb.js';
 
 const router = express.Router();
 
 // GET all testimonials
-router.get('/', (req, res) => {
-  const data = db.read();
-  const sorted = [...(data.testimonials || [])].sort((a, b) => (a.order || 0) - (b.order || 0));
-  res.json({
-    success: true,
-    count: sorted.length,
-    data: sorted,
-    testimonials: sorted
-  });
+router.get('/', async (req, res) => {
+  try {
+    const col = await getCollection('testimonials');
+    const list = await col.find({}).sort({ order: 1, createdAt: -1 }).toArray();
+    const sanitized = list.map(item => {
+      const { _id, ...rest } = item;
+      return { id: item.id || String(_id), ...rest };
+    });
+    res.json({
+      success: true,
+      count: sanitized.length,
+      data: sanitized,
+      testimonials: sanitized
+    });
+  } catch (err) {
+    console.error('Error fetching testimonials:', err);
+    res.status(500).json({ success: false, error: 'Failed to fetch testimonials' });
+  }
 });
 
 // POST create testimonial
-router.post('/', (req, res) => {
-  const { name, role, company, quote, avatar } = req.body;
-  if (!name || !quote) {
-    return res.status(400).json({ success: false, error: 'Client name and quote are required.' });
+router.post('/', async (req, res) => {
+  try {
+    const { name, role, company, quote, avatar } = req.body;
+    if (!name || !quote) {
+      return res.status(400).json({ success: false, error: 'Client name and quote are required.' });
+    }
+
+    const col = await getCollection('testimonials');
+    const count = await col.countDocuments();
+
+    const newTesti = {
+      id: `testi_${Date.now()}`,
+      name: name.trim(),
+      role: (role || '').trim(),
+      company: (company || '').trim(),
+      quote: quote.trim(),
+      avatar: avatar || 'assets/clients/Tife Ojo Consults.png',
+      order: count + 1,
+      createdAt: new Date().toISOString()
+    };
+
+    await col.insertOne({ ...newTesti });
+    res.status(201).json({ success: true, data: newTesti, testimonial: newTesti });
+  } catch (err) {
+    console.error('Error creating testimonial:', err);
+    res.status(500).json({ success: false, error: 'Failed to create testimonial' });
   }
-
-  const data = db.read();
-  if (!Array.isArray(data.testimonials)) data.testimonials = [];
-
-  const newTesti = {
-    id: `testi_${Date.now()}`,
-    name: name.trim(),
-    role: (role || '').trim(),
-    company: (company || '').trim(),
-    quote: quote.trim(),
-    avatar: avatar || 'assets/clients/Tife Ojo Consults.png',
-    order: data.testimonials.length + 1,
-    createdAt: new Date().toISOString()
-  };
-
-  data.testimonials.push(newTesti);
-  db.write(data);
-  res.status(201).json({ success: true, data: newTesti, testimonial: newTesti });
 });
 
 // PUT update testimonial
-router.put('/:id', (req, res) => {
-  const { id } = req.params;
-  const data = db.read();
-  const index = (data.testimonials || []).findIndex(t => t.id === id);
+router.put('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const col = await getCollection('testimonials');
+    
+    const updateData = { ...req.body };
+    delete updateData._id;
+    delete updateData.id;
 
-  if (index === -1) {
-    return res.status(404).json({ success: false, error: 'Testimonial not found.' });
+    await col.updateOne({ id: id }, { $set: updateData });
+    const updated = await col.findOne({ id: id });
+
+    if (!updated) {
+      return res.status(404).json({ success: false, error: 'Testimonial not found.' });
+    }
+
+    const { _id, ...clean } = updated;
+    res.json({ success: true, data: clean, testimonial: clean });
+  } catch (err) {
+    console.error('Error updating testimonial:', err);
+    res.status(500).json({ success: false, error: 'Failed to update testimonial' });
   }
-
-  data.testimonials[index] = {
-    ...data.testimonials[index],
-    ...req.body,
-    id: id
-  };
-
-  db.write(data);
-  res.json({ success: true, data: data.testimonials[index], testimonial: data.testimonials[index] });
 });
 
 // DELETE testimonial
-router.delete('/:id', (req, res) => {
-  const { id } = req.params;
-  const data = db.read();
-  const initialLength = (data.testimonials || []).length;
-  data.testimonials = (data.testimonials || []).filter(t => t.id !== id);
+router.delete('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const col = await getCollection('testimonials');
+    const result = await col.deleteOne({ id: id });
 
-  if (data.testimonials.length === initialLength) {
-    return res.status(404).json({ success: false, error: 'Testimonial not found.' });
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ success: false, error: 'Testimonial not found.' });
+    }
+
+    res.json({ success: true, message: 'Testimonial deleted successfully.' });
+  } catch (err) {
+    console.error('Error deleting testimonial:', err);
+    res.status(500).json({ success: false, error: 'Failed to delete testimonial' });
   }
-
-  db.write(data);
-  res.json({ success: true, message: 'Testimonial deleted successfully.' });
 });
 
 export default router;

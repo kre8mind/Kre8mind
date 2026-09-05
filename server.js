@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 
 import fs from 'fs';
-import { db } from './db/database.js';
+import { getCollection } from './db/mongodb.js';
 
 import requestsRouter from './routes/requests.js';
 import projectsRouter from './routes/projects.js';
@@ -24,8 +24,8 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '20mb' }));
+app.use(express.urlencoded({ extended: true, limit: '20mb' }));
 
 // Serve static assets (CSS, JS, Images, Fonts)
 app.use(express.static(__dirname, { index: false }));
@@ -35,43 +35,41 @@ app.get('/api/health', (req, res) => {
   res.json({
     status: 'online',
     studio: 'Kre8mind Studio API',
+    database: 'MongoDB Atlas',
     timestamp: new Date().toISOString(),
-    version: '1.0.0'
+    version: '2.0.0'
   });
 });
 
-// File Upload (Multer)
+// File Upload (Multer Memory Storage - Serverless & Atlas Safe)
 import multer from 'multer';
 
-const uploadDir = path.join(__dirname, 'assets/showcase');
-const clientsDir = path.join(__dirname, 'assets/clients');
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 20 * 1024 * 1024 } // 20MB
+});
 
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
-if (!fs.existsSync(clientsDir)) {
-  fs.mkdirSync(clientsDir, { recursive: true });
-}
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const isAvatar = req.query.type === 'avatar' || (req.headers['x-upload-type'] === 'avatar');
-    cb(null, isAvatar ? clientsDir : uploadDir);
-  },
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname) || '.png';
-    const base = path.basename(file.originalname, ext).replace(/[^a-zA-Z0-9_-]/g, '_');
-    cb(null, `${base}_${Date.now()}${ext}`);
+// Serve uploaded media directly from MongoDB Atlas
+app.get('/api/media/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const mediaCol = await getCollection('media');
+    const item = await mediaCol.findOne({ mediaId: id });
+    if (!item || !item.data) {
+      return res.status(404).json({ error: 'Media not found' });
+    }
+    res.setHeader('Content-Type', item.mimetype || 'image/jpeg');
+    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    const buf = Buffer.isBuffer(item.data) ? item.data : (item.data.buffer ? Buffer.from(item.data.buffer) : Buffer.from(item.data));
+    return res.send(buf);
+  } catch (err) {
+    console.error('Error serving media from Atlas:', err);
+    return res.status(500).json({ error: 'Failed to retrieve media' });
   }
 });
 
-const upload = multer({
-  storage,
-  limits: { fileSize: 50 * 1024 * 1024 } // 50MB
-});
-
 app.post('/api/upload', (req, res) => {
-  upload.single('file')(req, res, (err) => {
+  upload.single('file')(req, res, async (err) => {
     if (err) {
       console.error('File upload error:', err);
       return res.status(400).json({ success: false, error: err.message || 'File upload failed' });
@@ -79,15 +77,28 @@ app.post('/api/upload', (req, res) => {
     if (!req.file) {
       return res.status(400).json({ success: false, error: 'No file uploaded' });
     }
-    const isAvatar = req.query.type === 'avatar' || (req.headers['x-upload-type'] === 'avatar');
-    const folder = isAvatar ? 'assets/clients' : 'assets/showcase';
-    const relativePath = `${folder}/${req.file.filename}`;
-    res.json({ success: true, filePath: relativePath });
+    try {
+      const mediaCol = await getCollection('media');
+      const mediaId = `media_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+      await mediaCol.insertOne({
+        mediaId,
+        filename: req.file.originalname,
+        mimetype: req.file.mimetype || 'image/png',
+        data: req.file.buffer,
+        size: req.file.size,
+        createdAt: new Date()
+      });
+      const filePath = `/api/media/${mediaId}`;
+      res.json({ success: true, filePath });
+    } catch (dbErr) {
+      console.error('Atlas media upload save error:', dbErr);
+      res.status(500).json({ success: false, error: 'Failed to save media to database' });
+    }
   });
 });
 
 app.post('/api/upload-multiple', (req, res) => {
-  upload.array('files', 25)(req, res, (err) => {
+  upload.array('files', 25)(req, res, async (err) => {
     if (err) {
       console.error('Multiple upload error:', err);
       return res.status(400).json({ success: false, error: err.message || 'Files upload failed' });
@@ -95,8 +106,26 @@ app.post('/api/upload-multiple', (req, res) => {
     if (!req.files || !req.files.length) {
       return res.status(400).json({ success: false, error: 'No files uploaded' });
     }
-    const filePaths = req.files.map(f => `assets/showcase/${f.filename}`);
-    res.json({ success: true, filePaths });
+    try {
+      const mediaCol = await getCollection('media');
+      const filePaths = [];
+      for (const file of req.files) {
+        const mediaId = `media_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+        await mediaCol.insertOne({
+          mediaId,
+          filename: file.originalname,
+          mimetype: file.mimetype || 'image/jpeg',
+          data: file.buffer,
+          size: file.size,
+          createdAt: new Date()
+        });
+        filePaths.push(`/api/media/${mediaId}`);
+      }
+      res.json({ success: true, filePaths });
+    } catch (dbErr) {
+      console.error('Atlas multiple media save error:', dbErr);
+      res.status(500).json({ success: false, error: 'Failed to save media files' });
+    }
   });
 });
 
@@ -187,28 +216,38 @@ function renderHtmlWithSocialMeta(filename, meta, req) {
   }
 }
 
-function findProject(identifier) {
+async function findProject(identifier) {
   if (!identifier) return null;
   const cleanId = String(identifier).trim().toLowerCase();
-  const data = db.read();
-  const projects = data.projects || [];
-  return projects.find(p => 
-    (p.id && p.id.toLowerCase() === cleanId) ||
-    (p.title && p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-') === cleanId) ||
-    (p.title && p.title.toLowerCase() === cleanId)
-  ) || null;
+  try {
+    const col = await getCollection('projects');
+    const proj = await col.findOne({
+      $or: [
+        { id: { $regex: new RegExp(`^${cleanId}$`, 'i') } },
+        { title: { $regex: new RegExp(`^${cleanId}$`, 'i') } }
+      ]
+    });
+    return proj;
+  } catch {
+    return null;
+  }
 }
 
-function findJournalArticle(identifier) {
+async function findJournalArticle(identifier) {
   if (!identifier) return null;
   const cleanId = String(identifier).trim().toLowerCase();
-  const data = db.read();
-  const articles = data.journal || [];
-  return articles.find(a => 
-    (a.id && a.id.toLowerCase() === cleanId) ||
-    (a.title && a.title.toLowerCase().replace(/[^a-z0-9]+/g, '-') === cleanId) ||
-    (a.title && a.title.toLowerCase() === cleanId)
-  ) || null;
+  try {
+    const col = await getCollection('journal');
+    const article = await col.findOne({
+      $or: [
+        { id: { $regex: new RegExp(`^${cleanId}$`, 'i') } },
+        { title: { $regex: new RegExp(`^${cleanId}$`, 'i') } }
+      ]
+    });
+    return article;
+  } catch {
+    return null;
+  }
 }
 
 // --------------------------------------------------------------------------
@@ -216,8 +255,8 @@ function findJournalArticle(identifier) {
 // --------------------------------------------------------------------------
 
 // Project / Case Study Deep Link Route with Dynamic Social Meta Preview
-app.get(['/project/:id', '/case-study/:id'], (req, res) => {
-  const proj = findProject(req.params.id);
+app.get(['/project/:id', '/case-study/:id'], async (req, res) => {
+  const proj = await findProject(req.params.id);
   const baseUrl = getBaseUrl(req);
 
   if (proj) {
@@ -242,12 +281,12 @@ app.get(['/project/:id', '/case-study/:id'], (req, res) => {
 });
 
 // Projects Page (Supports ?id= or ?project= query for dynamic project share)
-app.get('/projects', (req, res) => {
+app.get('/projects', async (req, res) => {
   const queryId = req.query.id || req.query.project;
   const baseUrl = getBaseUrl(req);
 
   if (queryId) {
-    const proj = findProject(queryId);
+    const proj = await findProject(queryId);
     if (proj) {
       const meta = {
         title: `${proj.title} — Kre8mind Case Study`,
@@ -270,8 +309,8 @@ app.get('/projects', (req, res) => {
 });
 
 // Journal Article Deep Link Route with Dynamic Social Meta Preview
-app.get('/journal/:id', (req, res) => {
-  const article = findJournalArticle(req.params.id);
+app.get('/journal/:id', async (req, res) => {
+  const article = await findJournalArticle(req.params.id);
   const baseUrl = getBaseUrl(req);
 
   if (article) {
@@ -295,12 +334,12 @@ app.get('/journal/:id', (req, res) => {
 });
 
 // Journal Page (Supports ?id= or ?article= query)
-app.get('/journal', (req, res) => {
+app.get('/journal', async (req, res) => {
   const queryId = req.query.id || req.query.article;
   const baseUrl = getBaseUrl(req);
 
   if (queryId) {
-    const article = findJournalArticle(queryId);
+    const article = await findJournalArticle(queryId);
     if (article) {
       const meta = {
         title: `${article.title} — Kre8mind Journal`,

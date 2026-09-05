@@ -1,17 +1,27 @@
 import express from 'express';
-import { db } from '../db/database.js';
+import { getCollection } from '../db/mongodb.js';
 import { sendInquiryConfirmation } from '../services/mailer.js';
 
 const router = express.Router();
 
 // GET all inquiries (for Admin Dashboard)
-router.get('/', (req, res) => {
-  const data = db.read();
-  res.json({
-    success: true,
-    count: data.inquiries.length,
-    inquiries: data.inquiries
-  });
+router.get('/', async (req, res) => {
+  try {
+    const col = await getCollection('inquiries');
+    const list = await col.find({}).sort({ createdAt: -1 }).toArray();
+    const sanitized = list.map(item => {
+      const { _id, ...rest } = item;
+      return { id: item.id || String(_id), ...rest };
+    });
+    res.json({
+      success: true,
+      count: sanitized.length,
+      inquiries: sanitized
+    });
+  } catch (err) {
+    console.error('Error fetching inquiries:', err);
+    res.status(500).json({ success: false, error: 'Failed to fetch inquiries' });
+  }
 });
 
 // POST new client inquiry from frontend services/contact forms
@@ -26,7 +36,7 @@ router.post('/', async (req, res) => {
       });
     }
 
-    const data = db.read();
+    const col = await getCollection('inquiries');
     const newInquiry = {
       id: `req_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
       createdAt: new Date().toISOString(),
@@ -41,11 +51,15 @@ router.post('/', async (req, res) => {
       status: 'NEW'
     };
 
-    data.inquiries.unshift(newInquiry);
-    db.write(data);
+    await col.insertOne({ ...newInquiry });
 
-    // Send confirmation email
-    const emailResult = await sendInquiryConfirmation(newInquiry);
+    // Send confirmation email (non-blocking if mailer fails)
+    let emailResult = { sent: false };
+    try {
+      emailResult = await sendInquiryConfirmation(newInquiry);
+    } catch (mErr) {
+      console.warn('Mailer note:', mErr.message);
+    }
 
     res.status(201).json({
       success: true,
@@ -63,42 +77,51 @@ router.post('/', async (req, res) => {
 });
 
 // PATCH update inquiry status
-router.patch('/:id/status', (req, res) => {
-  const { id } = req.params;
-  const { status } = req.body;
+router.patch('/:id/status', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
 
-  const validStatuses = ['NEW', 'ONGOING', 'COMPLETED', 'REJECTED', 'BOOKED_CALL', 'REVIEWED', 'ARCHIVED'];
-  if (!validStatuses.includes(status)) {
-    return res.status(400).json({ success: false, error: 'Invalid status value.' });
+    const validStatuses = ['NEW', 'ONGOING', 'COMPLETED', 'REJECTED', 'BOOKED_CALL', 'REVIEWED', 'ARCHIVED', 'CONTACTED'];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ success: false, error: 'Invalid status value.' });
+    }
+
+    const col = await getCollection('inquiries');
+    await col.updateOne(
+      { id: id },
+      { $set: { status: status, updatedAt: new Date().toISOString() } }
+    );
+
+    const updated = await col.findOne({ id: id });
+    if (!updated) {
+      return res.status(400).json({ success: false, error: 'Inquiry not found.' });
+    }
+
+    const { _id, ...clean } = updated;
+    res.json({ success: true, inquiry: clean });
+  } catch (err) {
+    console.error('Error updating inquiry status:', err);
+    res.status(500).json({ success: false, error: 'Failed to update status' });
   }
-
-  const data = db.read();
-  const inquiry = data.inquiries.find(item => item.id === id);
-
-  if (!inquiry) {
-    return res.status(400).json({ success: false, error: 'Inquiry not found.' });
-  }
-
-  inquiry.status = status;
-  inquiry.updatedAt = new Date().toISOString();
-  db.write(data);
-
-  res.json({ success: true, inquiry });
 });
 
 // DELETE inquiry
-router.delete('/:id', (req, res) => {
-  const { id } = req.params;
-  const data = db.read();
-  const initialLength = data.inquiries.length;
-  data.inquiries = data.inquiries.filter(item => item.id !== id);
+router.delete('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const col = await getCollection('inquiries');
+    const result = await col.deleteOne({ id: id });
 
-  if (data.inquiries.length === initialLength) {
-    return res.status(404).json({ success: false, error: 'Inquiry not found.' });
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ success: false, error: 'Inquiry not found.' });
+    }
+
+    res.json({ success: true, message: 'Inquiry deleted successfully.' });
+  } catch (err) {
+    console.error('Error deleting inquiry:', err);
+    res.status(500).json({ success: false, error: 'Failed to delete inquiry' });
   }
-
-  db.write(data);
-  res.json({ success: true, message: 'Inquiry deleted successfully.' });
 });
 
 export default router;

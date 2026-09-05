@@ -1,6 +1,6 @@
 import express from 'express';
 import crypto from 'crypto';
-import { db } from '../db/database.js';
+import { getCollection } from '../db/mongodb.js';
 
 const router = express.Router();
 
@@ -11,7 +11,7 @@ function anonymizeIp(ip) {
 }
 
 // 1. Record Page Visit
-router.post('/track', (req, res) => {
+router.post('/track', async (req, res) => {
   try {
     const { path = '/', referrer = '', device = 'Desktop', screenWidth = 1440 } = req.body;
     const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1';
@@ -36,18 +36,8 @@ router.post('/track', (req, res) => {
       createdAt: new Date().toISOString()
     };
 
-    const data = db.read();
-    if (!Array.isArray(data.analytics)) {
-      data.analytics = [];
-    }
-
-    // Keep the last 5,000 visits
-    data.analytics.unshift(newVisit);
-    if (data.analytics.length > 5000) {
-      data.analytics = data.analytics.slice(0, 5000);
-    }
-
-    db.write(data);
+    const col = await getCollection('analytics');
+    await col.insertOne(newVisit);
 
     res.json({ success: true });
   } catch (err) {
@@ -57,11 +47,13 @@ router.post('/track', (req, res) => {
 });
 
 // 2. Get Analytics Overview & Time-series data
-router.get('/overview', (req, res) => {
+router.get('/overview', async (req, res) => {
   try {
-    const data = db.read();
-    const visits = data.analytics || [];
-    const inquiries = data.inquiries || [];
+    const analyticsCol = await getCollection('analytics');
+    const inqCol = await getCollection('inquiries');
+
+    const visits = await analyticsCol.find({}).sort({ createdAt: -1 }).limit(1000).toArray();
+    const inquiries = await inqCol.find({}).sort({ createdAt: -1 }).toArray();
 
     const now = new Date();
     const todayStr = now.toISOString().split('T')[0];
