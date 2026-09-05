@@ -2231,12 +2231,26 @@ button {
 }
 
 .story-big-quote {
-  font-size: clamp(26px, 3.1vw, 44px);
-  font-weight: var(--fw-medium);
-  line-height: 1.2;
-  letter-spacing: -0.035em;
+  font-size: clamp(17px, 1.35vw, 21px);
+  font-weight: var(--fw-regular, 400);
+  line-height: 1.65;
+  letter-spacing: -0.015em;
   color: var(--text-primary);
-  text-wrap: balance;
+  max-width: 620px;
+  text-wrap: pretty;
+}
+
+/* Tablet & Laptop Quote Optimization */
+@media (max-width: 1200px) and (min-width: 961px) {
+  .stories-content-grid {
+    gap: 36px;
+  }
+
+  .story-big-quote {
+    font-size: 17.5px;
+    line-height: 1.6;
+    max-width: 100%;
+  }
 }
 
 /* Mobile Responsiveness & Accordion Dropdown */
