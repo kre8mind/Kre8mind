@@ -597,7 +597,9 @@ function bindClientStoryTriggers() {
       const isMobile = window.innerWidth <= 960;
 
       if (isMobile) {
-        e.preventDefault();
+        // If tapping directly on the quote text itself, allow text interaction without closing
+        if (e.target.closest('.story-mobile-quote')) return;
+
         const wasActive = card.classList.contains('active');
         clientCards.forEach(c => c.classList.remove('active'));
         if (!wasActive) {
