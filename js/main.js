@@ -35,6 +35,20 @@ function initLenisSmoothScroll() {
   const ease = 0.082; // Buttery slow, luxurious momentum dampening
 
   function onWheel(e) {
+    const csViewer = document.getElementById('kre8mind-case-study-viewer');
+    if (csViewer && csViewer.classList.contains('open')) {
+      e.preventDefault();
+      csViewer.scrollTop += e.deltaY;
+      return;
+    }
+
+    const inqModal = document.getElementById('kre8mind-inquiry-modal');
+    if (inqModal && inqModal.classList.contains('open')) {
+      e.preventDefault();
+      inqModal.scrollTop += e.deltaY;
+      return;
+    }
+
     if (e.target.closest('.case-study-modal-backdrop') || e.target.closest('.inquiry-modal-backdrop')) {
       return;
     }
@@ -51,6 +65,13 @@ function initLenisSmoothScroll() {
   }
 
   function smoothScrollLoop() {
+    const csViewer = document.getElementById('kre8mind-case-study-viewer');
+    const inqModal = document.getElementById('kre8mind-inquiry-modal');
+    if ((csViewer && csViewer.classList.contains('open')) || (inqModal && inqModal.classList.contains('open'))) {
+      isScrolling = false;
+      return;
+    }
+
     const diff = targetY - currentY;
     currentY += diff * ease;
 
@@ -486,19 +507,20 @@ function initClientStories() {
   clientCards.forEach(card => {
     // Instant switch on Hover (Desktop)
     card.addEventListener('mouseenter', () => {
-      if (window.innerWidth > 768) {
+      if (window.innerWidth > 960) {
         activateStory(card);
       }
     });
 
-    // Click handler for mobile accordion & desktop
-    card.addEventListener('click', () => {
-      const isMobile = window.innerWidth <= 768;
+    // Click handler for mobile accordion dropdown & desktop
+    card.addEventListener('click', (e) => {
+      const isMobile = window.innerWidth <= 960;
 
       if (isMobile) {
-        const isActive = card.classList.contains('active');
+        e.preventDefault();
+        const wasActive = card.classList.contains('active');
         clientCards.forEach(c => c.classList.remove('active'));
-        if (!isActive) {
+        if (!wasActive) {
           card.classList.add('active');
         }
       } else {
@@ -641,9 +663,9 @@ function initAddonToggles() {
     let devNote = 'Includes Design + Development (Framer/React)';
 
     if (slideTitle === 'PERSONAL WEBSITE') {
-      basePrice = 1500;
-      devPrice = 800;
-      baseNote = '* Development adds $800 (Framer/React)';
+      basePrice = 800;
+      devPrice = 600;
+      baseNote = '* Development adds $600 (Framer/React)';
       devNote = 'Includes Design + Development (Framer/React)';
     } else if (slideTitle === 'FULL WEBSITE') {
       basePrice = 2000;
@@ -675,32 +697,6 @@ function initAddonToggles() {
   });
 }
 
-/* --------------------------------------------------------------------------
-   10. Framer-Grade Gentle Lenis Smooth Scroll
-   -------------------------------------------------------------------------- */
-function initLenisSmoothScroll() {
-  if (typeof Lenis === 'undefined') return;
-
-  const lenis = new Lenis({
-    duration: 1.25,
-    easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // signature gentle exponential ease-out
-    orientation: 'vertical',
-    gestureOrientation: 'vertical',
-    smoothWheel: true,
-    wheelMultiplier: 0.85,
-    touchMultiplier: 1.5,
-    infinite: false,
-  });
-
-  function raf(time) {
-    lenis.raf(time);
-    requestAnimationFrame(raf);
-  }
-
-  requestAnimationFrame(raf);
-
-  window.lenis = lenis;
-}
 
 /* --------------------------------------------------------------------------
    11. Studio Project Inquiry Modal ("Let's Talk About Your Project")
@@ -1771,6 +1767,7 @@ function initCaseStudyViewer() {
   const closeModal = () => {
     if (modal) modal.classList.remove('open');
     document.body.style.overflow = '';
+    document.documentElement.style.overflow = '';
     
     // Restore URL when closing modal if on deep-link path
     if (window.history && window.history.replaceState) {
@@ -1822,8 +1819,20 @@ function initCaseStudyViewer() {
   }
 
   window.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && modal && modal.classList.contains('open')) {
-      closeModal();
+    if (modal && modal.classList.contains('open')) {
+      if (e.key === 'Escape') {
+        closeModal();
+      } else if (e.key === 'ArrowDown') {
+        modal.scrollTop += 80;
+      } else if (e.key === 'ArrowUp') {
+        modal.scrollTop -= 80;
+      } else if (e.key === 'PageDown' || (e.key === ' ' && !e.target.matches('input, textarea'))) {
+        e.preventDefault();
+        modal.scrollTop += window.innerHeight * 0.8;
+      } else if (e.key === 'PageUp') {
+        e.preventDefault();
+        modal.scrollTop -= window.innerHeight * 0.8;
+      }
     }
   });
 
@@ -1918,6 +1927,7 @@ function initCaseStudyViewer() {
     modal.classList.add('open');
     modal.scrollTo({ top: 0, behavior: 'instant' });
     document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
   };
 
   // Initial trigger binding
