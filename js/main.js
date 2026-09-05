@@ -461,7 +461,7 @@ function initScrollAnimations() {
 }
 
 /* --------------------------------------------------------------------------
-   7. Interactive Client Stories Switcher (Hover & Click on Desktop + Mobile Accordion)
+   7. Interactive Client Stories Switcher (Hover on Desktop + Mobile Accordion)
    -------------------------------------------------------------------------- */
 function initClientStories() {
   const clientCards = document.querySelectorAll('.story-client-card');
@@ -484,31 +484,27 @@ function initClientStories() {
   };
 
   clientCards.forEach(card => {
-    const headerBtn = card.querySelector('.story-client-header');
-
     // Instant switch on Hover (Desktop)
     card.addEventListener('mouseenter', () => {
-      if (window.innerWidth > 960) {
+      if (window.innerWidth > 768) {
         activateStory(card);
       }
     });
 
-    if (headerBtn) {
-      headerBtn.addEventListener('click', () => {
-        const isMobile = window.innerWidth <= 960;
+    // Click handler for mobile accordion & desktop
+    card.addEventListener('click', () => {
+      const isMobile = window.innerWidth <= 768;
 
-        if (isMobile) {
-          // Toggle mobile accordion
-          const isActive = card.classList.contains('active');
-          clientCards.forEach(c => c.classList.remove('active'));
-          if (!isActive) {
-            card.classList.add('active');
-          }
-        } else {
-          activateStory(card);
+      if (isMobile) {
+        const isActive = card.classList.contains('active');
+        clientCards.forEach(c => c.classList.remove('active'));
+        if (!isActive) {
+          card.classList.add('active');
         }
-      });
-    }
+      } else {
+        activateStory(card);
+      }
+    });
   });
 
   // Toggle More / Less Stories
@@ -532,6 +528,11 @@ function initClientStories() {
         if (toggleIcon) toggleIcon.textContent = '+';
       }
     });
+  }
+
+  // Activate first story by default
+  if (clientCards[0]) {
+    activateStory(clientCards[0]);
   }
 }
 
@@ -1286,118 +1287,6 @@ function initCustomSquareCursor() {
   });
 }
 
-/* --------------------------------------------------------------------------
-   8. Client Stories & Reviews Motion Engine (Auto-Cycle & Interactive Selector)
-   -------------------------------------------------------------------------- */
-function initClientStories() {
-  const clientCards = document.querySelectorAll('.story-client-card');
-  const quoteItems = document.querySelectorAll('.story-quote-item');
-  const toggleBtn = document.getElementById('toggleStoriesBtn');
-  const storiesSection = document.getElementById('testimonials');
-  
-  if (!clientCards.length) return;
-
-  let activeIndex = 0;
-  let autoTimer = null;
-  const cycleDuration = 4800; // 4.8s per review motion
-  let isPaused = false;
-
-  function setActiveStory(index, userInteracted = false) {
-    if (index < 0 || index >= clientCards.length) return;
-    activeIndex = index;
-
-    // Update client cards
-    clientCards.forEach((card, idx) => {
-      const dropdown = card.querySelector('.story-mobile-dropdown');
-      if (idx === index) {
-        card.classList.add('active');
-        if (dropdown) {
-          dropdown.style.maxHeight = dropdown.scrollHeight + 'px';
-          dropdown.style.opacity = '1';
-        }
-      } else {
-        card.classList.remove('active');
-        if (dropdown) {
-          dropdown.style.maxHeight = '0px';
-          dropdown.style.opacity = '0';
-        }
-      }
-    });
-
-    // Update quotes on desktop
-    quoteItems.forEach((quote, idx) => {
-      if (idx === index) {
-        quote.classList.add('active');
-      } else {
-        quote.classList.remove('active');
-      }
-    });
-
-    if (userInteracted) {
-      resetAutoTimer();
-    }
-  }
-
-  function nextStory() {
-    if (isPaused) return;
-    const visibleCards = Array.from(clientCards).filter(c => !c.classList.contains('is-folded'));
-    const nextIdx = (activeIndex + 1) % (visibleCards.length || clientCards.length);
-    setActiveStory(nextIdx);
-  }
-
-  function startAutoTimer() {
-    stopAutoTimer();
-    autoTimer = setInterval(nextStory, cycleDuration);
-  }
-
-  function stopAutoTimer() {
-    if (autoTimer) clearInterval(autoTimer);
-    autoTimer = null;
-  }
-
-  function resetAutoTimer() {
-    stopAutoTimer();
-    startAutoTimer();
-  }
-
-  // Click listeners for each client card / header
-  clientCards.forEach((card, idx) => {
-    card.addEventListener('click', (e) => {
-      setActiveStory(idx, true);
-    });
-  });
-
-  // Pause review motion on hover
-  if (storiesSection) {
-    storiesSection.addEventListener('mouseenter', () => { isPaused = true; });
-    storiesSection.addEventListener('mouseleave', () => { isPaused = false; });
-  }
-
-  // "View More Stories" accordion toggle button
-  if (toggleBtn) {
-    toggleBtn.addEventListener('click', () => {
-      const extraStories = document.querySelectorAll('.story-client-card.extra-story');
-      const isExpanded = toggleBtn.classList.toggle('expanded');
-      
-      extraStories.forEach(card => {
-        if (isExpanded) {
-          card.classList.remove('is-folded');
-        } else {
-          card.classList.add('is-folded');
-        }
-      });
-
-      const textSpan = toggleBtn.querySelector('.toggle-text');
-      const iconSpan = toggleBtn.querySelector('.toggle-icon');
-      if (textSpan) textSpan.textContent = isExpanded ? 'SHOW LESS STORIES' : 'VIEW MORE STORIES';
-      if (iconSpan) iconSpan.textContent = isExpanded ? '−' : '+';
-    });
-  }
-
-  // Initial active story state
-  setActiveStory(0);
-  startAutoTimer();
-}
 
 /* --------------------------------------------------------------------------
    8.5 Auto-Sweep & Interactive Before/After Transformation Scanner
@@ -1814,15 +1703,15 @@ function initCaseStudyViewer() {
             <!-- Conversion Action Bar -->
             <div class="case-study-cta-box">
               <div class="case-study-cta-left">
-                <h3>INTERESTED IN A SIMILAR REDESIGN?</h3>
+                <h3 id="cs-cta-heading">INTERESTED IN A SIMILAR REDESIGN?</h3>
                 <p>We partner with high-conviction teams to design and build state-of-the-art products.</p>
               </div>
               <div class="case-study-cta-btns">
-                <a href="https://cal.com/kre8mind/project-discovery" class="btn-white" id="cs-book-call-btn">
-                  BOOK A DISCOVERY CALL →
+                <a href="https://cal.com/kre8mind/project-discovery" class="btn-white" id="cs-book-call-btn" target="_blank" rel="noopener noreferrer">
+                  BOOK A CALL →
                 </a>
-                <button class="btn-outline btn-send-request" id="cs-inquire-btn">
-                  REQUEST SCOPE & PRICE →
+                <button type="button" class="btn-outline btn-send-request" id="cs-inquire-btn">
+                  REQUEST A SERVICE →
                 </button>
               </div>
             </div>
@@ -1839,6 +1728,45 @@ function initCaseStudyViewer() {
   const modal = document.getElementById('kre8mind-case-study-viewer');
   const closeBtn = document.getElementById('cs-viewer-close-btn');
   const shareBtn = document.getElementById('cs-viewer-share-btn');
+  const bookCallBtn = document.getElementById('cs-book-call-btn');
+  const inquireBtn = document.getElementById('cs-inquire-btn');
+
+  if (bookCallBtn) {
+    bookCallBtn.addEventListener('click', (e) => {
+      if (window.Cal) {
+        e.preventDefault();
+        window.Cal("modal", {
+          calLink: "kre8mind/project-discovery",
+          config: {
+            theme: "light",
+            layout: "month_view"
+          }
+        });
+      }
+    });
+  }
+
+  if (inquireBtn) {
+    inquireBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const inqModal = document.getElementById('kre8mind-inquiry-modal');
+      if (inqModal) {
+        const proj = window.activeCaseStudyProject;
+        const title = proj ? `${proj.title} (Project Scope)` : 'Project Scope & Inquiry';
+        const sLabel = document.getElementById('inq-service-name-label');
+        const pLabel = document.getElementById('inq-price-tag-label');
+        const sHidden = document.getElementById('inq-service-hidden');
+        const pHidden = document.getElementById('inq-price-hidden');
+        if (sLabel) sLabel.textContent = title;
+        if (pLabel) pLabel.textContent = 'Custom Scope & Pricing';
+        if (sHidden) sHidden.value = title;
+        if (pHidden) pHidden.value = 'Custom Scope & Pricing';
+        inqModal.classList.add('open');
+      } else {
+        window.location.href = '/services#pricing';
+      }
+    });
+  }
 
   const closeModal = () => {
     if (modal) modal.classList.remove('open');
@@ -1933,6 +1861,14 @@ function initCaseStudyViewer() {
     if (heroSummary) heroSummary.textContent = summary;
     if (metaDeliverables) metaDeliverables.textContent = tags;
     if (metaYear) metaYear.textContent = year;
+
+    // Smart Redesign Detection for Bottom CTA
+    const ctaHeading = document.getElementById('cs-cta-heading');
+    const fullProjText = `${title} ${category} ${summary} ${tags}`;
+    const isRedesign = /redesign/i.test(fullProjText);
+    if (ctaHeading) {
+      ctaHeading.textContent = isRedesign ? 'INTERESTED IN A SIMILAR REDESIGN?' : 'INTERESTED IN A SIMILAR PROJECT?';
+    }
 
     // Collect presentation slices
     const slices = [];

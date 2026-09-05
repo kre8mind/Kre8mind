@@ -77,7 +77,7 @@ router.post('/login', (req, res) => {
   }
 
   const data = db.read();
-  const configuredPassword = process.env.ADMIN_PASSWORD || data.settings?.adminPassword || 'kre8mind2026';
+  const configuredPassword = data.settings?.adminPassword || process.env.ADMIN_PASSWORD || 'kre8mind2026';
 
   if (!password || password !== configuredPassword) {
     attempts.count += 1;
@@ -119,7 +119,7 @@ router.post('/change-password', requireAdminAuth, (req, res) => {
   }
 
   const data = db.read();
-  const currentConfigured = process.env.ADMIN_PASSWORD || data.settings?.adminPassword || 'kre8mind2026';
+  const currentConfigured = data.settings?.adminPassword || process.env.ADMIN_PASSWORD || 'kre8mind2026';
 
   if (currentPassword !== currentConfigured) {
     return res.status(400).json({
@@ -131,6 +131,7 @@ router.post('/change-password', requireAdminAuth, (req, res) => {
   if (!data.settings) data.settings = {};
   data.settings.adminPassword = newPassword;
   db.write(data);
+  process.env.ADMIN_PASSWORD = newPassword;
 
   res.json({
     success: true,

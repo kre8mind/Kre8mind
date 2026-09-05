@@ -251,9 +251,18 @@
   "settings": {
     "adminPasswordHash": "kre8mind2026",
     "contactEmail": "hello@kre8mind.com",
-    "notificationsEnabled": true
+    "notificationsEnabled": true,
+    "adminPassword": "kre8mind2026"
   },
   "analytics": [
+    {
+      "id": "v_1788585151908_n1m5i",
+      "visitorId": "f05153d1c977",
+      "path": "project/proj_1788486163854",
+      "referrer": "Direct",
+      "device": "Desktop",
+      "createdAt": "2026-09-05T05:12:31.909Z"
+    },
     {
       "id": "v_1788578003463_rdl0j",
       "visitorId": "f05153d1c977",

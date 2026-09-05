@@ -128,6 +128,7 @@ export const db = {
       if (!Array.isArray(parsed.projects)) parsed.projects = defaultData.projects;
       if (!Array.isArray(parsed.journal)) parsed.journal = defaultData.journal;
       if (!Array.isArray(parsed.inquiries)) parsed.inquiries = defaultData.inquiries;
+      if (!parsed.settings) parsed.settings = { ...defaultData.settings };
       return parsed;
     } catch (err) {
       console.error('Error reading database file:', err);
