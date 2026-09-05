@@ -987,7 +987,7 @@ function renderTestimonialAvatarPreview(url) {
     return;
   }
   box.style.display = 'block';
-  box.innerHTML = `<img src="${url}" class="live-media-preview" style="display:block; max-height:80px; width: auto; object-fit: contain;">`;
+  box.innerHTML = `<img src="${url}" class="live-media-preview" style="display:block; width:64px; height:64px; border-radius:50%; object-fit:cover; border:1px solid var(--border);">`;
 }
 
 async function fetchTestimonials() {
@@ -1016,8 +1016,10 @@ function renderTestimonialsTable() {
 
   tbody.innerHTML = testimonialsData.map(t => `
     <tr>
-      <td style="width: 80px;">
-        <img src="${t.avatar || 'assets/clients/Tife Ojo Consults.png'}" style="height: 32px; max-width: 64px; object-fit: contain;">
+      <td style="width: 60px;">
+        <div style="width: 38px; height: 38px; border-radius: 50%; overflow: hidden; border: 1px solid var(--border); background: #18181b;">
+          <img src="${t.avatar || 'assets/clients/Tife Ojo Consults.png'}" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+        </div>
       </td>
       <td>
         <div style="font-weight: 600;">${escapeHtml(t.name)}</div>
