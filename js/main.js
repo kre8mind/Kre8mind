@@ -1072,27 +1072,30 @@ function initInquiryModal() {
     if (e.target === modal) modal.classList.remove('open');
   });
 
-  // 1. "SEND REQUEST" buttons
+  // 1. "SEND REQUEST" buttons — ONLY open form when clicking directly from an actual service card!
   document.querySelectorAll('.btn-send-request').forEach(btn => {
     btn.addEventListener('click', (e) => {
-      e.preventDefault();
-
       const card = btn.closest('.service-showcase-slide') || btn.closest('.service-card-item');
-      let serviceTitle = 'APPLICATION REDESIGN';
-      let startingPriceText = 'Starting at $2,000';
+      
+      // If NOT originating from an actual service card, do NOT open the automatic form!
+      if (!card) {
+        e.preventDefault();
+        window.location.href = '/services';
+        return;
+      }
 
-      if (card) {
-        const titleEl = card.querySelector('.service-card-title') || card.querySelector('.purple-card-service-name');
-        const priceEl = card.querySelector('.purple-card-price');
-        
-        if (titleEl) serviceTitle = titleEl.textContent.trim();
-        if (priceEl) {
-          const rawPrice = priceEl.textContent.trim();
-          if (rawPrice.toLowerCase().includes('contact') || rawPrice.toLowerCase().includes('custom')) {
-            startingPriceText = 'Custom Pricing';
-          } else {
-            startingPriceText = `Starting at ${rawPrice}`;
-          }
+      e.preventDefault();
+      const titleEl = card.querySelector('.service-card-title') || card.querySelector('.purple-card-service-name');
+      const priceEl = card.querySelector('.purple-card-price');
+      
+      let serviceTitle = 'APPLICATION REDESIGN';
+      let startingPriceText = 'Custom Pricing';
+
+      if (titleEl) serviceTitle = titleEl.textContent.trim();
+      if (priceEl) {
+        const rawPrice = priceEl.textContent.trim();
+        if (!rawPrice.toLowerCase().includes('contact') && !rawPrice.toLowerCase().includes('custom')) {
+          startingPriceText = `Starting at ${rawPrice}`;
         }
       }
 
@@ -1793,9 +1796,9 @@ function initCaseStudyViewer() {
                 <a href="https://cal.com/kre8mind/project-discovery" class="btn-white" id="cs-book-call-btn" target="_blank" rel="noopener noreferrer">
                   BOOK A CALL →
                 </a>
-                <button type="button" class="btn-outline btn-send-request" id="cs-inquire-btn">
-                  REQUEST A SERVICE →
-                </button>
+                <a href="/services" class="btn-outline" id="cs-services-btn">
+                  SEE SERVICES →
+                </a>
               </div>
             </div>
 
@@ -1812,7 +1815,7 @@ function initCaseStudyViewer() {
   const closeBtn = document.getElementById('cs-viewer-close-btn');
   const shareBtn = document.getElementById('cs-viewer-share-btn');
   const bookCallBtn = document.getElementById('cs-book-call-btn');
-  const inquireBtn = document.getElementById('cs-inquire-btn');
+  const servicesBtn = document.getElementById('cs-services-btn');
 
   if (bookCallBtn) {
     bookCallBtn.addEventListener('click', (e) => {
@@ -1829,33 +1832,11 @@ function initCaseStudyViewer() {
     });
   }
 
-  if (inquireBtn) {
-    inquireBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      
-      // When outside the service page, navigate directly to the services page
-      const isServicesPage = window.location.pathname.includes('services') || window.location.href.includes('services.html');
-      if (!isServicesPage) {
-        window.location.href = 'services.html#pricing';
-        return;
-      }
-
-      const inqModal = document.getElementById('kre8mind-inquiry-modal');
-      if (inqModal) {
-        const proj = window.activeCaseStudyProject;
-        const title = proj ? `${proj.title} (Project Scope)` : 'Project Scope & Inquiry';
-        const sLabel = document.getElementById('inq-service-name-label');
-        const pLabel = document.getElementById('inq-price-tag-label');
-        const sHidden = document.getElementById('inq-service-hidden');
-        const pHidden = document.getElementById('inq-price-hidden');
-        if (sLabel) sLabel.textContent = title;
-        if (pLabel) pLabel.textContent = 'Custom Scope & Pricing';
-        if (sHidden) sHidden.value = title;
-        if (pHidden) pHidden.value = 'Custom Scope & Pricing';
-        inqModal.classList.add('open');
-      } else {
-        window.location.href = 'services.html#pricing';
-      }
+  if (servicesBtn) {
+    servicesBtn.addEventListener('click', (e) => {
+      closeModal();
+      // Regular link navigation directly to /services — no automatic form
+      window.location.href = '/services';
     });
   }
 

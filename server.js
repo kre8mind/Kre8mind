@@ -27,8 +27,8 @@ app.use(cors());
 app.use(express.json({ limit: '20mb' }));
 app.use(express.urlencoded({ extended: true, limit: '20mb' }));
 
-// Serve static assets (CSS, JS, Images, Fonts)
-app.use(express.static(__dirname, { index: false }));
+// Serve static assets (CSS, JS, Images, Fonts) - disable directory redirect loops
+app.use(express.static(__dirname, { index: false, redirect: false }));
 
 // Direct Favicon & Social Cover Endpoints
 app.get(['/favicon.ico', '/favicon.jpg', '/favicon.png'], (req, res) => {
@@ -390,8 +390,8 @@ app.get('/journal', async (req, res) => {
   }, req));
 });
 
-// Services Page
-app.get('/services', (req, res) => {
+// Services Page (handles /services and /services/ cleanly)
+app.get(['/services', '/services/'], (req, res) => {
   res.send(renderHtmlWithSocialMeta('services.html', {
     title: 'Services & Capabilities — Kre8mind',
     description: 'Comprehensive product design, web architecture, and design system services by Kre8mind Studio.',

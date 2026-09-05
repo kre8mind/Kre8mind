@@ -1,6 +1,6 @@
 import express from 'express';
 import { getCollection } from '../db/mongodb.js';
-import { sendInquiryConfirmation } from '../services/mailer.js';
+import { sendInquiryConfirmation } from '../utils/mailer.js';
 
 const router = express.Router();
 
