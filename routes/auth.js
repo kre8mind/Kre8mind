@@ -110,24 +110,38 @@ router.post('/login', async (req, res) => {
 });
 
 // POST /api/auth/change-password
-router.post('/change-password', requireAdminAuth, async (req, res) => {
+router.post('/change-password', async (req, res) => {
+  const authHeader = req.headers['authorization'] || '';
+  const token = authHeader.replace(/^Bearer\s+/i, '') || req.headers['x-admin-token'];
+  const hasValidToken = verifyAdminToken(token);
+
   const { currentPassword, newPassword } = req.body;
-  if (!newPassword || newPassword.trim().length < 6) {
+  if (!newPassword || newPassword.trim().length < 8) {
     return res.status(400).json({
       success: false,
-      error: 'New password must be at least 6 characters long.'
+      error: 'New password must be at least 8 characters long.'
     });
   }
 
   const settings = await getStudioSettings();
-  const currentConfigured = settings.adminPassword || process.env.ADMIN_PASSWORD || 'kre8mind2026';
+  const configuredPassword = settings.adminPassword || process.env.ADMIN_PASSWORD || 'kre8mind2026';
 
-  // If user provided a current password, verify it matches
-  if (currentPassword && currentPassword.trim() !== '' && currentPassword !== currentConfigured) {
-    return res.status(400).json({
-      success: false,
-      error: 'Current password does not match.'
-    });
+  // If session token is missing or expired, require and verify the current password
+  if (!hasValidToken) {
+    if (!currentPassword || currentPassword.trim() !== configuredPassword) {
+      return res.status(401).json({
+        success: false,
+        error: 'Incorrect current password. Please enter your valid current password to update it.'
+      });
+    }
+  } else {
+    // If valid token is present, only check currentPassword if user entered one
+    if (currentPassword && currentPassword.trim() !== '' && currentPassword.trim() !== configuredPassword) {
+      return res.status(400).json({
+        success: false,
+        error: 'Current password does not match.'
+      });
+    }
   }
 
   const trimmedNew = newPassword.trim();
@@ -140,7 +154,7 @@ router.post('/change-password', requireAdminAuth, async (req, res) => {
 
   res.json({
     success: true,
-    message: 'Admin password successfully updated.',
+    message: 'Studio password successfully updated.',
     token: newToken
   });
 });

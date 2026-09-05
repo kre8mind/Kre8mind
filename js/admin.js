@@ -121,23 +121,22 @@ function initAuth() {
     .then(r => r.json())
     .then(data => {
       if (data.authenticated) {
-        authScreen.style.display = 'none';
-        loadDashboardData();
+        if (authScreen) authScreen.style.display = 'none';
       } else {
         localStorage.removeItem('kre8_token');
-        authScreen.style.display = 'flex';
+        if (authScreen) authScreen.style.display = 'flex';
       }
     })
     .catch(() => {
-      authScreen.style.display = 'none';
-      loadDashboardData();
+      if (authScreen) authScreen.style.display = 'none';
     });
   }
 
-  authForm.addEventListener('submit', async (e) => {
+  authForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
-    authError.style.display = 'none';
-    const password = document.getElementById('admin-pass').value;
+    if (authError) authError.style.display = 'none';
+    const passwordInput = document.getElementById('admin-pass');
+    const password = passwordInput ? passwordInput.value : '';
 
     try {
       const res = await fetch(`${API_BASE}/api/auth/login`, {
@@ -149,16 +148,20 @@ function initAuth() {
 
       if (data.success) {
         localStorage.setItem('kre8_token', data.token);
-        authScreen.style.display = 'none';
+        if (authScreen) authScreen.style.display = 'none';
         showToast('Logged into Studio Control Center', 'success');
-        loadDashboardData();
+        window.location.reload();
       } else {
-        authError.textContent = data.error || 'Access denied';
-        authError.style.display = 'block';
+        if (authError) {
+          authError.textContent = data.error || 'Access denied';
+          authError.style.display = 'block';
+        }
       }
     } catch {
-      authError.textContent = 'Server connection error';
-      authError.style.display = 'block';
+      if (authError) {
+        authError.textContent = 'Server connection error';
+        authError.style.display = 'block';
+      }
     }
   });
 
@@ -1222,9 +1225,9 @@ function initSecurity() {
   const form = document.getElementById('change-password-form');
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const currentPassword = document.getElementById('current-pwd').value;
-    const newPassword = document.getElementById('new-pwd').value;
-    const confirmNewPassword = document.getElementById('confirm-new-pwd').value;
+    const currentPassword = (document.getElementById('current-pwd')?.value || '').trim();
+    const newPassword = (document.getElementById('new-pwd')?.value || '').trim();
+    const confirmNewPassword = (document.getElementById('confirm-new-pwd')?.value || '').trim();
 
     if (newPassword !== confirmNewPassword) {
       showToast('New passwords do not match', 'error');
@@ -1232,11 +1235,19 @@ function initSecurity() {
     }
 
     if (newPassword.length < 8) {
-      showToast('Password must be at least 8 characters', 'error');
+      showToast('New password must be at least 8 characters', 'error');
+      return;
+    }
+
+    const token = localStorage.getItem('kre8_token');
+    if (!token && !currentPassword) {
+      showToast('Please enter your current studio password', 'error');
+      document.getElementById('current-pwd')?.focus();
       return;
     }
 
     try {
+      showToast('Updating studio password...', 'info');
       const res = await fetch(`${API_BASE}/api/auth/change-password`, {
         method: 'POST',
         headers: getAuthHeaders(),
