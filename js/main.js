@@ -1,5 +1,5 @@
 /**
- * KRE8MIND — CLARITY BY DESIGN
+ * KRE8MIND · CLARITY BY DESIGN
  * Interactive Behaviors, Seamless Smooth Carousel & Motion Controller
  */
 
