@@ -1942,11 +1942,11 @@ function initCaseStudyViewer() {
         return `
           <div class="case-study-slice-card">
             ${isVideo ? `
-              <video src="${s.url}" autoplay muted loop playsinline controls style="max-width:100%; display:block; border-radius:8px; background:#000;"></video>
+              <video src="${s.url}" autoplay muted loop playsinline controls class="case-study-slide-media" style="width:100%; height:auto; display:block; background:#000;"></video>
             ` : `
-              <img src="${s.url}" alt="${title} Slide ${idx + 1}" loading="lazy" style="max-width:100%; display:block; border-radius:8px;" />
+              <img src="${s.url}" alt="${escapeHtml(title)} Slide ${idx + 1}" loading="lazy" class="case-study-slide-media" style="width:100%; height:auto; display:block; image-rendering:-webkit-optimize-contrast;" />
             `}
-            ${s.caption ? `<div class="case-study-slice-caption">${s.caption}</div>` : ''}
+            ${s.caption ? `<div class="case-study-slice-caption">${escapeHtml(s.caption)}</div>` : ''}
           </div>
         `;
       }).join('');

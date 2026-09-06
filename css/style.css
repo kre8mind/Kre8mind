@@ -4535,7 +4535,9 @@ button {
   width: 100%;
   height: auto;
   display: block;
-  object-fit: cover;
+  object-fit: contain;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
   border-radius: 12px 12px 0 0 !important;
 }
 
@@ -4544,6 +4546,11 @@ button {
   height: auto;
   display: block;
   border-radius: 12px 12px 0 0 !important;
+}
+
+.case-study-slice-card img:only-child,
+.case-study-slice-card video:only-child {
+  border-radius: 12px !important;
 }
 
 .case-study-slice-caption {

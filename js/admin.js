@@ -339,63 +339,9 @@ window.deleteInquiry = async function(id) {
   }
 };
 
-// Smart client-side image compression to prevent Vercel 4.5MB serverless limits
-async function optimizeImageIfPossible(file) {
-  if (!file || !file.type || !file.type.startsWith('image/') || file.type.includes('svg') || file.type.includes('gif')) {
-    return file;
-  }
-  // Only compress if file is larger than 1.5MB
-  if (file.size <= 1.5 * 1024 * 1024) {
-    return file;
-  }
-
-  return new Promise((resolve) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const img = new Image();
-      img.onload = () => {
-        let width = img.width;
-        let height = img.height;
-        const maxDim = 2560; // Clean ultra-HD resolution
-
-        if (width > maxDim || height > maxDim) {
-          if (width > height) {
-            height = Math.round((height * maxDim) / width);
-            width = maxDim;
-          } else {
-            width = Math.round((width * maxDim) / height);
-            height = maxDim;
-          }
-        }
-
-        const canvas = document.createElement('canvas');
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, width, height);
-
-        const format = canvas.toDataURL('image/webp').indexOf('data:image/webp') === 0 ? 'image/webp' : 'image/jpeg';
-        canvas.toBlob((blob) => {
-          if (blob && blob.size < file.size) {
-            const ext = format === 'image/webp' ? '.webp' : '.jpg';
-            const optimizedFile = new File([blob], file.name.replace(/\.[^/.]+$/, ext), { type: format });
-            resolve(optimizedFile);
-          } else {
-            resolve(file);
-          }
-        }, format, 0.92);
-      };
-      img.onerror = () => resolve(file);
-      img.src = e.target.result;
-    };
-    reader.onerror = () => resolve(file);
-    reader.readAsDataURL(file);
-  });
-}
-
-// Universal media uploader with chunking support for files > 3.5MB (bypasses Vercel 413)
-async function uploadMediaFile(rawFile, onProgress) {
-  const file = await optimizeImageIfPossible(rawFile);
+// Universal media uploader with lossless chunking support for files > 3MB (bypasses Vercel 4.5MB limit without compression)
+async function uploadMediaFile(file, onProgress) {
+  if (!file) return null;
   const CHUNK_SIZE = 3 * 1024 * 1024; // 3MB chunk size (well under Vercel's 4.5MB limit)
 
   if (file.size <= CHUNK_SIZE) {
@@ -412,7 +358,7 @@ async function uploadMediaFile(rawFile, onProgress) {
     return await res.json();
   }
 
-  // Chunked upload
+  // Chunked upload for large, crystal-clear files (preserves 100% original resolution, aspect ratio & retina quality)
   const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
   const uploadId = `up_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
 
@@ -428,7 +374,7 @@ async function uploadMediaFile(rawFile, onProgress) {
     formData.append('chunkIndex', chunkIndex);
     formData.append('totalChunks', totalChunks);
     formData.append('filename', file.name);
-    formData.append('mimetype', file.type);
+    formData.append('mimetype', file.type || 'application/octet-stream');
 
     if (onProgress) {
       const pct = Math.round(((chunkIndex + 1) / totalChunks) * 100);
