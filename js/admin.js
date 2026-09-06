@@ -339,6 +339,120 @@ window.deleteInquiry = async function(id) {
   }
 };
 
+// Smart client-side image compression to prevent Vercel 4.5MB serverless limits
+async function optimizeImageIfPossible(file) {
+  if (!file || !file.type || !file.type.startsWith('image/') || file.type.includes('svg') || file.type.includes('gif')) {
+    return file;
+  }
+  // Only compress if file is larger than 1.5MB
+  if (file.size <= 1.5 * 1024 * 1024) {
+    return file;
+  }
+
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        let width = img.width;
+        let height = img.height;
+        const maxDim = 2560; // Clean ultra-HD resolution
+
+        if (width > maxDim || height > maxDim) {
+          if (width > height) {
+            height = Math.round((height * maxDim) / width);
+            width = maxDim;
+          } else {
+            width = Math.round((width * maxDim) / height);
+            height = maxDim;
+          }
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        const format = canvas.toDataURL('image/webp').indexOf('data:image/webp') === 0 ? 'image/webp' : 'image/jpeg';
+        canvas.toBlob((blob) => {
+          if (blob && blob.size < file.size) {
+            const ext = format === 'image/webp' ? '.webp' : '.jpg';
+            const optimizedFile = new File([blob], file.name.replace(/\.[^/.]+$/, ext), { type: format });
+            resolve(optimizedFile);
+          } else {
+            resolve(file);
+          }
+        }, format, 0.92);
+      };
+      img.onerror = () => resolve(file);
+      img.src = e.target.result;
+    };
+    reader.onerror = () => resolve(file);
+    reader.readAsDataURL(file);
+  });
+}
+
+// Universal media uploader with chunking support for files > 3.5MB (bypasses Vercel 413)
+async function uploadMediaFile(rawFile, onProgress) {
+  const file = await optimizeImageIfPossible(rawFile);
+  const CHUNK_SIZE = 3 * 1024 * 1024; // 3MB chunk size (well under Vercel's 4.5MB limit)
+
+  if (file.size <= CHUNK_SIZE) {
+    const formData = new FormData();
+    formData.append('file', file);
+    const res = await fetch(`${API_BASE}/api/upload`, {
+      method: 'POST',
+      body: formData
+    });
+    if (!res.ok) {
+      const errText = await res.text().catch(() => '');
+      throw new Error(errText.includes('413') ? 'File exceeds server payload limit' : 'Upload failed');
+    }
+    return await res.json();
+  }
+
+  // Chunked upload
+  const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+  const uploadId = `up_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+
+  let finalResult = null;
+  for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
+    const start = chunkIndex * CHUNK_SIZE;
+    const end = Math.min(file.size, start + CHUNK_SIZE);
+    const chunkBlob = file.slice(start, end);
+
+    const formData = new FormData();
+    formData.append('chunk', chunkBlob, file.name);
+    formData.append('uploadId', uploadId);
+    formData.append('chunkIndex', chunkIndex);
+    formData.append('totalChunks', totalChunks);
+    formData.append('filename', file.name);
+    formData.append('mimetype', file.type);
+
+    if (onProgress) {
+      const pct = Math.round(((chunkIndex + 1) / totalChunks) * 100);
+      onProgress(pct);
+    }
+
+    const res = await fetch(`${API_BASE}/api/upload-chunk`, {
+      method: 'POST',
+      body: formData
+    });
+
+    if (!res.ok) {
+      throw new Error(`Upload chunk ${chunkIndex + 1}/${totalChunks} failed`);
+    }
+
+    const data = await res.json();
+    if (chunkIndex === totalChunks - 1) {
+      finalResult = data;
+    }
+  }
+
+  return finalResult;
+}
+
 /* --------------------------------------------------------------------------
    5. Projects & Behance-Style Case Study Manager
    -------------------------------------------------------------------------- */
@@ -391,26 +505,21 @@ function initProjectsCMS() {
       return;
     }
 
-    const formData = new FormData();
-    formData.append('file', file);
-
     try {
       showToast('Uploading cover media...', 'info');
-      const res = await fetch(`${API_BASE}/api/upload`, {
-        method: 'POST',
-        body: formData
+      const data = await uploadMediaFile(file, (pct) => {
+        showToast(`Uploading cover media... ${pct}%`, 'info');
       });
-      const data = await res.json();
-      if (data.success) {
+      if (data && data.success) {
         document.getElementById('proj-media').value = data.filePath;
         renderCoverPreview(data.filePath);
         showToast('Cover media uploaded successfully', 'success');
       } else {
-        showToast(data.error || 'Upload failed', 'error');
+        showToast(data?.error || 'Upload failed', 'error');
       }
     } catch (err) {
       console.error('Cover upload error:', err);
-      showToast('Error uploading file', 'error');
+      showToast(err.message || 'Error uploading file', 'error');
     } finally {
       coverFileInput.value = '';
     }
@@ -434,15 +543,10 @@ function initProjectsCMS() {
       }
 
       try {
-        const formData = new FormData();
-        formData.append('file', f);
-
-        const res = await fetch(`${API_BASE}/api/upload`, {
-          method: 'POST',
-          body: formData
+        const data = await uploadMediaFile(f, (pct) => {
+          showToast(`Uploading slice ${i + 1}/${files.length} (${pct}%)...`, 'info');
         });
-        const data = await res.json();
-        if (data.success) {
+        if (data && data.success) {
           const isVideo = f.type.startsWith('video/') || (data.isVideo) || /\.(mp4|webm|mov)$/i.test(data.filePath);
           const cleanCaption = f.name.replace(/\.[^/.]+$/, '').replace(/[_-]/g, ' ');
           currentCaseStudySlices.push({
@@ -453,7 +557,7 @@ function initProjectsCMS() {
           successCount++;
           renderSlicesList();
         } else {
-          showToast(data.error || `Failed to upload ${f.name}`, 'error');
+          showToast(data?.error || `Failed to upload ${f.name}`, 'error');
         }
       } catch (err) {
         console.error('Slice upload error:', err);
@@ -833,25 +937,18 @@ function initJournalCMS() {
     const file = e.target.files[0];
     if (!file) return;
 
-    const formData = new FormData();
-    formData.append('file', file);
-
     try {
       showToast('Uploading article cover image...', 'info');
-      const res = await fetch(`${API_BASE}/api/upload`, {
-        method: 'POST',
-        body: formData
-      });
-      const data = await res.json();
-      if (data.success) {
+      const data = await uploadMediaFile(file);
+      if (data && data.success) {
         document.getElementById('art-image').value = data.filePath;
         renderJournalCoverPreview(data.filePath);
         showToast('Cover uploaded', 'success');
       } else {
-        showToast(data.error || 'Upload failed', 'error');
+        showToast(data?.error || 'Upload failed', 'error');
       }
-    } catch {
-      showToast('Error uploading image', 'error');
+    } catch (err) {
+      showToast(err.message || 'Error uploading image', 'error');
     }
   });
 
@@ -1019,25 +1116,18 @@ function initTestimonialsCMS() {
     const file = e.target.files[0];
     if (!file) return;
 
-    const formData = new FormData();
-    formData.append('file', file);
-
     try {
       showToast('Uploading client avatar/logo...', 'info');
-      const res = await fetch(`${API_BASE}/api/upload`, {
-        method: 'POST',
-        body: formData
-      });
-      const data = await res.json();
-      if (data.success) {
+      const data = await uploadMediaFile(file);
+      if (data && data.success) {
         document.getElementById('testi-avatar').value = data.filePath;
         renderTestimonialAvatarPreview(data.filePath);
         showToast('Logo/Avatar uploaded', 'success');
       } else {
-        showToast(data.error || 'Upload failed', 'error');
+        showToast(data?.error || 'Upload failed', 'error');
       }
-    } catch {
-      showToast('Error uploading avatar', 'error');
+    } catch (err) {
+      showToast(err.message || 'Error uploading avatar', 'error');
     }
   });
 

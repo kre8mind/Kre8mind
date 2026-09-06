@@ -318,6 +318,92 @@ app.post('/api/upload-multiple', (req, res) => {
   });
 });
 
+// Chunked file upload (bypasses Vercel 4.5MB serverless limit)
+app.post('/api/upload-chunk', (req, res) => {
+  upload.single('chunk')(req, res, async (err) => {
+    if (err) {
+      console.error('Chunk upload error:', err);
+      return res.status(400).json({ success: false, error: err.message || 'Chunk upload failed' });
+    }
+    if (!req.file) {
+      return res.status(400).json({ success: false, error: 'No chunk data received' });
+    }
+
+    const uploadId = req.body.uploadId;
+    const chunkIndex = parseInt(req.body.chunkIndex, 10);
+    const totalChunks = parseInt(req.body.totalChunks, 10);
+    const originalName = req.body.filename || 'upload.bin';
+    const clientMime = req.body.mimetype;
+
+    if (!uploadId || isNaN(chunkIndex) || isNaN(totalChunks)) {
+      return res.status(400).json({ success: false, error: 'Missing chunk metadata' });
+    }
+
+    try {
+      const chunksCol = await getCollection('upload_chunks');
+      await chunksCol.updateOne(
+        { uploadId, chunkIndex },
+        {
+          $set: {
+            uploadId,
+            chunkIndex,
+            data: req.file.buffer,
+            size: req.file.size,
+            createdAt: new Date()
+          }
+        },
+        { upsert: true }
+      );
+
+      const savedCount = await chunksCol.countDocuments({ uploadId });
+      if (savedCount < totalChunks) {
+        return res.json({ success: true, chunkIndex, progress: Math.round((savedCount / totalChunks) * 100) });
+      }
+
+      // Reassemble all chunks
+      const allChunks = await chunksCol.find({ uploadId }).sort({ chunkIndex: 1 }).toArray();
+      const buffers = allChunks.map(c => Buffer.isBuffer(c.data) ? c.data : Buffer.from(c.data.buffer || c.data));
+      const fullBuffer = Buffer.concat(buffers);
+
+      // Clean up temporary chunks
+      await chunksCol.deleteMany({ uploadId }).catch(() => {});
+
+      const ext = path.extname(originalName) || (clientMime?.startsWith('video/') ? '.mp4' : '.jpg');
+      const base = path.basename(originalName, ext).replace(/[^a-zA-Z0-9_-]/g, '_').toLowerCase() || 'media';
+      const filename = `${base}_${Date.now()}${ext}`;
+      const mediaId = `media_${Date.now()}_${Math.random().toString(36).substring(2, 7)}${ext}`;
+      const isVideo = (clientMime && clientMime.startsWith('video/')) || /\.(mp4|webm|mov)$/i.test(ext);
+      const diskPath = path.join(uploadDir, filename);
+
+      try {
+        fs.writeFileSync(diskPath, fullBuffer);
+      } catch {}
+
+      await saveMediaToAtlas({
+        mediaId,
+        filename,
+        originalName,
+        mimetype: clientMime || (isVideo ? 'video/mp4' : 'image/jpeg'),
+        buffer: fullBuffer,
+        size: fullBuffer.length
+      });
+
+      res.json({
+        success: true,
+        filePath: `/api/media/${filename}`,
+        filename,
+        mediaId,
+        mimetype: clientMime,
+        isVideo,
+        type: isVideo ? 'video' : 'image'
+      });
+    } catch (chunkErr) {
+      console.error('Error assembling chunked upload:', chunkErr);
+      res.status(500).json({ success: false, error: 'Failed to process file chunk' });
+    }
+  });
+});
+
 // API Routes
 app.use('/api/requests', requestsRouter);
 app.use('/api/projects', projectsRouter);
