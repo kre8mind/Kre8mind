@@ -57,22 +57,7 @@ function syncProjectToLocalDb(action, project) {
 router.get('/', async (req, res) => {
   try {
     const col = await getCollection('projects');
-    let list = await col.find({}).sort({ order: 1, createdAt: -1 }).toArray();
-
-    // If MongoDB has fewer than the standard starter projects, seed missing projects from db.json
-    if (list.length <= 1) {
-      const localProjects = readLocalDbProjects();
-      if (localProjects.length > list.length) {
-        for (const p of localProjects) {
-          const exists = list.some(item => item.id === p.id || item.title?.toLowerCase() === p.title?.toLowerCase());
-          if (!exists) {
-            const { _id, ...cleanP } = p;
-            await col.insertOne(cleanP);
-            list.push(cleanP);
-          }
-        }
-      }
-    }
+    const list = await col.find({}).sort({ order: 1, createdAt: -1 }).toArray();
 
     const sanitized = list.map(item => {
       const { _id, ...rest } = item;
@@ -249,7 +234,10 @@ router.delete('/:id', async (req, res) => {
     const { id } = req.params;
     try {
       const col = await getCollection('projects');
-      await col.deleteOne({ id: id });
+      const { ObjectId } = await import('mongodb');
+      const query = { $or: [{ id: id }] };
+      if (ObjectId.isValid(id)) query.$or.push({ _id: new ObjectId(id) });
+      await col.deleteOne(query);
     } catch (dbErr) {
       console.warn('MongoDB delete note:', dbErr.message);
     }

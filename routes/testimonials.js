@@ -1,7 +1,39 @@
 import express from 'express';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { ObjectId } from 'mongodb';
 import { getCollection } from '../db/mongodb.js';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const DB_JSON_PATH = path.join(__dirname, '../data/db.json');
+
 const router = express.Router();
+
+function syncTestimonialToLocalDb(action, item) {
+  try {
+    if (!fs.existsSync(DB_JSON_PATH)) return;
+    const parsed = JSON.parse(fs.readFileSync(DB_JSON_PATH, 'utf8'));
+    if (!Array.isArray(parsed.testimonials)) parsed.testimonials = [];
+
+    if (action === 'insert') {
+      const exists = parsed.testimonials.some(t => t.id === item.id);
+      if (!exists) parsed.testimonials.push(item);
+    } else if (action === 'update') {
+      const idx = parsed.testimonials.findIndex(t => t.id === item.id);
+      if (idx !== -1) {
+        parsed.testimonials[idx] = { ...parsed.testimonials[idx], ...item };
+      }
+    } else if (action === 'delete') {
+      parsed.testimonials = parsed.testimonials.filter(t => t.id !== item.id && String(t._id) !== String(item.id));
+    }
+
+    fs.writeFileSync(DB_JSON_PATH, JSON.stringify(parsed, null, 2));
+  } catch (e) {
+    console.warn('Sync testimonial to local db.json note:', e.message);
+  }
+}
 
 // GET all testimonials
 router.get('/', async (req, res) => {
@@ -47,6 +79,7 @@ router.post('/', async (req, res) => {
     };
 
     await col.insertOne({ ...newTesti });
+    syncTestimonialToLocalDb('insert', newTesti);
     res.status(201).json({ success: true, data: newTesti, testimonial: newTesti });
   } catch (err) {
     console.error('Error creating testimonial:', err);
@@ -64,8 +97,13 @@ router.put('/:id', async (req, res) => {
     delete updateData._id;
     delete updateData.id;
 
-    await col.updateOne({ id: id }, { $set: updateData });
-    const updated = await col.findOne({ id: id });
+    const query = { $or: [{ id: id }] };
+    if (ObjectId.isValid(id)) query.$or.push({ _id: new ObjectId(id) });
+
+    await col.updateOne(query, { $set: updateData });
+    const updated = await col.findOne(query);
+
+    syncTestimonialToLocalDb('update', { id, ...updateData });
 
     if (!updated) {
       return res.status(404).json({ success: false, error: 'Testimonial not found.' });
@@ -84,7 +122,12 @@ router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const col = await getCollection('testimonials');
-    const result = await col.deleteOne({ id: id });
+    
+    const query = { $or: [{ id: id }] };
+    if (ObjectId.isValid(id)) query.$or.push({ _id: new ObjectId(id) });
+
+    const result = await col.deleteOne(query);
+    syncTestimonialToLocalDb('delete', { id });
 
     if (result.deletedCount === 0) {
       return res.status(404).json({ success: false, error: 'Testimonial not found.' });

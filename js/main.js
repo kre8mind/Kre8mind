@@ -559,6 +559,12 @@ async function initClientStories() {
       if (toggleBtn && toggleBtn.parentElement) {
         toggleBtn.parentElement.style.display = testimonials.length > 3 ? 'block' : 'none';
       }
+    } else {
+      // User removed all stories or none exist in database
+      const storiesSection = document.querySelector('.stories-section');
+      if (storiesSection) storiesSection.style.display = 'none';
+      if (listContainer) listContainer.innerHTML = '';
+      if (quoteStage) quoteStage.innerHTML = '';
     }
   } catch (err) {
     console.log('Using static client stories fallback:', err);
@@ -1636,7 +1642,18 @@ async function initDynamicProjects() {
     if (!res.ok) return;
     const json = await res.json();
     const projects = json.data || json.projects || [];
-    if (!projects || !projects.length) return;
+    if (!projects || !projects.length) {
+      cachedStudioProjects = [];
+      const grids = document.querySelectorAll('.das-studio-grid');
+      grids.forEach(grid => {
+        grid.innerHTML = `
+          <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: var(--text-muted); font-family: var(--font-mono); font-size: 13px;">
+            No projects published yet. Add projects from the Admin dashboard.
+          </div>
+        `;
+      });
+      return;
+    }
 
     cachedStudioProjects = projects;
 
