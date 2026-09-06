@@ -1701,17 +1701,9 @@ function initCaseStudyViewer() {
           <!-- Sticky Topbar -->
           <div class="case-study-topbar">
             <div class="case-study-topbar-left">
-              <span id="cs-viewer-category" class="case-study-water-badge">PRODUCT DESIGN</span>
               <h4 id="cs-viewer-title" class="case-study-topbar-title">PROJECT TITLE</h4>
             </div>
             <div class="case-study-topbar-actions">
-              <a id="cs-topbar-live-link" href="#" target="_blank" rel="noopener noreferrer" class="case-study-topbar-live-btn" style="display:none;" title="View Live Project">
-                <span>LIVE PROJECT</span>
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <line x1="7" y1="17" x2="17" y2="7"></line>
-                  <polyline points="7 7 17 7 17 17"></polyline>
-                </svg>
-              </a>
               <button id="cs-viewer-share-btn" class="case-study-share-btn" aria-label="Share Case Study" title="Copy Share Link">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
@@ -1732,13 +1724,6 @@ function initCaseStudyViewer() {
               <div class="case-study-hero-left">
                 <div class="case-study-hero-topline">
                   <span id="cs-hero-category" class="case-study-category-pill">PRODUCT DESIGN</span>
-                  <a id="cs-hero-live-link" href="#" target="_blank" rel="noopener noreferrer" class="case-study-live-pill" style="display:none;" title="Open Live Project">
-                    <span>LIVE PROJECT</span>
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <line x1="7" y1="17" x2="17" y2="7"></line>
-                      <polyline points="7 7 17 7 17 17"></polyline>
-                    </svg>
-                  </a>
                 </div>
                 <h1 id="cs-hero-heading" class="case-study-hero-heading">PROJECT TITLE</h1>
                 <p id="cs-hero-summary" class="case-study-summary-text">
@@ -1908,10 +1893,7 @@ function initCaseStudyViewer() {
       }
     }
 
-    const catBadge = document.getElementById('cs-viewer-category');
     const heroCategory = document.getElementById('cs-hero-category');
-    const heroLiveLink = document.getElementById('cs-hero-live-link');
-    const topbarLiveLink = document.getElementById('cs-topbar-live-link');
     const metaLiveItem = document.getElementById('cs-meta-item-live');
     const metaLiveLink = document.getElementById('cs-meta-live-link');
     const titleBar = document.getElementById('cs-viewer-title');
@@ -1936,7 +1918,6 @@ function initCaseStudyViewer() {
       skills = proj.tags.join(' · ');
     }
 
-    if (catBadge) catBadge.textContent = category;
     if (heroCategory) heroCategory.textContent = category;
     if (titleBar) titleBar.textContent = title;
     if (heroHeading) heroHeading.textContent = title;
@@ -1952,25 +1933,13 @@ function initCaseStudyViewer() {
       metaTimelineItem.style.display = timeline ? 'flex' : 'none';
     }
 
-    // Live Project URL handling (outline/underline styling, un-congested, hidden when not provided)
+    // Live Experience link (strictly the single meta sidebar link, clean & uncongested)
     const liveUrl = formatExternalUrl(proj.link);
-    if (liveUrl) {
-      if (heroLiveLink) {
-        heroLiveLink.href = liveUrl;
-        heroLiveLink.style.display = 'inline-flex';
-      }
-      if (topbarLiveLink) {
-        topbarLiveLink.href = liveUrl;
-        topbarLiveLink.style.display = 'inline-flex';
-      }
-      if (metaLiveItem && metaLiveLink) {
-        metaLiveLink.href = liveUrl;
-        metaLiveItem.style.display = 'flex';
-      }
-    } else {
-      if (heroLiveLink) heroLiveLink.style.display = 'none';
-      if (topbarLiveLink) topbarLiveLink.style.display = 'none';
-      if (metaLiveItem) metaLiveItem.style.display = 'none';
+    if (liveUrl && metaLiveItem && metaLiveLink) {
+      metaLiveLink.href = liveUrl;
+      metaLiveItem.style.display = 'flex';
+    } else if (metaLiveItem) {
+      metaLiveItem.style.display = 'none';
     }
 
     // Smart Redesign Detection for Bottom CTA
