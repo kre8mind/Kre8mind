@@ -426,6 +426,8 @@ function initProjectsCMS() {
     if (timelineInput) timelineInput.value = '';
     const skillsInput = document.getElementById('proj-skills');
     if (skillsInput) skillsInput.value = '';
+    const linkInput = document.getElementById('proj-link');
+    if (linkInput) linkInput.value = '';
     document.getElementById('proj-featured').checked = true;
     if (hasCaseStudyCheckbox) hasCaseStudyCheckbox.checked = true;
     currentCaseStudySlices = [];
@@ -528,8 +530,10 @@ function initProjectsCMS() {
     const category = document.getElementById('proj-category').value.trim();
     const timelineInput = document.getElementById('proj-timeline');
     const skillsInput = document.getElementById('proj-skills');
+    const linkInput = document.getElementById('proj-link');
     const timeline = (timelineInput ? timelineInput.value : (document.getElementById('proj-date')?.value || '')).trim();
     const skills = (skillsInput ? skillsInput.value : '').trim();
+    const link = (linkInput ? linkInput.value : '').trim();
     const tags = skills ? skills.split(/[,·•|]/).map(s => s.trim()).filter(Boolean) : [];
     const layout = document.getElementById('proj-layout').value;
     const image = document.getElementById('proj-media').value.trim() || 'assets/showcase/journal-1.jpg';
@@ -547,6 +551,7 @@ function initProjectsCMS() {
       category,
       timeline,
       skills,
+      link,
       year: timeline,
       tags,
       layout,
@@ -841,6 +846,11 @@ window.editProject = function(id) {
   const skillsInput = document.getElementById('proj-skills');
   if (skillsInput) {
     skillsInput.value = p.skills || (Array.isArray(p.tags) && p.tags.length ? p.tags.join(' · ') : '');
+  }
+
+  const linkInput = document.getElementById('proj-link');
+  if (linkInput) {
+    linkInput.value = p.link || '';
   }
 
   document.getElementById('proj-layout').value = p.layout || '16:9 Standard';

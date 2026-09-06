@@ -108,7 +108,7 @@ router.get('/:id', async (req, res) => {
 // POST new project
 router.post('/', async (req, res) => {
   try {
-    const { title, category, timeline, skills, year, summary, image, tags, featured, layout, hasCaseStudy, caseStudySlices } = req.body;
+    const { title, category, timeline, skills, link, year, summary, image, tags, featured, layout, hasCaseStudy, caseStudySlices } = req.body;
     if (!title || !category) {
       return res.status(400).json({ success: false, error: 'Title and category are required.' });
     }
@@ -132,6 +132,7 @@ router.post('/', async (req, res) => {
       category: category.trim(),
       timeline: finalTimeline,
       skills: finalSkills,
+      link: (link || '').trim(),
       year: finalTimeline,
       summary: summary || '',
       layout: layout || '16:9 Standard',

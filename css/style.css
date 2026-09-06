@@ -4429,6 +4429,34 @@ button {
   transition: stroke 0.2s ease;
 }
 
+.case-study-topbar-live-btn {
+  background: transparent;
+  border: 1px solid rgba(9, 9, 11, 0.2);
+  color: #09090b;
+  height: 36px;
+  padding: 0 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  border-radius: 100px !important;
+  white-space: nowrap;
+}
+
+.case-study-topbar-live-btn:hover {
+  background: #09090b;
+  color: #ffffff;
+  border-color: #09090b;
+  transform: translateY(-1px);
+}
+
 .case-study-close-btn {
   background: transparent;
   border: 1px solid var(--border-light, #e4e4e7);
@@ -4512,6 +4540,82 @@ button {
   font-size: 14.5px;
   font-weight: 500;
   color: #09090b;
+}
+
+/* Live Project Links & Topline Badges */
+.case-study-hero-topline {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.case-study-category-pill {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-secondary, #52525b);
+  background: rgba(9, 9, 11, 0.04);
+  border: 1px solid var(--border-light, #e4e4e7);
+  padding: 4px 12px;
+  border-radius: 999px;
+  line-height: 1.4;
+}
+
+.case-study-live-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #09090b;
+  text-decoration: none;
+  background: transparent;
+  border: 1px solid rgba(9, 9, 11, 0.28);
+  padding: 4px 12px;
+  border-radius: 999px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  line-height: 1.4;
+}
+
+.case-study-live-pill:hover {
+  border-color: #09090b;
+  background: #09090b;
+  color: #ffffff;
+}
+
+.case-study-live-pill svg {
+  transition: transform 0.2s ease;
+}
+
+.case-study-live-pill:hover svg {
+  transform: translate(1px, -1px);
+}
+
+.case-study-sidebar-live-link {
+  font-family: var(--font-sans, 'Geist', sans-serif);
+  font-size: 14.5px;
+  font-weight: 500;
+  color: #09090b;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1px;
+  text-decoration-color: rgba(9, 9, 11, 0.35);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s ease;
+}
+
+.case-study-sidebar-live-link:hover {
+  text-decoration-color: #09090b;
+  opacity: 0.75;
 }
 
 /* Slices continuous feed */
@@ -4683,6 +4787,13 @@ button {
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 100%;
+  }
+  .case-study-topbar-live-btn span {
+    display: none;
+  }
+  .case-study-topbar-live-btn {
+    padding: 0 10px;
+    height: 34px;
   }
   .case-study-hero-meta {
     grid-template-columns: 1fr;
