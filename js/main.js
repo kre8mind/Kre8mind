@@ -1535,193 +1535,114 @@ function initTransformationSweep() {
 /* --------------------------------------------------------------------------
    14. Dynamic Project Portfolio & Case Study Showcase Loader
    -------------------------------------------------------------------------- */
-let cachedStudioProjects = [
-  {
-    id: "proj_1788486163854",
-    title: "AVENOR",
-    category: "PROP-TECH",
-    year: "2026",
-    summary: "A high-conversion real estate flagship landing page redesign engineered for spatial clarity.",
-    image: "assets/showcase/ave_cover_1788514443500.jpg",
-    tags: ["Landing Page", "PropTech", "Design System"],
-    order: 1,
-    featured: true,
-    hasCaseStudy: true,
-    caseStudySlices: [
-      {
-        type: "image",
-        url: "assets/showcase/ave_casestudy_1788514480021.jpg",
-        caption: "01 / Avenor Design Architecture & Layout Slices"
-      }
-    ]
-  },
-  {
-    id: "proj_01",
-    title: "FLOWMETRIC",
-    category: "PRODUCT DESIGN",
-    year: "2026",
-    summary: "Realtime institutional trading interface and fintech analytics platform.",
-    image: "assets/showcase/mockup-1.jpg",
-    tags: ["Trading UI", "Fintech", "Design Tokens"],
-    order: 2,
-    featured: true,
-    hasCaseStudy: true,
-    caseStudySlices: [
-      {
-        type: "image",
-        url: "assets/showcase/mockup-1.jpg",
-        caption: "01 / Trading Dashboard & Telemetry"
-      }
-    ]
-  },
-  {
-    id: "proj_02",
-    title: "HOSPITALITY HEALTH",
-    category: "WEB PLATFORM",
-    year: "2026",
-    summary: "Clinical hospital management and patient onboarding web platform.",
-    image: "assets/showcase/mockup-2.jpg",
-    tags: ["Healthcare", "Web App", "UX Architecture"],
-    order: 3,
-    featured: true,
-    hasCaseStudy: true,
-    caseStudySlices: [
-      {
-        type: "image",
-        url: "assets/showcase/mockup-2.jpg",
-        caption: "01 / Clinical Workflow Ergonomics"
-      }
-    ]
-  },
-  {
-    id: "proj_03",
-    title: "SAASIFY HQ",
-    category: "SAAS / SYSTEM",
-    year: "2026",
-    summary: "B2B SaaS subscription billing and telemetry architecture.",
-    image: "assets/showcase/mockup-3.jpg",
-    tags: ["B2B SaaS", "Dashboard", "Figma Tokens"],
-    order: 4,
-    featured: true,
-    hasCaseStudy: true,
-    caseStudySlices: [
-      {
-        type: "image",
-        url: "assets/showcase/mockup-3.jpg",
-        caption: "01 / SaaS Architecture & Components"
-      }
-    ]
-  },
-  {
-    id: "proj_04",
-    title: "AETHER LABS",
-    category: "BRAND IDENTITY",
-    year: "2025",
-    summary: "Visual identity system and spatial digital design guidelines.",
-    image: "assets/showcase/mockup.jpg",
-    tags: ["Brand Identity", "Design System", "Creative Direction"],
-    order: 5,
-    featured: false,
-    hasCaseStudy: true,
-    caseStudySlices: [
-      {
-        type: "image",
-        url: "assets/showcase/mockup.jpg",
-        caption: "01 / Visual Identity Guidelines"
-      }
-    ]
-  }
-];
+const PROJECTS_CACHE_KEY = 'kre8mind_cached_projects';
+
+function getStoredProjects() {
+  try {
+    const raw = localStorage.getItem(PROJECTS_CACHE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) return parsed;
+    }
+  } catch {}
+  return [];
+}
+
+function setStoredProjects(list) {
+  try {
+    localStorage.setItem(PROJECTS_CACHE_KEY, JSON.stringify(list || []));
+  } catch {}
+}
+
+let cachedStudioProjects = getStoredProjects();
 
 async function initDynamicProjects() {
-  // Bind initial static cards immediately
-  bindProjectCardTriggers();
+  // If we already have stored projects in localStorage, render them immediately (0ms latency, no flash!)
+  if (cachedStudioProjects && cachedStudioProjects.length > 0) {
+    renderStudioProjects(cachedStudioProjects);
+  }
 
   try {
     const res = await fetch(`${API_BASE}/api/projects`);
     if (!res.ok) return;
     const json = await res.json();
     const projects = json.data || json.projects || [];
-    if (!projects || !projects.length) {
-      cachedStudioProjects = [];
-      const grids = document.querySelectorAll('.das-studio-grid');
-      grids.forEach(grid => {
-        grid.innerHTML = `
-          <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: var(--text-muted); font-family: var(--font-mono); font-size: 13px;">
-            No projects published yet. Add projects from the Admin dashboard.
-          </div>
-        `;
-      });
+    
+    cachedStudioProjects = projects;
+    setStoredProjects(projects);
+
+    renderStudioProjects(projects);
+    checkDeepLinkProject();
+  } catch (err) {
+    console.log('Project loader note:', err);
+    if (cachedStudioProjects && cachedStudioProjects.length > 0) {
+      renderStudioProjects(cachedStudioProjects);
+    }
+  }
+}
+
+function renderStudioProjects(projects) {
+  const pathname = window.location.pathname.toLowerCase();
+  const isProjectsPage = pathname.includes('projects.html') || pathname.endsWith('/projects') || pathname.endsWith('/projects/');
+  const isHomePage = !isProjectsPage;
+
+  const displayProjects = isHomePage 
+    ? projects.filter(p => p.featured !== false).slice(0, 4)
+    : projects;
+
+  const grids = document.querySelectorAll('.das-studio-grid');
+  grids.forEach(grid => {
+    if (!displayProjects.length) {
+      grid.innerHTML = `
+        <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: var(--text-muted); font-family: var(--font-mono); font-size: 13px;">
+          No projects published yet. Add projects from the Admin dashboard.
+        </div>
+      `;
       return;
     }
 
-    cachedStudioProjects = projects;
+    grid.innerHTML = displayProjects.map((p, idx) => {
+      const coverImg = p.image || `assets/showcase/mockup-${(idx % 4) + 1}.jpg`;
+      const duration = p.year ? `${p.year}` : `${(idx % 3) + 2} weeks`;
+      const category = p.category || 'PRODUCT DESIGN';
+      const title = p.title || `PROJECT 0${idx + 1}`;
+      const isVideo = (p.coverType === 'video') || (typeof coverImg === 'string' && /\.(mp4|webm|mov)$/i.test(coverImg));
 
-    const pathname = window.location.pathname.toLowerCase();
-    const isProjectsPage = pathname.includes('projects.html') || pathname.endsWith('/projects') || pathname.endsWith('/projects/');
-    const isHomePage = !isProjectsPage;
-
-    // If on HomePage, display only up to 4 featured projects
-    // If on Projects page, display all projects
-    const displayProjects = isHomePage 
-      ? projects.filter(p => p.featured !== false).slice(0, 4)
-      : projects;
-
-    const grids = document.querySelectorAll('.das-studio-grid');
-    grids.forEach(grid => {
-      grid.innerHTML = displayProjects.map((p, idx) => {
-        const coverImg = p.image || `assets/showcase/mockup-${(idx % 4) + 1}.jpg`;
-        const duration = p.year ? `${p.year}` : `${(idx % 3) + 2} weeks`;
-        const category = p.category || 'PRODUCT DESIGN';
-        const title = p.title || `PROJECT 0${idx + 1}`;
-        const isVideo = (p.coverType === 'video') || (typeof coverImg === 'string' && /\.(mp4|webm|mov)$/i.test(coverImg));
-
-        return `
-          <article class="das-card-item" data-project-id="${p.id}" style="cursor: pointer;">
-            <div class="das-card-anchor" data-project-id="${p.id}">
-              <div class="das-image-container">
-                <span class="das-category-tag top-left">${category}</span>
-                ${isVideo ? `
-                  <video src="${coverImg}" autoplay muted loop playsinline></video>
-                ` : `
-                  <img src="${coverImg}" alt="${title}" loading="lazy" />
-                `}
-                <div class="das-view-overlay">
-                  <span class="das-view-badge">VIEW</span>
-                </div>
-              </div>
-              <div class="das-text-block">
-                <span class="das-duration">${duration}</span>
-                <h3 class="das-card-heading">${title}</h3>
+      return `
+        <article class="das-card-item is-revealed" data-project-id="${p.id}" style="cursor: pointer;">
+          <div class="das-card-anchor" data-project-id="${p.id}">
+            <div class="das-image-container">
+              <span class="das-category-tag top-left">${escapeHtml(category)}</span>
+              ${isVideo ? `
+                <video src="${coverImg}" autoplay muted loop playsinline></video>
+              ` : `
+                <img src="${coverImg}" alt="${escapeHtml(title)}" loading="lazy" />
+              `}
+              <div class="das-view-overlay">
+                <span class="das-view-badge">VIEW</span>
               </div>
             </div>
-          </article>
-        `;
-      }).join('');
+            <div class="das-text-block">
+              <span class="das-duration">${escapeHtml(duration)}</span>
+              <h3 class="das-card-heading">${escapeHtml(title)}</h3>
+            </div>
+          </div>
+        </article>
+      `;
+    }).join('');
+  });
 
-      // Immediately ensure visible state
-      grid.querySelectorAll('.das-card-item').forEach(card => {
-        card.classList.add('is-revealed');
-      });
-    });
-
-    // Update bottom "SEE ALL (N)" button on homepage
-    if (isHomePage) {
-      const seeAllBtn = document.querySelector('.das-projects-bottom .btn-rolling .primary-text');
-      const seeAllHover = document.querySelector('.das-projects-bottom .btn-rolling .hover-text');
-      const text = `SEE ALL (${projects.length}) →`;
-      if (seeAllBtn) seeAllBtn.textContent = text;
-      if (seeAllHover) seeAllHover.textContent = text;
-    }
-
-    // Rebind click triggers for newly rendered project cards
-    bindProjectCardTriggers();
-    checkDeepLinkProject();
-  } catch (err) {
-    console.log('Project loader using static markup fallback');
-    bindProjectCardTriggers();
-    checkDeepLinkProject();
+  // Update bottom "SEE ALL (N)" button on homepage
+  if (isHomePage) {
+    const seeAllBtn = document.querySelector('.das-projects-bottom .btn-rolling .primary-text');
+    const seeAllHover = document.querySelector('.das-projects-bottom .btn-rolling .hover-text');
+    const count = projects.length;
+    const text = `SEE ALL (${count}) →`;
+    if (seeAllBtn) seeAllBtn.textContent = text;
+    if (seeAllHover) seeAllHover.textContent = text;
   }
+
+  bindProjectCardTriggers();
 }
 
 function bindProjectCardTriggers() {
