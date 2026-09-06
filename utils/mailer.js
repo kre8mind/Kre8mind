@@ -76,7 +76,7 @@ export const sendInquiryConfirmation = async (inquiry) => {
         </p>
 
         <div class="footer">
-          Kre8mind Studio — Clarity By Design.<br>
+          Kre8mind Studio · Clarity By Design.<br>
           Direct Inquiries: <a href="mailto:hello@kre8mind.com" style="color: #5b21b6; text-decoration: none;">hello@kre8mind.com</a>
         </div>
       </div>

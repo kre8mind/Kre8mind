@@ -3,10 +3,14 @@
  * Interactive Behaviors, Seamless Smooth Carousel & Motion Controller
  */
 
-// API Host Resolver (Handles file:/// and local dev ports)
-const API_BASE = (window.location.protocol === 'file:' || (window.location.port && window.location.port !== '5000' && window.location.hostname === 'localhost'))
-  ? 'http://localhost:5000'
-  : '';
+// API Host Resolver (Handles file:///, 127.0.0.1, and local dev ports)
+const isLocalDev = window.location.protocol === 'file:' || 
+  (window.location.port && window.location.port !== '5000' && (
+    window.location.hostname === 'localhost' || 
+    window.location.hostname === '127.0.0.1' || 
+    window.location.hostname === '0.0.0.0'
+  ));
+const API_BASE = isLocalDev ? 'http://localhost:5000' : '';
 
 function escapeHtml(str) {
   if (!str) return '';
@@ -1653,13 +1657,18 @@ async function initDynamicProjects() {
         const duration = p.year ? `${p.year}` : `${(idx % 3) + 2} weeks`;
         const category = p.category || 'PRODUCT DESIGN';
         const title = p.title || `PROJECT 0${idx + 1}`;
+        const isVideo = (p.coverType === 'video') || (typeof coverImg === 'string' && /\.(mp4|webm|mov)$/i.test(coverImg));
 
         return `
           <article class="das-card-item" data-project-id="${p.id}" style="cursor: pointer;">
             <div class="das-card-anchor" data-project-id="${p.id}">
               <div class="das-image-container">
                 <span class="das-category-tag top-left">${category}</span>
-                <img src="${coverImg}" alt="${title}" loading="lazy" />
+                ${isVideo ? `
+                  <video src="${coverImg}" autoplay muted loop playsinline></video>
+                ` : `
+                  <img src="${coverImg}" alt="${title}" loading="lazy" />
+                `}
                 <div class="das-view-overlay">
                   <span class="das-view-badge">VIEW</span>
                 </div>
@@ -1699,19 +1708,20 @@ async function initDynamicProjects() {
 }
 
 function bindProjectCardTriggers() {
-  document.querySelectorAll('.das-card-item, .das-card-anchor').forEach(el => {
-    el.addEventListener('click', (e) => {
+  document.querySelectorAll('.das-card-item').forEach(el => {
+    el.onclick = (e) => {
       e.preventDefault();
       const projId = el.getAttribute('data-project-id');
       const heading = el.querySelector('.das-card-heading')?.textContent?.trim();
       
-      let targetProj = cachedStudioProjects.find(p => p.id === projId || p.title === heading);
+      let targetProj = cachedStudioProjects.find(p => p.id === projId || p.title?.toUpperCase() === heading?.toUpperCase());
       
       if (!targetProj) {
         // Build fallback project object from card DOM
         const cat = el.querySelector('.das-category-tag')?.textContent?.trim() || 'PRODUCT DESIGN';
-        const img = el.querySelector('img')?.getAttribute('src') || 'assets/showcase/mockup-1.jpg';
+        const img = el.querySelector('img, video')?.getAttribute('src') || 'assets/showcase/mockup-1.jpg';
         const duration = el.querySelector('.das-duration')?.textContent?.trim() || '2026';
+        const isVid = /\.(mp4|webm|mov)$/i.test(img);
         
         targetProj = {
           id: projId || 'proj_preview',
@@ -1720,15 +1730,16 @@ function bindProjectCardTriggers() {
           year: duration,
           summary: `Comprehensive design and engineering case study for ${heading || 'this flagship product'}. Engineered for clarity, intuitive ergonomics, and measurable commercial conversion.`,
           image: img,
+          coverType: isVid ? 'video' : 'image',
           hasCaseStudy: true,
           caseStudySlices: [
-            { type: 'image', url: img, caption: 'Overview & Design System' }
+            { type: isVid ? 'video' : 'image', url: img, caption: 'Overview & Design System' }
           ]
         };
       }
 
       window.openCaseStudy(targetProj);
-    });
+    };
   });
 }
 
@@ -1924,7 +1935,7 @@ function initCaseStudyViewer() {
     if (window.history && window.history.replaceState) {
       const targetUrl = `/project/${proj.id}`;
       if (!window.location.pathname.endsWith(targetUrl)) {
-        window.history.replaceState({ projectId: proj.id }, `${proj.title} — Kre8mind Case Study`, targetUrl);
+        window.history.replaceState({ projectId: proj.id }, `${proj.title} | Kre8mind Case Study`, targetUrl);
       }
     }
 
@@ -1960,10 +1971,11 @@ function initCaseStudyViewer() {
     // Collect presentation slices
     const slices = [];
     
-    // Main Cover image if available
+    // Main Cover image or video if available
     if (proj.image) {
+      const isVid = (proj.coverType === 'video') || (typeof proj.image === 'string' && /\.(mp4|webm|mov)$/i.test(proj.image));
       slices.push({
-        type: 'image',
+        type: isVid ? 'video' : 'image',
         url: proj.image,
         caption: '01 / Flagship Overview'
       });
@@ -1974,8 +1986,9 @@ function initCaseStudyViewer() {
       proj.caseStudySlices.forEach((sl, idx) => {
         // Skip if duplicate of main cover
         if (sl.url && sl.url !== proj.image) {
+          const isVid = sl.type === 'video' || (typeof sl.url === 'string' && /\.(mp4|webm|mov)$/i.test(sl.url));
           slices.push({
-            type: sl.type || 'image',
+            type: isVid ? 'video' : 'image',
             url: sl.url,
             caption: sl.caption || `Presentation Slide 0${idx + 1}`
           });
@@ -1986,14 +1999,14 @@ function initCaseStudyViewer() {
     // Render slices feed
     if (slicesFeed) {
       slicesFeed.innerHTML = slices.map((s, idx) => {
-        const isVideo = s.type === 'video' || (typeof s.url === 'string' && (s.url.endsWith('.mp4') || s.url.endsWith('.webm')));
+        const isVideo = s.type === 'video' || (typeof s.url === 'string' && /\.(mp4|webm|mov)$/i.test(s.url));
         
         return `
           <div class="case-study-slice-card">
             ${isVideo ? `
-              <video src="${s.url}" autoplay muted loop playsinline controls></video>
+              <video src="${s.url}" autoplay muted loop playsinline controls style="max-width:100%; display:block; border-radius:8px; background:#000;"></video>
             ` : `
-              <img src="${s.url}" alt="${title} Slide ${idx + 1}" loading="lazy" />
+              <img src="${s.url}" alt="${title} Slide ${idx + 1}" loading="lazy" style="max-width:100%; display:block; border-radius:8px;" />
             `}
             ${s.caption ? `<div class="case-study-slice-caption">${s.caption}</div>` : ''}
           </div>

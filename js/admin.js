@@ -3,10 +3,14 @@
  * Client Management, Case Studies, Journal, Testimonials, Analytics & Security
  */
 
-// API Root Host (Handles direct file:/// and multi-port local dev)
-const API_BASE = (window.location.protocol === 'file:' || (window.location.port && window.location.port !== '5000' && window.location.hostname === 'localhost'))
-  ? 'http://localhost:5000'
-  : '';
+// API Root Host (Handles direct file:///, 127.0.0.1, localhost, and multi-port local dev)
+const isLocalDev = window.location.protocol === 'file:' || 
+  (window.location.port && window.location.port !== '5000' && (
+    window.location.hostname === 'localhost' || 
+    window.location.hostname === '127.0.0.1' || 
+    window.location.hostname === '0.0.0.0'
+  ));
+const API_BASE = isLocalDev ? 'http://localhost:5000' : '';
 
 // Global State
 let inquiriesData = [];
@@ -272,7 +276,7 @@ function renderInquiries() {
           <a href="mailto:${escapeHtml(item.email)}" style="font-size: 12px; color: var(--text-muted); text-decoration: none;">${escapeHtml(item.email)}</a>
         </td>
         <td><span style="font-family: var(--font-sans); font-size: 12px; font-weight: 600;">${escapeHtml(item.serviceTier || 'General Inquiry')}</span></td>
-        <td style="font-family: var(--font-mono); font-size: 11.5px;">${escapeHtml(item.budget || '—')}</td>
+        <td style="font-family: var(--font-mono); font-size: 11.5px;">${escapeHtml(item.budget || 'N/A')}</td>
         <td style="max-width: 260px;">
           <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.4; word-break: break-word;">
             ${item.details ? escapeHtml(item.details) : '<span style="color: var(--text-muted); font-style: italic;">No notes provided</span>'}
@@ -347,16 +351,23 @@ function initProjectsCMS() {
   const slicesFileInput = document.getElementById('proj-slices-file');
   const hasCaseStudyCheckbox = document.getElementById('proj-has-casestudy');
   const caseStudyArea = document.getElementById('case-study-fields');
+  const mediaInput = document.getElementById('proj-media');
   
+  // Realtime cover preview when typing or pasting URL
+  mediaInput?.addEventListener('input', (e) => {
+    renderCoverPreview(e.target.value.trim());
+  });
+
   openBtn?.addEventListener('click', () => {
     form.reset();
     document.getElementById('proj-id').value = '';
     document.getElementById('modal-project-title').textContent = 'Add Project Showcase';
     document.getElementById('proj-featured').checked = true;
+    if (hasCaseStudyCheckbox) hasCaseStudyCheckbox.checked = true;
     currentCaseStudySlices = [];
     renderSlicesList();
     renderCoverPreview('');
-    caseStudyArea.classList.remove('show');
+    if (caseStudyArea) caseStudyArea.classList.add('show');
     modal.classList.add('open');
   });
 
@@ -374,6 +385,12 @@ function initProjectsCMS() {
     const file = e.target.files[0];
     if (!file) return;
 
+    if (file.size > 60 * 1024 * 1024) {
+      showToast('File too large (max 60MB)', 'error');
+      coverFileInput.value = '';
+      return;
+    }
+
     const formData = new FormData();
     formData.append('file', file);
 
@@ -387,12 +404,15 @@ function initProjectsCMS() {
       if (data.success) {
         document.getElementById('proj-media').value = data.filePath;
         renderCoverPreview(data.filePath);
-        showToast('Cover media uploaded', 'success');
+        showToast('Cover media uploaded successfully', 'success');
       } else {
         showToast(data.error || 'Upload failed', 'error');
       }
-    } catch {
+    } catch (err) {
+      console.error('Cover upload error:', err);
       showToast('Error uploading file', 'error');
+    } finally {
+      coverFileInput.value = '';
     }
   });
 
@@ -400,33 +420,51 @@ function initProjectsCMS() {
     const files = Array.from(e.target.files);
     if (!files.length) return;
 
-    const formData = new FormData();
-    files.forEach(f => formData.append('files', f));
+    if (hasCaseStudyCheckbox) hasCaseStudyCheckbox.checked = true;
+    if (caseStudyArea) caseStudyArea.classList.add('show');
 
-    try {
-      showToast(`Uploading ${files.length} slices...`, 'info');
-      const res = await fetch(`${API_BASE}/api/upload-multiple`, {
-        method: 'POST',
-        body: formData
-      });
-      const data = await res.json();
-      if (data.success) {
-        data.filePaths.forEach((path) => {
-          const isVideo = /\.(mp4|webm|mov)$/i.test(path);
+    showToast(`Uploading ${files.length} presentation slice${files.length > 1 ? 's' : ''}...`, 'info');
+
+    let successCount = 0;
+    for (let i = 0; i < files.length; i++) {
+      const f = files[i];
+      if (f.size > 60 * 1024 * 1024) {
+        showToast(`"${f.name}" is over 60MB, skipped`, 'error');
+        continue;
+      }
+
+      try {
+        const formData = new FormData();
+        formData.append('file', f);
+
+        const res = await fetch(`${API_BASE}/api/upload`, {
+          method: 'POST',
+          body: formData
+        });
+        const data = await res.json();
+        if (data.success) {
+          const isVideo = f.type.startsWith('video/') || (data.isVideo) || /\.(mp4|webm|mov)$/i.test(data.filePath);
+          const cleanCaption = f.name.replace(/\.[^/.]+$/, '').replace(/[_-]/g, ' ');
           currentCaseStudySlices.push({
             type: isVideo ? 'video' : 'image',
-            url: path,
-            caption: `Slide ${currentCaseStudySlices.length + 1}`
+            url: data.filePath,
+            caption: cleanCaption || `Slide ${currentCaseStudySlices.length + 1}`
           });
-        });
-        renderSlicesList();
-        showToast(`${files.length} slices added`, 'success');
-      } else {
-        showToast(data.error || 'Batch upload failed', 'error');
+          successCount++;
+          renderSlicesList();
+        } else {
+          showToast(data.error || `Failed to upload ${f.name}`, 'error');
+        }
+      } catch (err) {
+        console.error('Slice upload error:', err);
+        showToast(`Error uploading ${f.name}`, 'error');
       }
-    } catch {
-      showToast('Error during batch upload', 'error');
     }
+
+    if (successCount > 0) {
+      showToast(`Added ${successCount} case study slice${successCount > 1 ? 's' : ''}`, 'success');
+    }
+    slicesFileInput.value = '';
   });
 
   form?.addEventListener('submit', async (e) => {
@@ -439,7 +477,7 @@ function initProjectsCMS() {
     const image = document.getElementById('proj-media').value.trim() || 'assets/showcase/journal-1.jpg';
     const summary = document.getElementById('proj-summary').value.trim();
     const featured = document.getElementById('proj-featured').checked;
-    const hasCaseStudy = document.getElementById('proj-has-casestudy').checked;
+    const hasCaseStudy = document.getElementById('proj-has-casestudy').checked || currentCaseStudySlices.length > 0;
 
     if (!title || !category) {
       showToast('Please fill in required fields (*)', 'error');
@@ -455,11 +493,11 @@ function initProjectsCMS() {
       summary,
       featured,
       hasCaseStudy,
-      caseStudySlices: hasCaseStudy ? currentCaseStudySlices : []
+      caseStudySlices: currentCaseStudySlices
     };
 
     try {
-      const url = id ? `/api/projects/${id}` : '/api/projects';
+      const url = id ? `${API_BASE}/api/projects/${id}` : `${API_BASE}/api/projects`;
       const method = id ? 'PUT' : 'POST';
 
       const res = await fetch(url, {
@@ -476,7 +514,8 @@ function initProjectsCMS() {
       } else {
         showToast(data.error || 'Failed to save project', 'error');
       }
-    } catch {
+    } catch (err) {
+      console.error('Save project error:', err);
       showToast('Error saving project', 'error');
     }
   });
@@ -494,9 +533,17 @@ function renderCoverPreview(url) {
   const isVideo = /\.(mp4|webm|mov)$/i.test(url);
   previewBox.style.display = 'block';
   if (isVideo) {
-    previewBox.innerHTML = `<video src="${url}" controls autoplay muted loop class="live-media-preview" style="display:block; max-height:160px;"></video>`;
+    previewBox.innerHTML = `
+      <div style="position: relative; border-radius: 6px; overflow: hidden; border: 1px solid var(--border); background: #09090b; max-height: 180px; display: inline-block;">
+        <video src="${url}" controls autoplay muted loop playsinline class="live-media-preview" style="display: block; max-height: 180px; max-width: 100%;"></video>
+        <span style="position: absolute; top: 6px; left: 6px; background: rgba(0,0,0,0.7); color: #fff; font-size: 9px; padding: 2px 6px; border-radius: 4px; font-family: var(--font-mono);">VIDEO COVER</span>
+      </div>`;
   } else {
-    previewBox.innerHTML = `<img src="${url}" class="live-media-preview" style="display:block; max-height:160px;">`;
+    previewBox.innerHTML = `
+      <div style="position: relative; border-radius: 6px; overflow: hidden; border: 1px solid var(--border); background: #fafafa; max-height: 180px; display: inline-block;">
+        <img src="${url}" class="live-media-preview" style="display: block; max-height: 180px; max-width: 100%; object-fit: cover;" onerror="this.parentElement.innerHTML='<span style=\\'color:#ef4444; font-size:11px; padding:6px;\\'>Image preview unavailable (check path)</span>';">
+        <span style="position: absolute; top: 6px; left: 6px; background: rgba(0,0,0,0.7); color: #fff; font-size: 9px; padding: 2px 6px; border-radius: 4px; font-family: var(--font-mono);">IMAGE COVER</span>
+      </div>`;
   }
 }
 
@@ -505,20 +552,71 @@ function renderSlicesList() {
   if (!container) return;
 
   if (!currentCaseStudySlices.length) {
-    container.innerHTML = `<div style="font-size: 11.5px; color: var(--text-muted); padding: 8px 0;">No media slices attached. Click above to add presentation slides or video demos.</div>`;
+    container.innerHTML = `<div style="font-size: 11.5px; color: var(--text-muted); padding: 12px; background: #fafafa; border: 1px dashed var(--border); border-radius: 6px; text-align: center;">No presentation slices attached yet. Upload slides (images or videos) above.</div>`;
     return;
   }
 
-  container.innerHTML = currentCaseStudySlices.map((slice, idx) => `
-    <div class="slice-item-row">
-      <span class="slice-item-type">${slice.type === 'video' ? '🎬 VIDEO' : '🖼 IMAGE'}</span>
-      <span class="slice-item-url">${escapeHtml(slice.url)}</span>
-      <div style="margin-left: auto; display: flex; gap: 6px;">
-        <button type="button" class="site-link" onclick="removeSlice(${idx})" style="color: #ef4444; font-size: 11px;">Remove</button>
-      </div>
+  container.innerHTML = `
+    <div style="font-size: 11px; font-family: var(--font-mono); color: var(--text-muted); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+      <span>${currentCaseStudySlices.length} PRESENTATION SLICE${currentCaseStudySlices.length > 1 ? 'S' : ''}</span>
+      <button type="button" class="site-link" onclick="clearAllSlices()" style="color: #ef4444; font-size: 11px;">Clear All</button>
     </div>
-  `).join('');
+    <div class="slices-items-list" style="display: flex; flex-direction: column; gap: 8px;">
+      ${currentCaseStudySlices.map((slice, idx) => {
+        const isVid = slice.type === 'video' || (typeof slice.url === 'string' && /\.(mp4|webm|mov)$/i.test(slice.url));
+        const thumb = isVid
+          ? `<video src="${slice.url}" muted style="width: 48px; height: 36px; object-fit: cover; border-radius: 4px; background: #000; flex-shrink: 0;"></video>`
+          : `<img src="${slice.url}" alt="" style="width: 48px; height: 36px; object-fit: cover; border-radius: 4px; background: #eee; flex-shrink: 0;" onerror="this.style.display='none';">`;
+
+        return `
+          <div class="slice-item-row" style="display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: #fff; border: 1px solid var(--border); border-radius: 6px;">
+            <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); min-width: 20px;">0${idx + 1}</span>
+            ${thumb}
+            <div style="flex: 1; min-width: 0;">
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span class="slice-item-type" style="font-size: 9.5px; padding: 1px 5px; border-radius: 3px; background: ${isVid ? 'rgba(91, 33, 182, 0.1)' : 'rgba(0,0,0,0.06)'}; color: ${isVid ? '#5b21b6' : 'inherit'}; font-weight: 600;">${isVid ? '🎬 VIDEO' : '🖼 IMAGE'}</span>
+                <input type="text" class="form-input" value="${escapeHtml(slice.caption || `Slide ${idx + 1}`)}" onchange="updateSliceCaption(${idx}, this.value)" placeholder="Slide caption..." style="padding: 2px 6px; font-size: 12px; height: auto; flex: 1; border: 1px solid transparent; background: transparent;" onfocus="this.style.border='1px solid var(--border)'; this.style.background='#fff';" onblur="this.style.border='1px solid transparent'; this.style.background='transparent';">
+              </div>
+              <div class="slice-item-url" style="font-size: 11px; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 2px;">${escapeHtml(slice.url)}</div>
+            </div>
+            <div style="display: flex; gap: 4px; align-items: center; flex-shrink: 0;">
+              <button type="button" class="site-link" onclick="moveSliceUp(${idx})" ${idx === 0 ? 'disabled style="opacity:0.2;"' : ''} title="Move Up" style="font-size: 11px; padding: 2px 4px;">▲</button>
+              <button type="button" class="site-link" onclick="moveSliceDown(${idx})" ${idx === currentCaseStudySlices.length - 1 ? 'disabled style="opacity:0.2;"' : ''} title="Move Down" style="font-size: 11px; padding: 2px 4px;">▼</button>
+              <button type="button" class="site-link" onclick="removeSlice(${idx})" style="color: #ef4444; font-size: 12px; padding: 2px 4px; margin-left: 4px;" title="Delete slice">✕</button>
+            </div>
+          </div>
+        `;
+      }).join('')}
+    </div>
+  `;
 }
+
+window.updateSliceCaption = function(idx, val) {
+  if (currentCaseStudySlices[idx]) {
+    currentCaseStudySlices[idx].caption = val.trim();
+  }
+};
+
+window.moveSliceUp = function(idx) {
+  if (idx <= 0) return;
+  const temp = currentCaseStudySlices[idx - 1];
+  currentCaseStudySlices[idx - 1] = currentCaseStudySlices[idx];
+  currentCaseStudySlices[idx] = temp;
+  renderSlicesList();
+};
+
+window.moveSliceDown = function(idx) {
+  if (idx < 0 || idx >= currentCaseStudySlices.length - 1) return;
+  const temp = currentCaseStudySlices[idx + 1];
+  currentCaseStudySlices[idx + 1] = currentCaseStudySlices[idx];
+  currentCaseStudySlices[idx] = temp;
+  renderSlicesList();
+};
+
+window.clearAllSlices = function() {
+  currentCaseStudySlices = [];
+  renderSlicesList();
+};
 
 window.removeSlice = function(idx) {
   currentCaseStudySlices.splice(idx, 1);
@@ -583,7 +681,7 @@ function renderProjectsTable() {
         </td>
         <td>
           <span style="font-family: var(--font-mono); font-size: 10.5px;">
-            ${sliceCount > 0 ? `✓ ${sliceCount} Slices` : '—'}
+            ${sliceCount > 0 ? `✓ ${sliceCount} Slices` : 'None'}
           </span>
         </td>
         <td>
@@ -683,7 +781,7 @@ window.editProject = function(id) {
   if (hasCase) caseStudyArea.classList.add('show');
   else caseStudyArea.classList.remove('show');
 
-  currentCaseStudySlices = p.caseStudySlices || [];
+  currentCaseStudySlices = Array.isArray(p.caseStudySlices) ? JSON.parse(JSON.stringify(p.caseStudySlices)) : [];
   renderSlicesList();
   renderCoverPreview(p.image);
 
