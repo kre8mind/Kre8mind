@@ -422,6 +422,10 @@ function initProjectsCMS() {
     form.reset();
     document.getElementById('proj-id').value = '';
     document.getElementById('modal-project-title').textContent = 'Add Project Showcase';
+    const timelineInput = document.getElementById('proj-timeline');
+    if (timelineInput) timelineInput.value = '';
+    const skillsInput = document.getElementById('proj-skills');
+    if (skillsInput) skillsInput.value = '';
     document.getElementById('proj-featured').checked = true;
     if (hasCaseStudyCheckbox) hasCaseStudyCheckbox.checked = true;
     currentCaseStudySlices = [];
@@ -522,7 +526,11 @@ function initProjectsCMS() {
     const id = document.getElementById('proj-id').value;
     const title = document.getElementById('proj-name').value.trim();
     const category = document.getElementById('proj-category').value.trim();
-    const year = document.getElementById('proj-date').value.trim();
+    const timelineInput = document.getElementById('proj-timeline');
+    const skillsInput = document.getElementById('proj-skills');
+    const timeline = (timelineInput ? timelineInput.value : (document.getElementById('proj-date')?.value || '')).trim();
+    const skills = (skillsInput ? skillsInput.value : '').trim();
+    const tags = skills ? skills.split(/[,·•|]/).map(s => s.trim()).filter(Boolean) : [];
     const layout = document.getElementById('proj-layout').value;
     const image = document.getElementById('proj-media').value.trim() || 'assets/showcase/journal-1.jpg';
     const summary = document.getElementById('proj-summary').value.trim();
@@ -537,7 +545,10 @@ function initProjectsCMS() {
     const payload = {
       title,
       category,
-      year,
+      timeline,
+      skills,
+      year: timeline,
+      tags,
       layout,
       image,
       summary,
@@ -819,7 +830,19 @@ window.editProject = function(id) {
   document.getElementById('modal-project-title').textContent = 'Edit Project Showcase';
   document.getElementById('proj-name').value = p.title || '';
   document.getElementById('proj-category').value = p.category || '';
-  document.getElementById('proj-date').value = p.year || '2026';
+  
+  const timelineInput = document.getElementById('proj-timeline');
+  if (timelineInput) {
+    timelineInput.value = p.timeline || p.year || '';
+  } else if (document.getElementById('proj-date')) {
+    document.getElementById('proj-date').value = p.timeline || p.year || '';
+  }
+
+  const skillsInput = document.getElementById('proj-skills');
+  if (skillsInput) {
+    skillsInput.value = p.skills || (Array.isArray(p.tags) && p.tags.length ? p.tags.join(' · ') : '');
+  }
+
   document.getElementById('proj-layout').value = p.layout || '16:9 Standard';
   document.getElementById('proj-media').value = p.image || '';
   document.getElementById('proj-summary').value = p.summary || '';

@@ -108,7 +108,7 @@ router.get('/:id', async (req, res) => {
 // POST new project
 router.post('/', async (req, res) => {
   try {
-    const { title, category, year, summary, image, tags, featured, layout, hasCaseStudy, caseStudySlices } = req.body;
+    const { title, category, timeline, skills, year, summary, image, tags, featured, layout, hasCaseStudy, caseStudySlices } = req.body;
     if (!title || !category) {
       return res.status(400).json({ success: false, error: 'Title and category are required.' });
     }
@@ -122,15 +122,21 @@ router.post('/', async (req, res) => {
       count = await col.countDocuments();
     } catch {}
 
+    const finalTimeline = (timeline !== undefined ? timeline : (year || '')).trim();
+    const finalSkills = (skills !== undefined ? skills : (Array.isArray(tags) ? tags.join(' · ') : '')).trim();
+    const finalTags = Array.isArray(tags) ? tags : (finalSkills ? finalSkills.split(/[,·•|]/).map(s => s.trim()).filter(Boolean) : []);
+
     const newProject = {
       id: `proj_${Date.now()}`,
       title: title.trim(),
       category: category.trim(),
-      year: year || `${new Date().getFullYear()}`,
+      timeline: finalTimeline,
+      skills: finalSkills,
+      year: finalTimeline,
       summary: summary || '',
       layout: layout || '16:9 Standard',
       image: image || 'assets/showcase/journal-1.jpg',
-      tags: Array.isArray(tags) ? tags : [],
+      tags: finalTags,
       order: count + 1,
       featured: featured !== undefined ? featured : true,
       hasCaseStudy: hasCase,
@@ -161,6 +167,13 @@ router.put('/:id', async (req, res) => {
     const updateData = { ...req.body };
     delete updateData._id;
     delete updateData.id;
+
+    if (updateData.timeline !== undefined && updateData.year === undefined) {
+      updateData.year = updateData.timeline;
+    }
+    if (updateData.skills !== undefined && updateData.tags === undefined) {
+      updateData.tags = updateData.skills.split(/[,·•|]/).map(s => s.trim()).filter(Boolean);
+    }
 
     if (Array.isArray(updateData.caseStudySlices)) {
       if (updateData.hasCaseStudy === undefined) {

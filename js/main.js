@@ -1603,7 +1603,7 @@ function renderStudioProjects(projects) {
 
     grid.innerHTML = displayProjects.map((p, idx) => {
       const coverImg = p.image || `assets/showcase/mockup-${(idx % 4) + 1}.jpg`;
-      const duration = p.year ? `${p.year}` : `${(idx % 3) + 2} weeks`;
+      const duration = p.timeline || p.year || `${(idx % 3) + 2} weeks`;
       const category = p.category || 'PRODUCT DESIGN';
       const title = p.title || `PROJECT 0${idx + 1}`;
       const isVideo = (p.coverType === 'video') || (typeof coverImg === 'string' && /\.(mp4|webm|mov)$/i.test(coverImg));
@@ -1721,13 +1721,13 @@ function initCaseStudyViewer() {
                 </p>
               </div>
               <div class="case-study-meta-sidebar">
-                <div class="case-study-meta-item">
-                  <span class="case-study-meta-label">DELIVERABLES</span>
-                  <span id="cs-meta-deliverables" class="case-study-meta-value">UI/UX · Design System · Prototype</span>
+                <div class="case-study-meta-item" id="cs-meta-item-skills">
+                  <span class="case-study-meta-label">SERVICES / SKILLS</span>
+                  <span id="cs-meta-skills" class="case-study-meta-value"></span>
                 </div>
-                <div class="case-study-meta-item">
-                  <span class="case-study-meta-label">YEAR / TIMELINE</span>
-                  <span id="cs-meta-year" class="case-study-meta-value">2026</span>
+                <div class="case-study-meta-item" id="cs-meta-item-timeline">
+                  <span class="case-study-meta-label">TIMELINE</span>
+                  <span id="cs-meta-timeline" class="case-study-meta-value"></span>
                 </div>
               </div>
             </div>
@@ -1881,26 +1881,43 @@ function initCaseStudyViewer() {
     const titleBar = document.getElementById('cs-viewer-title');
     const heroHeading = document.getElementById('cs-hero-heading');
     const heroSummary = document.getElementById('cs-hero-summary');
-    const metaDeliverables = document.getElementById('cs-meta-deliverables');
-    const metaYear = document.getElementById('cs-meta-year');
+    const metaSkills = document.getElementById('cs-meta-skills');
+    const metaSkillsItem = document.getElementById('cs-meta-item-skills');
+    const metaTimeline = document.getElementById('cs-meta-timeline');
+    const metaTimelineItem = document.getElementById('cs-meta-item-timeline');
     const slicesFeed = document.getElementById('cs-slices-feed');
 
     const title = proj.title || 'Studio Project';
     const category = proj.category || 'Product Design';
-    const year = proj.year || '2026';
+    const timeline = (proj.timeline || proj.year || '').trim();
     const summary = proj.summary || `Strategic design and product engineering for ${title}.`;
-    const tags = Array.isArray(proj.tags) && proj.tags.length ? proj.tags.join(' · ') : 'UI/UX · Design Engineering · Framer/React';
+
+    // Strictly user-provided skills — NO automatic fake deliverables!
+    let skills = '';
+    if (proj.skills && typeof proj.skills === 'string') {
+      skills = proj.skills.trim();
+    } else if (Array.isArray(proj.tags) && proj.tags.length > 0) {
+      skills = proj.tags.join(' · ');
+    }
 
     if (catBadge) catBadge.textContent = category;
     if (titleBar) titleBar.textContent = title;
     if (heroHeading) heroHeading.textContent = title;
     if (heroSummary) heroSummary.textContent = summary;
-    if (metaDeliverables) metaDeliverables.textContent = tags;
-    if (metaYear) metaYear.textContent = year;
+
+    if (metaSkills) metaSkills.textContent = skills;
+    if (metaSkillsItem) {
+      metaSkillsItem.style.display = skills ? 'flex' : 'none';
+    }
+
+    if (metaTimeline) metaTimeline.textContent = timeline;
+    if (metaTimelineItem) {
+      metaTimelineItem.style.display = timeline ? 'flex' : 'none';
+    }
 
     // Smart Redesign Detection for Bottom CTA
     const ctaHeading = document.getElementById('cs-cta-heading');
-    const fullProjText = `${title} ${category} ${summary} ${tags}`;
+    const fullProjText = `${title} ${category} ${summary} ${skills}`;
     const isRedesign = /redesign/i.test(fullProjText);
     if (ctaHeading) {
       ctaHeading.textContent = isRedesign ? 'INTERESTED IN A SIMILAR REDESIGN?' : 'INTERESTED IN A SIMILAR PROJECT?';
