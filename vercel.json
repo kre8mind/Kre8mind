@@ -19,11 +19,12 @@
     { "src": "social-cover.jpg", "use": "@vercel/static" },
     { "src": "robots.txt", "use": "@vercel/static" },
     { "src": "sitemap.xml", "use": "@vercel/static" },
+    { "src": "llms.txt", "use": "@vercel/static" },
     { 
       "src": "api/index.js", 
       "use": "@vercel/node",
       "config": {
-        "includeFiles": ["*.html", "data/**", "assets/**", "favicon.*", "social-cover.jpg", "robots.txt", "sitemap.xml"]
+        "includeFiles": ["*.html", "data/**", "assets/**", "favicon.*", "social-cover.jpg", "robots.txt", "sitemap.xml", "llms.txt"]
       }
     }
   ],
@@ -31,6 +32,14 @@
     {
       "src": "/robots.txt",
       "dest": "/robots.txt",
+      "headers": {
+        "Content-Type": "text/plain; charset=utf-8",
+        "Cache-Control": "public, max-age=86400"
+      }
+    },
+    {
+      "src": "/llms.txt",
+      "dest": "/llms.txt",
       "headers": {
         "Content-Type": "text/plain; charset=utf-8",
         "Cache-Control": "public, max-age=86400"

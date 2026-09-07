@@ -60,10 +60,21 @@ app.get('/robots.txt', (req, res) => {
     res.setHeader('Cache-Control', 'public, max-age=86400');
     return res.sendFile(robotsPath);
   }
-  const defaultRobots = `User-agent: *\nAllow: /\nAllow: /services\nAllow: /projects\nAllow: /project/\nAllow: /case-study/\nAllow: /journal\nAllow: /journal/\nAllow: /assets/\nAllow: /css/\nAllow: /js/\nDisallow: /admin\nDisallow: /admin.html\nDisallow: /api/\nDisallow: /data/\nSitemap: https://kre8mind.com/sitemap.xml\n`;
+  const defaultRobots = `# https://www.robotstxt.org/robotstxt.html\nUser-agent: GPTBot\nAllow: /\nDisallow: /admin\nDisallow: /api/\nDisallow: /data/\n\nUser-agent: OAI-SearchBot\nAllow: /\nDisallow: /admin\nDisallow: /api/\nDisallow: /data/\n\nUser-agent: PerplexityBot\nAllow: /\nDisallow: /admin\nDisallow: /api/\nDisallow: /data/\n\nUser-agent: ClaudeBot\nAllow: /\nDisallow: /admin\nDisallow: /api/\nDisallow: /data/\n\nUser-agent: Google-Extended\nAllow: /\nDisallow: /admin\nDisallow: /api/\nDisallow: /data/\n\nUser-agent: Applebot-Extended\nAllow: /\nDisallow: /admin\nDisallow: /api/\nDisallow: /data/\n\nUser-agent: *\nAllow: /\nAllow: /services\nAllow: /projects\nAllow: /project/\nAllow: /case-study/\nAllow: /journal\nAllow: /journal/\nAllow: /assets/\nAllow: /css/\nAllow: /js/\nAllow: /llms.txt\nDisallow: /admin\nDisallow: /admin.html\nDisallow: /api/\nDisallow: /data/\n\nSitemap: https://kre8mind.com/sitemap.xml\n`;
   res.setHeader('Content-Type', 'text/plain; charset=utf-8');
   res.setHeader('Cache-Control', 'public, max-age=86400');
   return res.send(defaultRobots);
+});
+
+// Generative Engine Optimization & LLM Context Specification (llms.txt)
+app.get('/llms.txt', (req, res) => {
+  const llmsPath = path.join(__dirname, 'llms.txt');
+  if (fs.existsSync(llmsPath)) {
+    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+    return res.sendFile(llmsPath);
+  }
+  res.status(404).send('llms.txt not found');
 });
 
 // Dynamic XML Sitemap for Search Engines (Google, Bing, Yahoo, DuckDuckGo)

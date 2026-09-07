@@ -1,4 +1,49 @@
 # https://www.robotstxt.org/robotstxt.html
+
+# Generative Engine Optimization (GEO) - Explicit Permissions for AI Search Crawlers & LLMs
+User-agent: GPTBot
+Allow: /
+Disallow: /admin
+Disallow: /admin.html
+Disallow: /api/
+Disallow: /data/
+
+User-agent: OAI-SearchBot
+Allow: /
+Disallow: /admin
+Disallow: /admin.html
+Disallow: /api/
+Disallow: /data/
+
+User-agent: PerplexityBot
+Allow: /
+Disallow: /admin
+Disallow: /admin.html
+Disallow: /api/
+Disallow: /data/
+
+User-agent: ClaudeBot
+Allow: /
+Disallow: /admin
+Disallow: /admin.html
+Disallow: /api/
+Disallow: /data/
+
+User-agent: Google-Extended
+Allow: /
+Disallow: /admin
+Disallow: /admin.html
+Disallow: /api/
+Disallow: /data/
+
+User-agent: Applebot-Extended
+Allow: /
+Disallow: /admin
+Disallow: /admin.html
+Disallow: /api/
+Disallow: /data/
+
+# General Web Crawlers
 User-agent: *
 Allow: /
 Allow: /services
@@ -10,6 +55,7 @@ Allow: /journal/
 Allow: /assets/
 Allow: /css/
 Allow: /js/
+Allow: /llms.txt
 
 # Disallow private admin dashboard & internal API endpoints
 Disallow: /admin
