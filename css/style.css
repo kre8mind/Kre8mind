@@ -63,8 +63,11 @@ html {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Lenis Framer-Style Smooth Momentum Scroll */
-html.lenis, html.lenis body {
+/* ==========================================================================
+   Lenis Smooth Momentum Scroll CSS Reset Rules
+   ========================================================================== */
+html.lenis,
+html.lenis body {
   height: auto;
 }
 
@@ -80,6 +83,7 @@ html.lenis, html.lenis body {
   overflow: hidden;
 }
 
+.lenis.lenis-scrolling iframe,
 .lenis.lenis-smooth iframe {
   pointer-events: none;
 }

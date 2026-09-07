@@ -1027,7 +1027,14 @@
   </footer>
 
   <!-- Scripts -->
-  <script src="https://unpkg.com/lenis@1.1.18/dist/lenis.min.js"></script>
+  <script src="https://unpkg.com/lenis@1.1.20/dist/lenis.min.js"></script>
+  <script>
+    const lenis = new Lenis({
+      autoRaf: true,
+      lerp: 0.1
+    });
+    window.lenis = lenis;
+  </script>
   <script src="/js/main.js"></script>
   <script>lucide.createIcons();</script>
 </body>

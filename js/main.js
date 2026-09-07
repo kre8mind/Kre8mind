@@ -50,79 +50,24 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /* --------------------------------------------------------------------------
-   0. Ultra-Silky Smooth Momentum Scroll Engine (Framer / Sweet Glide)
+   0. Ultra-Silky Smooth Momentum Scroll Engine (Lenis)
    -------------------------------------------------------------------------- */
 function initLenisSmoothScroll() {
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  if ('ontouchstart' in window || navigator.maxTouchPoints > 0) return;
 
-  let currentY = window.scrollY;
-  let targetY = window.scrollY;
-  let isScrolling = false;
-  const ease = 0.082; // Buttery slow, luxurious momentum dampening
-
-  function onWheel(e) {
-    const csViewer = document.getElementById('kre8mind-case-study-viewer');
-    if (csViewer && csViewer.classList.contains('open')) {
-      e.preventDefault();
-      csViewer.scrollTop += e.deltaY;
-      return;
-    }
-
-    const inqModal = document.getElementById('kre8mind-inquiry-modal');
-    if (inqModal && inqModal.classList.contains('open')) {
-      e.preventDefault();
-      inqModal.scrollTop += e.deltaY;
-      return;
-    }
-
-    if (e.target.closest('.case-study-modal-backdrop') || e.target.closest('.inquiry-modal-backdrop')) {
-      return;
-    }
-    
-    e.preventDefault();
-    const delta = e.deltaY;
-    const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
-    targetY = Math.max(0, Math.min(targetY + delta * 1.1, maxScroll));
-
-    if (!isScrolling) {
-      isScrolling = true;
-      requestAnimationFrame(smoothScrollLoop);
-    }
+  // Initialize or attach global Lenis instance
+  let lenis = window.lenis;
+  if (!lenis && typeof Lenis !== 'undefined') {
+    lenis = new Lenis({
+      autoRaf: true,
+      lerp: 0.1
+    });
+    window.lenis = lenis;
   }
 
-  function smoothScrollLoop() {
-    const csViewer = document.getElementById('kre8mind-case-study-viewer');
-    const inqModal = document.getElementById('kre8mind-inquiry-modal');
-    if ((csViewer && csViewer.classList.contains('open')) || (inqModal && inqModal.classList.contains('open'))) {
-      isScrolling = false;
-      return;
-    }
+  if (!lenis) return;
 
-    const diff = targetY - currentY;
-    currentY += diff * ease;
-
-    window.scrollTo(0, currentY);
-
-    if (Math.abs(diff) > 0.4) {
-      requestAnimationFrame(smoothScrollLoop);
-    } else {
-      currentY = targetY;
-      window.scrollTo(0, targetY);
-      isScrolling = false;
-    }
-  }
-
-  window.addEventListener('wheel', onWheel, { passive: false });
-
-  window.addEventListener('scroll', () => {
-    if (!isScrolling) {
-      currentY = window.scrollY;
-      targetY = window.scrollY;
-    }
-  }, { passive: true });
-
-  // Smooth anchor link glide
+  // Smooth anchor link glide using Lenis
   document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
       const href = this.getAttribute('href');
@@ -130,16 +75,12 @@ function initLenisSmoothScroll() {
       const targetEl = document.querySelector(href);
       if (targetEl) {
         e.preventDefault();
-        const headerOffset = 76;
-        const elementPosition = targetEl.getBoundingClientRect().top + window.scrollY;
-        targetY = Math.max(0, elementPosition - headerOffset);
-        if (!isScrolling) {
-          isScrolling = true;
-          requestAnimationFrame(smoothScrollLoop);
-        }
+        lenis.scrollTo(targetEl, { offset: -76 });
       }
     });
   });
+
+  return lenis;
 }
 
 
@@ -805,7 +746,7 @@ function initAddonToggles() {
 function initInquiryModal() {
   if (!document.getElementById('kre8mind-inquiry-modal')) {
     const modalHTML = `
-      <div id="kre8mind-inquiry-modal" class="inquiry-modal-backdrop">
+      <div id="kre8mind-inquiry-modal" class="inquiry-modal-backdrop" data-lenis-prevent>
         <div class="inquiry-modal-box">
           <button class="inquiry-modal-close" id="inquiry-modal-close-btn" aria-label="Close modal">✕</button>
           
@@ -1695,7 +1636,7 @@ function bindProjectCardTriggers() {
 function initCaseStudyViewer() {
   if (!document.getElementById('kre8mind-case-study-viewer')) {
     const viewerHTML = `
-      <div id="kre8mind-case-study-viewer" class="case-study-modal-backdrop" aria-modal="true" role="dialog">
+      <div id="kre8mind-case-study-viewer" class="case-study-modal-backdrop" data-lenis-prevent aria-modal="true" role="dialog">
         <div class="case-study-modal-container">
           
           <!-- Sticky Topbar -->
