@@ -17,15 +17,33 @@
     { "src": "favicon.jpg", "use": "@vercel/static" },
     { "src": "favicon.png", "use": "@vercel/static" },
     { "src": "social-cover.jpg", "use": "@vercel/static" },
+    { "src": "robots.txt", "use": "@vercel/static" },
+    { "src": "sitemap.xml", "use": "@vercel/static" },
     { 
       "src": "api/index.js", 
       "use": "@vercel/node",
       "config": {
-        "includeFiles": ["*.html", "data/**", "assets/**", "favicon.*", "social-cover.jpg"]
+        "includeFiles": ["*.html", "data/**", "assets/**", "favicon.*", "social-cover.jpg", "robots.txt", "sitemap.xml"]
       }
     }
   ],
   "routes": [
+    {
+      "src": "/robots.txt",
+      "dest": "/robots.txt",
+      "headers": {
+        "Content-Type": "text/plain; charset=utf-8",
+        "Cache-Control": "public, max-age=86400"
+      }
+    },
+    {
+      "src": "/sitemap.xml",
+      "dest": "/api/index.js",
+      "headers": {
+        "Content-Type": "application/xml; charset=utf-8",
+        "Cache-Control": "public, max-age=3600, s-maxage=14400"
+      }
+    },
     {
       "src": "/api/(.*)",
       "dest": "/api/index.js"

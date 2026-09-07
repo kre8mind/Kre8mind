@@ -52,6 +52,126 @@ app.get('/social-cover.jpg', (req, res) => {
   res.status(404).end();
 });
 
+// Search Engine Discovery & Crawling Directives (robots.txt)
+app.get('/robots.txt', (req, res) => {
+  const robotsPath = path.join(__dirname, 'robots.txt');
+  if (fs.existsSync(robotsPath)) {
+    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+    return res.sendFile(robotsPath);
+  }
+  const defaultRobots = `User-agent: *\nAllow: /\nAllow: /services\nAllow: /projects\nAllow: /project/\nAllow: /case-study/\nAllow: /journal\nAllow: /journal/\nAllow: /assets/\nAllow: /css/\nAllow: /js/\nDisallow: /admin\nDisallow: /admin.html\nDisallow: /api/\nDisallow: /data/\nSitemap: https://kre8mind.com/sitemap.xml\n`;
+  res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+  res.setHeader('Cache-Control', 'public, max-age=86400');
+  return res.send(defaultRobots);
+});
+
+// Dynamic XML Sitemap for Search Engines (Google, Bing, Yahoo, DuckDuckGo)
+app.get('/sitemap.xml', async (req, res) => {
+  try {
+    const baseUrl = 'https://kre8mind.com';
+    const now = new Date().toISOString().split('T')[0];
+
+    const urlMap = new Map();
+    // Core landing pages
+    urlMap.set(`${baseUrl}/`, { loc: `${baseUrl}/`, lastmod: now, changefreq: 'weekly', priority: '1.0' });
+    urlMap.set(`${baseUrl}/services`, { loc: `${baseUrl}/services`, lastmod: now, changefreq: 'monthly', priority: '0.9' });
+    urlMap.set(`${baseUrl}/projects`, { loc: `${baseUrl}/projects`, lastmod: now, changefreq: 'weekly', priority: '0.9' });
+    urlMap.set(`${baseUrl}/journal`, { loc: `${baseUrl}/journal`, lastmod: now, changefreq: 'weekly', priority: '0.8' });
+
+    // 1. Fetch live Projects from MongoDB
+    try {
+      const col = await getCollection('projects');
+      const projects = await col.find({}).toArray();
+      if (Array.isArray(projects)) {
+        projects.forEach(p => {
+          if (p && p.id) {
+            const mod = p.updatedAt ? new Date(p.updatedAt).toISOString().split('T')[0] : (p.createdAt ? new Date(p.createdAt).toISOString().split('T')[0] : now);
+            urlMap.set(`${baseUrl}/project/${p.id}`, {
+              loc: `${baseUrl}/project/${encodeURIComponent(p.id)}`,
+              lastmod: mod,
+              changefreq: 'weekly',
+              priority: '0.8'
+            });
+          }
+        });
+      }
+    } catch (dbErr) {
+      console.warn('Sitemap projects DB note:', dbErr.message);
+    }
+
+    // 2. Fallback to local data/db.json if projects empty
+    try {
+      const localDbPath = path.join(__dirname, 'data', 'db.json');
+      if (fs.existsSync(localDbPath)) {
+        const parsed = JSON.parse(fs.readFileSync(localDbPath, 'utf8'));
+        if (Array.isArray(parsed.projects)) {
+          parsed.projects.forEach(p => {
+            if (p && p.id && !urlMap.has(`${baseUrl}/project/${p.id}`)) {
+              const mod = p.updatedAt ? new Date(p.updatedAt).toISOString().split('T')[0] : now;
+              urlMap.set(`${baseUrl}/project/${p.id}`, {
+                loc: `${baseUrl}/project/${encodeURIComponent(p.id)}`,
+                lastmod: mod,
+                changefreq: 'weekly',
+                priority: '0.8'
+              });
+            }
+          });
+        }
+      }
+    } catch (fErr) {
+      console.warn('Sitemap db.json fallback note:', fErr.message);
+    }
+
+    // Baseline project guarantees
+    const defaultProjIds = ['proj_1788486163854', 'proj_01', 'proj_02', 'proj_03'];
+    defaultProjIds.forEach(id => {
+      if (!urlMap.has(`${baseUrl}/project/${id}`)) {
+        urlMap.set(`${baseUrl}/project/${id}`, {
+          loc: `${baseUrl}/project/${id}`,
+          lastmod: now,
+          changefreq: 'weekly',
+          priority: '0.8'
+        });
+      }
+    });
+
+    // 3. Fetch live Journal Articles from MongoDB
+    try {
+      const jCol = await getCollection('journal');
+      const articles = await jCol.find({}).toArray();
+      if (Array.isArray(articles)) {
+        articles.forEach(a => {
+          if (a && a.id) {
+            const mod = a.updatedAt ? new Date(a.updatedAt).toISOString().split('T')[0] : (a.createdAt ? new Date(a.createdAt).toISOString().split('T')[0] : now);
+            urlMap.set(`${baseUrl}/journal/${a.id}`, {
+              loc: `${baseUrl}/journal/${encodeURIComponent(a.id)}`,
+              lastmod: mod,
+              changefreq: 'monthly',
+              priority: '0.7'
+            });
+          }
+        });
+      }
+    } catch (jErr) {
+      console.warn('Sitemap journal DB note:', jErr.message);
+    }
+
+    let xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
+    for (const entry of urlMap.values()) {
+      xml += `  <url>\n    <loc>${entry.loc}</loc>\n    <lastmod>${entry.lastmod}</lastmod>\n    <changefreq>${entry.changefreq}</changefreq>\n    <priority>${entry.priority}</priority>\n  </url>\n`;
+    }
+    xml += `</urlset>`;
+
+    res.setHeader('Content-Type', 'application/xml; charset=utf-8');
+    res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=14400');
+    return res.send(xml);
+  } catch (err) {
+    console.error('Error generating dynamic sitemap:', err);
+    res.status(500).send('Error generating sitemap');
+  }
+});
+
 // Health Check
 app.get('/api/health', (req, res) => {
   res.json({
@@ -445,28 +565,40 @@ function readTemplate(filename) {
 function renderHtmlWithSocialMeta(filename, meta, req) {
   try {
     let html = readTemplate(filename);
+    const CANONICAL_BASE = 'https://kre8mind.com';
     const baseUrl = getBaseUrl(req);
+    const canonicalPath = (req.originalUrl || '').split('?')[0];
+    const canonicalUrl = meta.canonicalUrl || `${CANONICAL_BASE}${canonicalPath === '/index.html' ? '/' : canonicalPath}`;
 
     let imageUrl = meta.image || '/assets/social-cover.jpg';
     if (!imageUrl.startsWith('http://') && !imageUrl.startsWith('https://')) {
-      imageUrl = `${baseUrl}/${imageUrl.replace(/^\/+/, '')}`;
+      imageUrl = `${CANONICAL_BASE}/${imageUrl.replace(/^\/+/, '')}`;
     }
 
     const title = meta.title || 'Kre8mind · Clarity by Design';
     const description = meta.description || 'Kre8mind is a product design studio for product redesign, websites, and apps, making digital experiences clearer, more useful, and easier to trust.';
-    const pageUrl = meta.url || `${baseUrl}${req.originalUrl}`;
+    const pageUrl = meta.url || canonicalUrl;
     const type = meta.type || 'website';
 
     // Replace <title>
     html = html.replace(/<title>[\s\S]*?<\/title>/i, `<title>${escapeHtml(title)}</title>`);
 
-    // Clean out existing meta description, og:, and twitter: tags
+    // Clean out existing meta description, og:, twitter:, canonical, and robots tags to prevent duplication
     html = html.replace(/<meta\s+name=["']description["'][^>]*>/gi, '');
     html = html.replace(/<meta\s+property=["']og:[^"']*["'][^>]*>/gi, '');
     html = html.replace(/<meta\s+name=["']twitter:[^"']*["'][^>]*>/gi, '');
+    html = html.replace(/<link\s+rel=["']canonical["'][^>]*>/gi, '');
+    html = html.replace(/<meta\s+name=["']robots["'][^>]*>/gi, '');
+
+    let jsonLdBlock = '';
+    if (meta.jsonLd) {
+      jsonLdBlock = `\n  <!-- Dynamic Schema.org JSON-LD -->\n  <script type="application/ld+json">\n${JSON.stringify(meta.jsonLd, null, 2)}\n  </script>`;
+    }
 
     const dynamicMeta = `
   <meta name="description" content="${escapeHtml(description)}">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+  <link rel="canonical" href="${canonicalUrl}">
   
   <!-- Dynamic OpenGraph & Twitter Social Meta -->
   <meta property="og:site_name" content="Kre8mind">
@@ -480,9 +612,11 @@ function renderHtmlWithSocialMeta(filename, meta, req) {
   <meta property="og:image:alt" content="${escapeHtml(title)}">
   <meta property="og:url" content="${pageUrl}">
   <meta property="og:type" content="${type}">
+  <meta property="og:locale" content="en_US">
   
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:site" content="@kre8mind">
+  <meta name="twitter:creator" content="@kre8mind">
   <meta name="twitter:title" content="${escapeHtml(title)}">
   <meta name="twitter:description" content="${escapeHtml(description)}">
   <meta name="twitter:image" content="${imageUrl}">
@@ -490,7 +624,7 @@ function renderHtmlWithSocialMeta(filename, meta, req) {
   <!-- Favicon -->
   <link rel="icon" type="image/jpeg" href="${baseUrl}/assets/FAVICON.jpg">
   <link rel="shortcut icon" href="${baseUrl}/favicon.ico">
-  <link rel="apple-touch-icon" href="${baseUrl}/assets/FAVICON.jpg">`;
+  <link rel="apple-touch-icon" href="${baseUrl}/assets/FAVICON.jpg">${jsonLdBlock}`;
 
     return html.replace('</head>', `${dynamicMeta}\n</head>`);
   } catch (err) {
@@ -499,9 +633,42 @@ function renderHtmlWithSocialMeta(filename, meta, req) {
   }
 }
 
+const FALLBACK_PROJECTS = [
+  {
+    id: 'proj_1788486163854',
+    title: 'Avenor',
+    category: 'PROP-TECH',
+    summary: 'Strategic Prop-Tech flagship platform redesign focusing on immersive property discovery, verified deal rooms, and transactional clarity.',
+    image: '/assets/showcase/ave_cover_1788514443500.jpg'
+  },
+  {
+    id: 'proj_01',
+    title: 'Flowmetric',
+    category: 'PRODUCT DESIGN',
+    summary: 'Realtime quantitative trading and fintech analytics with ultra-low cognitive load data dashboards and instant order execution.',
+    image: '/assets/showcase/mockup-1.jpg'
+  },
+  {
+    id: 'proj_02',
+    title: 'Hospitality Health',
+    category: 'WEB PLATFORM',
+    summary: 'Healthcare patient intake and clinical workforce management platform redesigned for frictionless onboarding.',
+    image: '/assets/showcase/mockup-2.jpg'
+  },
+  {
+    id: 'proj_03',
+    title: 'SaaSify HQ',
+    category: 'SAAS / SYSTEM',
+    summary: 'B2B SaaS subscription billing and customer lifecycle command center.',
+    image: '/assets/showcase/mockup-3.jpg'
+  }
+];
+
 async function findProject(identifier) {
   if (!identifier) return null;
   const cleanId = String(identifier).trim().toLowerCase();
+
+  // 1. Try MongoDB Atlas
   try {
     const col = await getCollection('projects');
     const proj = await col.findOne({
@@ -510,15 +677,37 @@ async function findProject(identifier) {
         { title: { $regex: new RegExp(`^${cleanId}$`, 'i') } }
       ]
     });
-    return proj;
-  } catch {
-    return null;
-  }
+    if (proj) return proj;
+  } catch {}
+
+  // 2. Try local data/db.json
+  try {
+    const localDbPath = path.join(__dirname, 'data', 'db.json');
+    if (fs.existsSync(localDbPath)) {
+      const parsed = JSON.parse(fs.readFileSync(localDbPath, 'utf8'));
+      if (Array.isArray(parsed.projects)) {
+        const found = parsed.projects.find(p => 
+          (p.id && p.id.toLowerCase() === cleanId) || 
+          (p.title && p.title.toLowerCase() === cleanId)
+        );
+        if (found) return found;
+      }
+    }
+  } catch {}
+
+  // 3. Fallback to baseline showcase projects
+  const fallback = FALLBACK_PROJECTS.find(p => 
+    p.id.toLowerCase() === cleanId || 
+    p.title.toLowerCase() === cleanId
+  );
+  return fallback || null;
 }
 
 async function findJournalArticle(identifier) {
   if (!identifier) return null;
   const cleanId = String(identifier).trim().toLowerCase();
+
+  // 1. Try MongoDB Atlas
   try {
     const col = await getCollection('journal');
     const article = await col.findOne({
@@ -527,10 +716,25 @@ async function findJournalArticle(identifier) {
         { title: { $regex: new RegExp(`^${cleanId}$`, 'i') } }
       ]
     });
-    return article;
-  } catch {
-    return null;
-  }
+    if (article) return article;
+  } catch {}
+
+  // 2. Try local data/db.json
+  try {
+    const localDbPath = path.join(__dirname, 'data', 'db.json');
+    if (fs.existsSync(localDbPath)) {
+      const parsed = JSON.parse(fs.readFileSync(localDbPath, 'utf8'));
+      if (Array.isArray(parsed.journal)) {
+        const found = parsed.journal.find(a => 
+          (a.id && a.id.toLowerCase() === cleanId) || 
+          (a.title && a.title.toLowerCase() === cleanId)
+        );
+        if (found) return found;
+      }
+    }
+  } catch {}
+
+  return null;
 }
 
 // --------------------------------------------------------------------------
@@ -548,7 +752,27 @@ app.get(['/project/:id', '/case-study/:id'], async (req, res) => {
       description: proj.summary || `Strategic design and product engineering case study for ${proj.title}. Engineered by Kre8mind Studio.`,
       image: proj.image || '/assets/social-cover.jpg',
       url: `${baseUrl}/project/${proj.id}`,
-      type: 'article'
+      type: 'article',
+      jsonLd: {
+        "@context": "https://schema.org",
+        "@type": "CreativeWork",
+        "name": proj.title,
+        "headline": `${proj.title} | Kre8mind Case Study`,
+        "description": proj.summary || `Strategic design and product engineering case study for ${proj.title}.`,
+        "url": `${baseUrl}/project/${proj.id}`,
+        "image": proj.image ? (proj.image.startsWith('http') ? proj.image : `${baseUrl}/${proj.image.replace(/^\/+/, '')}`) : `${baseUrl}/assets/social-cover.jpg`,
+        "author": {
+          "@type": "Organization",
+          "name": "Kre8mind",
+          "url": "https://kre8mind.com/"
+        },
+        "publisher": {
+          "@type": "Organization",
+          "name": "Kre8mind",
+          "url": "https://kre8mind.com/",
+          "logo": "https://kre8mind.com/assets/kre8mind-logo.png"
+        }
+      }
     };
     return res.send(renderHtmlWithSocialMeta('projects.html', meta, req));
   }
@@ -576,7 +800,21 @@ app.get('/projects', async (req, res) => {
         description: proj.summary || `Strategic design and product engineering case study for ${proj.title}. Engineered by Kre8mind Studio.`,
         image: proj.image || '/assets/social-cover.jpg',
         url: `${baseUrl}/project/${proj.id}`,
-        type: 'article'
+        type: 'article',
+        jsonLd: {
+          "@context": "https://schema.org",
+          "@type": "CreativeWork",
+          "name": proj.title,
+          "headline": `${proj.title} | Kre8mind Case Study`,
+          "description": proj.summary || `Strategic design and product engineering case study for ${proj.title}.`,
+          "url": `${baseUrl}/project/${proj.id}`,
+          "image": proj.image ? (proj.image.startsWith('http') ? proj.image : `${baseUrl}/${proj.image.replace(/^\/+/, '')}`) : `${baseUrl}/assets/social-cover.jpg`,
+          "author": {
+            "@type": "Organization",
+            "name": "Kre8mind",
+            "url": "https://kre8mind.com/"
+          }
+        }
       };
       return res.send(renderHtmlWithSocialMeta('projects.html', meta, req));
     }
@@ -602,7 +840,27 @@ app.get('/journal/:id', async (req, res) => {
       description: article.snippet || article.content?.substring(0, 160) || 'Thoughts and perspectives on interface clarity and digital product design.',
       image: article.image || '/assets/social-cover.jpg',
       url: `${baseUrl}/journal/${article.id}`,
-      type: 'article'
+      type: 'article',
+      jsonLd: {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "headline": article.title,
+        "description": article.snippet || article.content?.substring(0, 160) || 'Thoughts and perspectives on interface clarity and digital product design.',
+        "url": `${baseUrl}/journal/${article.id}`,
+        "image": article.image ? (article.image.startsWith('http') ? article.image : `${baseUrl}/${article.image.replace(/^\/+/, '')}`) : `${baseUrl}/assets/social-cover.jpg`,
+        "datePublished": article.createdAt || new Date().toISOString(),
+        "author": {
+          "@type": "Organization",
+          "name": "Kre8mind",
+          "url": "https://kre8mind.com/"
+        },
+        "publisher": {
+          "@type": "Organization",
+          "name": "Kre8mind",
+          "url": "https://kre8mind.com/",
+          "logo": "https://kre8mind.com/assets/kre8mind-logo.png"
+        }
+      }
     };
     return res.send(renderHtmlWithSocialMeta('journal.html', meta, req));
   }
@@ -629,7 +887,21 @@ app.get('/journal', async (req, res) => {
         description: article.snippet || article.content?.substring(0, 160) || 'Thoughts and perspectives on interface clarity and digital product design.',
         image: article.image || '/assets/social-cover.jpg',
         url: `${baseUrl}/journal/${article.id}`,
-        type: 'article'
+        type: 'article',
+        jsonLd: {
+          "@context": "https://schema.org",
+          "@type": "BlogPosting",
+          "headline": article.title,
+          "description": article.snippet || article.content?.substring(0, 160) || 'Thoughts and perspectives on interface clarity and digital product design.',
+          "url": `${baseUrl}/journal/${article.id}`,
+          "image": article.image ? (article.image.startsWith('http') ? article.image : `${baseUrl}/${article.image.replace(/^\/+/, '')}`) : `${baseUrl}/assets/social-cover.jpg`,
+          "datePublished": article.createdAt || new Date().toISOString(),
+          "author": {
+            "@type": "Organization",
+            "name": "Kre8mind",
+            "url": "https://kre8mind.com/"
+          }
+        }
       };
       return res.send(renderHtmlWithSocialMeta('journal.html', meta, req));
     }
