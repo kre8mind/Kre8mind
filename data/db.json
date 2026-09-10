@@ -247,7 +247,19 @@
       ]
     }
   ],
-  "journal": [],
+  "journal": [
+    {
+      "id": "post_1789073041581",
+      "title": "Ditching the 5-Step Process: The New Logic of FinTech Onboarding",
+      "category": "ONBOARDING PHILOSOPHY",
+      "readTime": "3 MIN READ",
+      "date": "SEPTEMBER 2026",
+      "image": "/api/media/linkedin_post_1789073020999.jpg",
+      "snippet": "There is a pattern we keep seeing in FinTech onboarding. You open the app for the first time and before you can do anything, you're taken through three, four, sometimes five screens explaining what the app does...",
+      "content": "There is a pattern we keep seeing in FinTech onboarding. You open the app for the first time and before you can do anything, you're taken through three, four, sometimes five screens explaining what the app does.\n\nThere's usually an illustration on each screen. A few lines of copy. A button that says “Next.” Then another screen. And another.\n\nIt makes sense on paper. The product wants to introduce itself before asking the user to trust it with their money.\n\nBut that is exactly where the problem starts.\n\nPeople don't open a financial app because they want to learn how the app works. They open it because they already have something they want to do. Send money. Pay a bill. Create an account. Check their balance.\n\nThe longer onboarding stands between them and that action, the more unnecessary work we're asking them to do.\n\nFor a FinTech product, the first screen should do less explaining and more reassuring.\n\nThat's one reason we took a different approach with JutPay. Instead of another collection of financial illustrations, we used real imagery and a much simpler message: “Your Money Stays Protected.”\n\nThe choice was deliberate. A real person creates a different feeling from a cartoon vault or a floating coin. It gives the product some humanity while making the experience feel more grounded and mature.\n\nAnd the copy doesn't try to explain everything. It answers one of the first questions a user is likely to have: *Can I trust this with my money?*\n\nThe rest can come later.\n\nThis doesn't mean onboarding has to disappear completely. It means we should stop treating the number of onboarding screens as a requirement.\n\nIf one screen can establish the value, create confidence and give the user a clear next step, why make them swipe through five?\n\nGood onboarding isn't about showing users everything before they start. It's about giving them enough confidence to start.\n\nFor FinTech, that distinction matters. The product is asking for something more valuable than attention. It's asking for trust.\n\nAnd trust is probably not something you should make people swipe five times to find.",
+      "createdAt": "2026-09-10T20:44:01.581Z"
+    }
+  ],
   "settings": {
     "adminPasswordHash": "kre8mind2026",
     "contactEmail": "hello@kre8mind.com",

@@ -1978,17 +1978,465 @@ function checkDeepLinkProject() {
 }
 
 /* --------------------------------------------------------------------------
-   16. Dynamic Journal & Insights Loader (Empty State & Reader)
+   16. Dynamic Journal & Insights Loader, Editorial Reader Modal & Deep Links
    -------------------------------------------------------------------------- */
+let cachedJournalArticles = [];
+let activeJournalArticle = null;
+
+function renderArticleContent(rawContent) {
+  if (!rawContent) return '';
+  const trimmed = String(rawContent).trim();
+
+  // If already contains HTML markup
+  const hasHtml = /<(?:p|h[1-6]|blockquote|ul|ol|hr|b|i|strong|em)[^>]*>/i.test(trimmed);
+  if (hasHtml) {
+    return trimmed;
+  }
+
+  // Parse plain text with double newlines, markdown formatting & quotes
+  const blocks = trimmed.split(/\n\s*\n/);
+  return blocks.map(block => {
+    const b = block.trim();
+    if (!b) return '';
+
+    // Markdown horizontal divider
+    if (/^(?:---|\*\*\*|___)$/.test(b)) {
+      return '<hr>';
+    }
+
+    // Headings
+    if (b.startsWith('### ')) {
+      return `<h3>${formatInlineMarkdown(b.substring(4))}</h3>`;
+    }
+    if (b.startsWith('## ')) {
+      return `<h2>${formatInlineMarkdown(b.substring(3))}</h2>`;
+    }
+    if (b.startsWith('# ')) {
+      return `<h2>${formatInlineMarkdown(b.substring(2))}</h2>`;
+    }
+
+    // Blockquote
+    if (b.startsWith('> ')) {
+      return `<blockquote>${formatInlineMarkdown(b.substring(2))}</blockquote>`;
+    }
+
+    // Bullet points
+    if (b.startsWith('- ') || b.startsWith('* ')) {
+      const items = b.split(/\n/).map(line => {
+        const cleanLine = line.replace(/^[-*]\s+/, '').trim();
+        return cleanLine ? `<li>${formatInlineMarkdown(cleanLine)}</li>` : '';
+      }).join('');
+      return `<ul>${items}</ul>`;
+    }
+
+    // Standard paragraph with line-breaks preserved
+    const formattedParagraph = formatInlineMarkdown(b).replace(/\n/g, '<br>');
+    return `<p>${formattedParagraph}</p>`;
+  }).filter(Boolean).join('\n');
+}
+
+function formatInlineMarkdown(text) {
+  if (!text) return '';
+  return text
+    // Bold
+    .replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>')
+    // Italic
+    .replace(/\*([^*]+)\*/g, '<em>$1</em>')
+    .replace(/_([^_]+)_/g, '<em>$1</em>')
+    // Markdown link [title](url)
+    .replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+}
+
+function initJournalReader() {
+  if (document.getElementById('kre8mind-journal-reader')) return;
+
+  const readerHTML = `
+    <div id="kre8mind-journal-reader" class="journal-reader-backdrop" data-lenis-prevent aria-modal="true" role="dialog">
+      <div class="journal-reader-container">
+        
+        <!-- Reading Scroll Progress Bar -->
+        <div id="jr-reading-progress" class="journal-reader-progress"></div>
+
+        <!-- Sticky Topbar -->
+        <div class="journal-reader-topbar">
+          <div class="journal-reader-topbar-left">
+            <button id="jr-back-btn" class="journal-reader-back-btn" aria-label="Back to Journal">
+              <span>← ALL ESSAYS</span>
+            </button>
+            <span id="jr-topbar-category" class="journal-reader-badge">PERSPECTIVES</span>
+          </div>
+          <div class="journal-reader-topbar-actions">
+            <button id="jr-close-btn" class="journal-reader-close-btn" aria-label="Close Perspective">✕</button>
+          </div>
+        </div>
+
+        <!-- Article Presentation Body -->
+        <article class="journal-reader-body">
+          
+          <!-- Hero Header -->
+          <header class="journal-reader-hero">
+            <div class="journal-reader-topline">
+              <span id="jr-hero-category" class="journal-reader-pill">ONBOARDING PHILOSOPHY</span>
+              <span id="jr-hero-readtime" class="journal-reader-reading-time">3 MIN READ</span>
+            </div>
+            <h1 id="jr-hero-title" class="journal-reader-title">ARTICLE TITLE</h1>
+            <p id="jr-hero-lead" class="journal-reader-lead"></p>
+
+            <div class="journal-reader-meta-bar">
+              <div class="journal-reader-author-box">
+                <div class="journal-reader-author-avatar">KM</div>
+                <div class="journal-reader-author-info">
+                  <span id="jr-author-name" class="journal-reader-author-name">Kre8mind Studio Editorial</span>
+                  <span id="jr-author-role" class="journal-reader-author-role">Clarity by design</span>
+                </div>
+              </div>
+              <div id="jr-date-stamp" class="journal-reader-date-stamp">SEPTEMBER 2026</div>
+            </div>
+          </header>
+
+          <!-- Featured Cover Image Frame -->
+          <div class="journal-reader-cover-frame" id="jr-cover-frame">
+            <img id="jr-cover-img" src="assets/showcase/journal-1.jpg" alt="Article Cover" class="journal-reader-cover-img" />
+          </div>
+
+          <!-- Editorial Body Content -->
+          <div id="jr-body-content" class="journal-reader-content">
+            <!-- Populated dynamically via renderArticleContent() -->
+          </div>
+
+          <!-- End of Essay Social Share Tray -->
+          <div class="journal-reader-share-tray">
+            <div class="journal-share-tray-left">
+              <span class="journal-share-tray-heading">SHARE THIS PERSPECTIVE</span>
+              <span class="journal-share-tray-sub">Pass this logic on to design engineers and product leaders.</span>
+            </div>
+            <div class="journal-share-tray-buttons">
+              <button id="jr-tray-copy-btn" class="journal-social-share-btn" title="Copy Link">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                <span class="jr-tray-copy-label">Copy Link</span>
+              </button>
+              <a id="jr-share-x" href="#" target="_blank" rel="noopener noreferrer" class="journal-social-share-btn">
+                <span>X / Twitter</span>
+              </a>
+              <a id="jr-share-li" href="#" target="_blank" rel="noopener noreferrer" class="journal-social-share-btn">
+                <span>LinkedIn</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Studio Conversion Card -->
+          <div class="journal-reader-cta-card">
+            <div class="journal-reader-cta-left">
+              <div class="journal-reader-cta-tag">KRE8MIND PARTNERSHIP</div>
+              <h3 class="journal-reader-cta-title">HAVE A PRODUCT CHALLENGE IN MIND?</h3>
+              <p class="journal-reader-cta-desc">
+                We partner with founders, startups, coaches, and agencies to eliminate frictions and build state of the art experiences.
+              </p>
+            </div>
+            <div class="journal-reader-cta-actions">
+              <a href="https://cal.com/kre8mind/project-discovery" class="journal-reader-cta-btn-primary" id="jr-cta-book-btn" target="_blank" rel="noopener noreferrer">
+                <span>Book a Discovery Call →</span>
+              </a>
+              <a href="mailto:hello@kre8mind.com" class="journal-reader-cta-btn-secondary">
+                <span>hello@kre8mind.com</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Next Article Recommendation Box -->
+          <div id="jr-next-article-box" class="journal-reader-next-box" style="display: none;">
+            <div class="journal-reader-next-left">
+              <span class="journal-reader-next-label">NEXT PERSPECTIVE</span>
+              <h4 id="jr-next-article-title" class="journal-reader-next-title">Next Essay Title</h4>
+            </div>
+            <div class="journal-reader-next-arrow">→</div>
+          </div>
+
+        </article>
+
+      </div>
+    </div>
+  `;
+
+  document.body.insertAdjacentHTML('beforeend', readerHTML);
+
+  const modal = document.getElementById('kre8mind-journal-reader');
+  const closeBtn = document.getElementById('jr-close-btn');
+  const backBtn = document.getElementById('jr-back-btn');
+  const trayCopyBtn = document.getElementById('jr-tray-copy-btn');
+  const bookCallBtn = document.getElementById('jr-cta-book-btn');
+  const progress = document.getElementById('jr-reading-progress');
+
+  // Scroll Progress Tracking
+  if (modal && progress) {
+    modal.addEventListener('scroll', () => {
+      const scrollTop = modal.scrollTop;
+      const maxScroll = modal.scrollHeight - modal.clientHeight;
+      const pct = maxScroll > 0 ? Math.min(100, Math.round((scrollTop / maxScroll) * 100)) : 0;
+      progress.style.width = `${pct}%`;
+    }, { passive: true });
+  }
+
+  // Cal.com modal hook
+  if (bookCallBtn) {
+    bookCallBtn.addEventListener('click', (e) => {
+      if (window.Cal) {
+        e.preventDefault();
+        window.Cal("modal", {
+          calLink: "kre8mind/project-discovery",
+          config: { theme: "light", layout: "month_view" }
+        });
+      }
+    });
+  }
+
+  // Share link helper
+  const handleCopyShare = async (triggerBtn) => {
+    const art = window.activeJournalArticle;
+    if (!art) return;
+
+    const shareUrl = `${window.location.origin}/journal/${art.id}`;
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(shareUrl);
+      } else {
+        const tempInput = document.createElement('input');
+        tempInput.value = shareUrl;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempInput);
+      }
+
+      if (triggerBtn) {
+        const label = triggerBtn.querySelector('.jr-share-label, .jr-tray-copy-label');
+        const origText = label ? label.textContent : '';
+        if (label) label.textContent = 'COPIED!';
+        triggerBtn.classList.add('copied');
+
+        setTimeout(() => {
+          if (label) label.textContent = origText || 'Copy Link';
+          triggerBtn.classList.remove('copied');
+        }, 2200);
+      }
+    } catch (err) {
+      console.error('Failed to copy share link:', err);
+    }
+  };
+
+  trayCopyBtn?.addEventListener('click', () => handleCopyShare(trayCopyBtn));
+
+  // Close handlers
+  const closeModal = () => {
+    if (modal) modal.classList.remove('open');
+    document.body.style.overflow = '';
+    document.documentElement.style.overflow = '';
+
+    if (window.history && window.history.replaceState) {
+      const p = window.location.pathname;
+      if (p.startsWith('/journal/') && p !== '/journal' && p !== '/journal/') {
+        window.history.replaceState({}, 'Journal & Insights | Kre8mind', '/journal');
+      }
+    }
+    document.title = 'Journal & Insights | Kre8mind · Design Thinking, AI & SaaS Perspectives';
+  };
+
+  closeBtn?.addEventListener('click', closeModal);
+  backBtn?.addEventListener('click', closeModal);
+
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
+  }
+
+  window.addEventListener('keydown', (e) => {
+    if (modal && modal.classList.contains('open')) {
+      if (e.key === 'Escape') {
+        closeModal();
+      } else if (e.key === 'ArrowDown') {
+        modal.scrollTop += 80;
+      } else if (e.key === 'ArrowUp') {
+        modal.scrollTop -= 80;
+      } else if (e.key === 'PageDown' || (e.key === ' ' && !e.target.matches('input, textarea'))) {
+        e.preventDefault();
+        modal.scrollTop += window.innerHeight * 0.8;
+      } else if (e.key === 'PageUp') {
+        e.preventDefault();
+        modal.scrollTop -= window.innerHeight * 0.8;
+      }
+    }
+  });
+
+  window.closeJournalArticle = closeModal;
+}
+
+window.openJournalArticle = async function(target) {
+  initJournalReader();
+  const modal = document.getElementById('kre8mind-journal-reader');
+  if (!modal) return;
+
+  let article = null;
+
+  if (typeof target === 'object' && target !== null) {
+    article = target;
+  } else if (typeof target === 'string') {
+    const cleanTarget = target.trim().toLowerCase();
+    const slugTarget = cleanTarget.replace(/[^a-z0-9]+/g, '-');
+
+    article = (cachedJournalArticles || []).find(a => 
+      (a.id && a.id.toLowerCase() === cleanTarget) ||
+      (a.id === target) ||
+      (a.title && a.title.toLowerCase() === cleanTarget) ||
+      (a.title && a.title.toLowerCase().replace(/[^a-z0-9]+/g, '-') === slugTarget)
+    );
+
+    if (!article) {
+      try {
+        const res = await fetch(`${API_BASE}/api/journal/${encodeURIComponent(target)}`);
+        if (res.ok) {
+          const json = await res.json();
+          article = json.article || json.data || null;
+        }
+      } catch (err) {
+        console.warn('Direct fetch note for journal article:', err);
+      }
+    }
+  }
+
+  if (!article) return;
+
+  window.activeJournalArticle = article;
+  activeJournalArticle = article;
+
+  // Seamless URL & Title Update
+  if (window.history && window.history.replaceState) {
+    const targetUrl = `/journal/${article.id}`;
+    if (!window.location.pathname.endsWith(targetUrl)) {
+      window.history.replaceState({ articleId: article.id }, `${article.title} | Kre8mind Journal`, targetUrl);
+    }
+  }
+  document.title = `${article.title} | Kre8mind Journal`;
+
+  // Populate Elements
+  const topbarCategory = document.getElementById('jr-topbar-category');
+  const heroCategory = document.getElementById('jr-hero-category');
+  const heroReadtime = document.getElementById('jr-hero-readtime');
+  const heroTitle = document.getElementById('jr-hero-title');
+  const heroLead = document.getElementById('jr-hero-lead');
+  const dateStamp = document.getElementById('jr-date-stamp');
+  const coverImg = document.getElementById('jr-cover-img');
+  const coverFrame = document.getElementById('jr-cover-frame');
+  const bodyContent = document.getElementById('jr-body-content');
+  const progress = document.getElementById('jr-reading-progress');
+  const nextBox = document.getElementById('jr-next-article-box');
+  const nextTitle = document.getElementById('jr-next-article-title');
+  const shareX = document.getElementById('jr-share-x');
+  const shareLi = document.getElementById('jr-share-li');
+
+  const categoryName = article.category || 'DESIGN PHILOSOPHY';
+  const readTimeStr = article.readTime || '3 MIN READ';
+  const articleDate = article.date || '2026';
+
+  if (topbarCategory) topbarCategory.textContent = categoryName;
+  if (heroCategory) heroCategory.textContent = categoryName;
+  if (heroReadtime) heroReadtime.textContent = readTimeStr;
+  if (heroTitle) heroTitle.textContent = article.title;
+  if (heroLead) {
+    heroLead.textContent = article.snippet || '';
+    heroLead.style.display = article.snippet ? 'block' : 'none';
+  }
+  if (dateStamp) dateStamp.textContent = articleDate;
+
+  // Media Cover Image
+  if (coverImg && coverFrame) {
+    if (article.image) {
+      coverImg.src = article.image;
+      coverImg.alt = article.title;
+      coverFrame.style.display = 'block';
+      coverImg.onerror = () => {
+        coverImg.src = 'assets/showcase/journal-1.jpg';
+      };
+    } else {
+      coverFrame.style.display = 'none';
+    }
+  }
+
+  // Article Body HTML
+  if (bodyContent) {
+    bodyContent.innerHTML = renderArticleContent(article.content);
+  }
+
+  // Social Share URL Links
+  const fullShareUrl = `${window.location.origin}/journal/${article.id}`;
+  if (shareX) {
+    shareX.href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(article.title)}&url=${encodeURIComponent(fullShareUrl)}&via=kre8mind`;
+  }
+  if (shareLi) {
+    shareLi.href = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(fullShareUrl)}`;
+  }
+
+  // Next Article Recommendation
+  if (nextBox && nextTitle) {
+    const list = cachedJournalArticles || [];
+    const currIdx = list.findIndex(a => a.id === article.id);
+    if (list.length > 1 && currIdx !== -1) {
+      const nextArticle = list[(currIdx + 1) % list.length];
+      nextTitle.textContent = nextArticle.title;
+      nextBox.style.display = 'flex';
+      nextBox.onclick = () => {
+        window.openJournalArticle(nextArticle);
+      };
+    } else {
+      nextBox.style.display = 'none';
+    }
+  }
+
+  // Reset Scroll and Open Modal
+  if (progress) progress.style.width = '0%';
+  modal.classList.add('open');
+  modal.scrollTo({ top: 0, behavior: 'instant' });
+  document.body.style.overflow = 'hidden';
+  document.documentElement.style.overflow = 'hidden';
+};
+
+function checkDeepLinkJournal() {
+  let targetId = null;
+  const path = window.location.pathname;
+  const match = path.match(/^\/journal\/([^/?#]+)/i);
+
+  if (match) {
+    const candidate = decodeURIComponent(match[1]).trim();
+    if (candidate && candidate !== 'journal' && candidate !== 'journal.html') {
+      targetId = candidate;
+    }
+  } else {
+    const params = new URLSearchParams(window.location.search);
+    targetId = params.get('id') || params.get('article');
+  }
+
+  if (!targetId) return;
+
+  setTimeout(() => {
+    window.openJournalArticle(targetId);
+  }, 120);
+}
+
 async function initJournal() {
+  initJournalReader();
+
   const container = document.getElementById('journalContainer');
-  if (!container) return;
+  if (!container) {
+    checkDeepLinkJournal();
+    return;
+  }
 
   try {
     const res = await fetch(`${API_BASE}/api/journal`);
     if (!res.ok) return;
     const json = await res.json();
     const articles = json.data || json.articles || [];
+    cachedJournalArticles = articles;
 
     if (!articles || articles.length === 0) {
       container.innerHTML = `
@@ -2005,29 +2453,51 @@ async function initJournal() {
       return;
     }
 
-    // Render articles without clustering
+    // Render articles in editorial grid
     container.innerHTML = `
       <div class="journal-editorial-grid">
         ${articles.map((art, idx) => `
-          <article class="journal-article-card" data-article-id="${art.id}">
-            <div class="journal-card-anchor" style="cursor: pointer;">
+          <article class="journal-article-card" data-article-id="${escapeHtml(art.id)}" role="button" tabindex="0" aria-label="Read perspective: ${escapeHtml(art.title)}">
+            <div class="journal-card-anchor">
               <div class="journal-cover-frame">
-                <span class="journal-badge-tag">${art.category || 'DESIGN PHILOSOPHY'}</span>
-                <img src="${art.image || 'assets/showcase/journal-1.jpg'}" alt="${art.title}" class="journal-cover-img" loading="lazy" />
+                <span class="journal-badge-tag">${escapeHtml(art.category || 'DESIGN PHILOSOPHY')}</span>
+                <img src="${escapeHtml(art.image || 'assets/showcase/journal-1.jpg')}" alt="${escapeHtml(art.title)}" class="journal-cover-img" loading="lazy" onerror="this.src='assets/showcase/journal-1.jpg'" />
               </div>
               <div class="journal-card-content">
                 <div class="journal-meta-row">
                   <span>0${idx + 1} / ESSAY</span>
-                  <span>${art.date || '2026'} • ${art.readTime || '5 MIN READ'}</span>
+                  <span>${escapeHtml(art.date || '2026')} • ${escapeHtml(art.readTime || '5 MIN READ')}</span>
                 </div>
-                <h2 class="journal-card-title">${art.title}</h2>
-                <p class="journal-card-excerpt">${art.snippet || art.content.substring(0, 140) + '...'}</p>
+                <h2 class="journal-card-title">${escapeHtml(art.title)}</h2>
+                <p class="journal-card-excerpt">${escapeHtml(art.snippet || art.content.substring(0, 150) + '...')}</p>
+                <div class="journal-read-more">
+                  <span>Read Essay</span>
+                  <span class="arrow">→</span>
+                </div>
               </div>
             </div>
           </article>
         `).join('')}
       </div>
     `;
+
+    // Bind Interactive Card Click & Keyboard triggers
+    const cards = container.querySelectorAll('.journal-article-card');
+    cards.forEach(card => {
+      const artId = card.getAttribute('data-article-id');
+      card.addEventListener('click', (e) => {
+        e.preventDefault();
+        window.openJournalArticle(artId);
+      });
+      card.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          window.openJournalArticle(artId);
+        }
+      });
+    });
+
+    checkDeepLinkJournal();
   } catch (err) {
     console.log('Error initializing journal:', err);
   }

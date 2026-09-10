@@ -716,19 +716,32 @@ async function findProject(identifier) {
 
 async function findJournalArticle(identifier) {
   if (!identifier) return null;
-  const cleanId = String(identifier).trim().toLowerCase();
+  const rawId = String(identifier).trim();
+  const cleanId = rawId.toLowerCase();
+  const slugTarget = cleanId.replace(/[^a-z0-9]+/g, '-');
 
   // 1. Try MongoDB Atlas
   try {
     const col = await getCollection('journal');
     const article = await col.findOne({
       $or: [
+        { id: rawId },
         { id: { $regex: new RegExp(`^${cleanId}$`, 'i') } },
         { title: { $regex: new RegExp(`^${cleanId}$`, 'i') } }
       ]
     });
     if (article) return article;
-  } catch {}
+
+    // Check by slug in Mongo
+    const allArticles = await col.find({}).toArray();
+    const slugMatch = allArticles.find(a => 
+      (a.id && a.id.toLowerCase() === cleanId) ||
+      (a.title && a.title.toLowerCase().replace(/[^a-z0-9]+/g, '-') === slugTarget)
+    );
+    if (slugMatch) return slugMatch;
+  } catch (dbErr) {
+    console.warn('findJournalArticle DB lookup note:', dbErr.message);
+  }
 
   // 2. Try local data/db.json
   try {
@@ -738,12 +751,16 @@ async function findJournalArticle(identifier) {
       if (Array.isArray(parsed.journal)) {
         const found = parsed.journal.find(a => 
           (a.id && a.id.toLowerCase() === cleanId) || 
-          (a.title && a.title.toLowerCase() === cleanId)
+          (a.id === rawId) ||
+          (a.title && a.title.toLowerCase() === cleanId) ||
+          (a.title && a.title.toLowerCase().replace(/[^a-z0-9]+/g, '-') === slugTarget)
         );
         if (found) return found;
       }
     }
-  } catch {}
+  } catch (fErr) {
+    console.warn('findJournalArticle db.json lookup note:', fErr.message);
+  }
 
   return null;
 }

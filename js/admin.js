@@ -1044,11 +1044,33 @@ function renderJournalTable() {
       <td><span class="brand-pill">${escapeHtml(art.category)}</span></td>
       <td style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">${escapeHtml(art.readTime)}</td>
       <td>
-        <button class="site-link" onclick="deleteArticle('${art.id}')" style="color: #ef4444; font-size: 11px; cursor: pointer;">✕</button>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <a href="/journal/${art.id}" target="_blank" class="site-link" style="color: #09090b; font-size: 11px; font-weight: 500; text-decoration: underline;" title="View Live Perspective">View ↗</a>
+          <button class="site-link" onclick="editArticle('${art.id}')" style="color: #2563eb; font-size: 11px; cursor: pointer; font-weight: 500; background: none; border: none; padding: 0;">Edit</button>
+          <button class="site-link" onclick="deleteArticle('${art.id}')" style="color: #ef4444; font-size: 12px; cursor: pointer; font-weight: 600; background: none; border: none; padding: 0;" title="Delete Article">✕</button>
+        </div>
       </td>
     </tr>
   `).join('');
 }
+
+window.editArticle = function(id) {
+  const art = journalData.find(a => a.id === id);
+  if (!art) return;
+  const modal = document.getElementById('journal-modal');
+  if (!modal) return;
+  
+  document.getElementById('modal-journal-title').textContent = 'Edit Journal Article';
+  document.getElementById('art-id').value = art.id;
+  document.getElementById('art-title').value = art.title || '';
+  document.getElementById('art-category').value = art.category || '';
+  document.getElementById('art-readtime').value = art.readTime || '';
+  document.getElementById('art-image').value = art.image || '';
+  document.getElementById('art-content').value = art.content || '';
+  renderJournalCoverPreview(art.image || '');
+  
+  modal.classList.add('open');
+};
 
 window.deleteArticle = async function(id) {
   const confirmed = await showCustomConfirm('Delete Article', 'Are you sure you want to delete this journal article?');
