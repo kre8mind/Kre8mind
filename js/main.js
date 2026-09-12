@@ -2137,7 +2137,7 @@ function initJournalReader() {
               <a href="https://cal.com/kre8mind/project-discovery" class="journal-reader-cta-btn-primary" id="jr-cta-book-btn" target="_blank" rel="noopener noreferrer">
                 <span>Book a Discovery Call →</span>
               </a>
-              <a href="mailto:hello@kre8mind.com" class="journal-reader-cta-btn-secondary">
+              <a href="mailto:hello@kre8mind.com" class="journal-reader-cta-btn-secondary" onclick="gtag('event', 'generate_lead');">
                 <span>hello@kre8mind.com</span>
               </a>
             </div>
