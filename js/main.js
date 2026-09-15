@@ -30,8 +30,33 @@ function formatExternalUrl(url) {
   return `https://${trimmed}`;
 }
 
+// Static Dev Server Adapter (Auto-resolves clean routes to .html on VS Code Live Server / file://)
+function initStaticServerLinkAdapter() {
+  const isStaticDev = window.location.protocol === 'file:' || 
+    (window.location.port && window.location.port !== '5000');
+  
+  if (isStaticDev) {
+    const routeMap = {
+      '/': 'index.html',
+      '/services': 'services.html',
+      '/projects': 'projects.html',
+      '/journal': 'journal.html',
+      '/admin': 'admin.html'
+    };
+    document.querySelectorAll('a[href]').forEach(anchor => {
+      const href = anchor.getAttribute('href');
+      if (routeMap[href]) {
+        anchor.setAttribute('href', routeMap[href]);
+      }
+    });
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+  initStaticServerLinkAdapter();
   initLenisSmoothScroll();
+  initScrollProgressBar();
+  initSubtleParallax();
   initCustomSquareCursor();
   initHeader();
   initMobileMenu();
@@ -55,12 +80,16 @@ document.addEventListener('DOMContentLoaded', () => {
 function initLenisSmoothScroll() {
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-  // Initialize or attach global Lenis instance
+  // Initialize or attach global Lenis instance with tuned luxury inertia
   let lenis = window.lenis;
   if (!lenis && typeof Lenis !== 'undefined') {
     lenis = new Lenis({
       autoRaf: true,
-      lerp: 0.1
+      lerp: 0.055, // Slow, buttery smooth deceleration
+      smoothWheel: true,
+      wheelMultiplier: 0.78, // Measured, elegant scroll pace
+      touchMultiplier: 1.5,
+      infinite: false
     });
     window.lenis = lenis;
   }
@@ -75,7 +104,7 @@ function initLenisSmoothScroll() {
       const targetEl = document.querySelector(href);
       if (targetEl) {
         e.preventDefault();
-        lenis.scrollTo(targetEl, { offset: -76 });
+        lenis.scrollTo(targetEl, { offset: -80, duration: 1.3 });
       }
     });
   });
@@ -83,19 +112,87 @@ function initLenisSmoothScroll() {
   return lenis;
 }
 
+/* --------------------------------------------------------------------------
+   0b. Luxury Hairline Scroll Progress Bar (Top of Screen)
+   -------------------------------------------------------------------------- */
+function initScrollProgressBar() {
+  const bar = document.getElementById('scrollProgressBar');
+  if (!bar) return;
+
+  let ticking = false;
+  const updateProgress = () => {
+    const scrollY = window.scrollY || document.documentElement.scrollTop;
+    const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+    if (maxScroll > 0) {
+      const progress = Math.min(Math.max(scrollY / maxScroll, 0), 1);
+      bar.style.transform = `scaleX(${progress})`;
+    }
+    ticking = false;
+  };
+
+  window.addEventListener('scroll', () => {
+    if (!ticking) {
+      requestAnimationFrame(updateProgress);
+      ticking = true;
+    }
+  }, { passive: true });
+  updateProgress();
+}
 
 /* --------------------------------------------------------------------------
-   1. Header Scroll Behavior
+   0c. Subtle Editorial Parallax (Showcase & Visual Cards)
+   -------------------------------------------------------------------------- */
+function initSubtleParallax() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (window.innerWidth <= 768) return; // Keep mobile lightweight
+
+  const parallaxTargets = document.querySelectorAll('.das-card-item, .preview-card-frame, .service-image-container');
+  if (parallaxTargets.length === 0) return;
+
+  let ticking = false;
+  const updateParallax = () => {
+    const windowHeight = window.innerHeight;
+    parallaxTargets.forEach(card => {
+      const rect = card.getBoundingClientRect();
+      if (rect.bottom >= -50 && rect.top <= windowHeight + 50) {
+        const centerOffset = (rect.top + rect.height / 2) - (windowHeight / 2);
+        const drift = Math.max(Math.min(centerOffset * -0.035, 16), -16);
+        const img = card.querySelector('img');
+        if (img) {
+          img.style.transform = `translate3d(0, ${drift.toFixed(1)}px, 0)`;
+        }
+      }
+    });
+    ticking = false;
+  };
+
+  window.addEventListener('scroll', () => {
+    if (!ticking) {
+      requestAnimationFrame(updateParallax);
+      ticking = true;
+    }
+  }, { passive: true });
+}
+
+/* --------------------------------------------------------------------------
+   1. Header Scroll Behavior (Frosted Glass & Border Transition)
    -------------------------------------------------------------------------- */
 function initHeader() {
   const header = document.getElementById('header');
   if (!header) return;
 
+  let isScrolled = false;
   window.addEventListener('scroll', () => {
-    if (window.scrollY > 40) {
-      header.style.borderBottomColor = 'rgba(10, 10, 10, 0.12)';
-    } else {
-      header.style.borderBottomColor = 'var(--border-light)';
+    const shouldBeScrolled = window.scrollY > 30;
+    if (shouldBeScrolled !== isScrolled) {
+      isScrolled = shouldBeScrolled;
+      if (isScrolled) {
+        header.classList.add('is-scrolled');
+        header.style.borderBottomColor = 'rgba(10, 10, 10, 0.10)';
+      } else {
+        header.classList.remove('is-scrolled');
+        header.style.borderBottomColor = 'var(--border-light)';
+      }
     }
   }, { passive: true });
 }
@@ -394,12 +491,18 @@ function initAccordions() {
 }
 
 /* --------------------------------------------------------------------------
-   6. Scroll-Triggered Fade In Observer
+   6. Luxury Scroll-Triggered Editorial Reveal Observer
    -------------------------------------------------------------------------- */
 function initScrollAnimations() {
   const animatedElements = document.querySelectorAll(
-    '.hero-title, .hero-subtitle, .hero-ctas, .subpage-hero-title, .subpage-hero-subtext, .solution-header-grid, .solution-interactive-grid, .das-section-header, .das-card-item, .flow-header-row, .flow-column-item, .journal-article-card, .plan-premium-card, .cta-banner-box, .pricing-card, .faq-das-item, .framer-reveal'
+    '.hero-title, .hero-subtitle, .hero-ctas, .solution-header-grid, .solution-interactive-grid, .das-section-header, .das-card-item, .flow-header-row, .flow-column-item, .journal-article-card, .plan-premium-card, .cta-banner-box, .pricing-card, .faq-das-item, .framer-reveal, .luxury-reveal'
   );
+
+  animatedElements.forEach(el => {
+    if (!el.classList.contains('luxury-reveal')) {
+      el.classList.add('luxury-reveal');
+    }
+  });
 
   // Exact Mockup Sticky Vertical Reel for HOW WE WORK (Smooth on Desktop & Mobile)
   const stickySection = document.querySelector('.how-we-work-sticky-section');
@@ -438,8 +541,8 @@ function initScrollAnimations() {
       }
     });
   }, {
-    threshold: 0.05,
-    rootMargin: '0px 0px -40px 0px'
+    threshold: 0.08,
+    rootMargin: '0px 0px -50px 0px'
   });
 
   animatedElements.forEach(el => {
@@ -601,7 +704,7 @@ function bindClientStoryTriggers() {
 }
 
 /* --------------------------------------------------------------------------
-   8. Service Category Tab Switcher & Drag-to-Snap Carousel
+   8. Service Category Tab Switcher & Scroll-Driven Card Swiper
    -------------------------------------------------------------------------- */
 function initServiceTabs() {
   const tabBtns = document.querySelectorAll('.service-tab-btn');
@@ -612,6 +715,8 @@ function initServiceTabs() {
     website: document.getElementById('tabPanelWebsite'),
     app: document.getElementById('tabPanelApp')
   };
+
+  const serviceCards = document.getElementById('serviceCards');
 
   tabBtns.forEach(btn => {
     btn.addEventListener('click', () => {
@@ -632,6 +737,23 @@ function initServiceTabs() {
           panelEl.classList.remove('active');
         }
       });
+
+      // If currently scrolled into the pinned section, smoothly reset to section top
+      if (serviceCards && window.ScrollTrigger) {
+        const rect = serviceCards.getBoundingClientRect();
+        if (rect.top < 65) {
+          if (window.lenis && typeof window.lenis.scrollTo === 'function') {
+            window.lenis.scrollTo('#serviceCards', { offset: -70, duration: 0.4 });
+          } else {
+            window.scrollTo({ top: serviceCards.offsetTop - 70, behavior: 'smooth' });
+          }
+        }
+      }
+
+      // Recreate ScrollTrigger for the newly active panel
+      if (typeof window.__refreshServiceScrollTrigger === 'function') {
+        setTimeout(window.__refreshServiceScrollTrigger, 40);
+      }
     });
   });
 
@@ -652,7 +774,7 @@ function initServiceTabs() {
     let scrollLeft = 0;
 
     wrapper.addEventListener('mousedown', (e) => {
-      // Don't drag if clicking buttons or links or input toggles
+      if (window.innerWidth > 960) return; // Desktop uses pinned scroll scrub
       if (e.target.closest('a') || e.target.closest('button') || e.target.closest('.addon-switch')) return;
       isDown = true;
       wrapper.classList.add('is-dragging');
@@ -681,6 +803,169 @@ function initServiceTabs() {
 
   // Dynamic Add Development Toggle Calculation
   initAddonToggles();
+
+  // Initialize Pinned Horizontal Scrub with GSAP ScrollTrigger
+  initServiceScrollTrigger();
+}
+
+/* --------------------------------------------------------------------------
+   8b. GSAP ScrollTrigger Luxury Pinned Horizontal Card Scrub & Smooth Transitions
+   -------------------------------------------------------------------------- */
+function initServiceScrollTrigger() {
+  const serviceCards = document.getElementById('serviceCards');
+  if (!serviceCards) return;
+
+  // If GSAP / ScrollTrigger not loaded yet, wait for them
+  if (!window.gsap || !window.ScrollTrigger) {
+    const checkLibs = setInterval(() => {
+      if (window.gsap && window.ScrollTrigger) {
+        clearInterval(checkLibs);
+        initServiceScrollTrigger();
+      }
+    }, 100);
+    setTimeout(() => clearInterval(checkLibs), 4000);
+    return;
+  }
+
+  let activeST = null;
+  let activeTL = null;
+
+  function createTrigger() {
+    if (activeTL) {
+      activeTL.kill();
+      activeTL = null;
+    }
+    if (activeST) {
+      activeST.kill();
+      activeST = null;
+    }
+
+    // Reset inline styles across all tracks and slides
+    document.querySelectorAll('.services-carousel-track').forEach(t => {
+      gsap.set(t, { clearProps: "x,transform" });
+      t.scrollLeft = 0;
+    });
+    document.querySelectorAll('.service-showcase-slide').forEach(s => {
+      gsap.set(s, { clearProps: "opacity,transform,scale" });
+    });
+
+    if (window.innerWidth <= 960) return;
+
+    const activePanel = serviceCards.querySelector('.service-tab-panel.active');
+    if (!activePanel) return;
+
+    const wrapper = activePanel.querySelector('.services-carousel-wrapper');
+    const track = activePanel.querySelector('.services-carousel-track');
+    if (!wrapper || !track) return;
+
+    const slides = Array.from(track.querySelectorAll('.service-showcase-slide'));
+    if (slides.length <= 1) return;
+
+    // Calculate exact travel distance needed for last card to be fully visible
+    const totalDistance = Math.max(0, track.scrollWidth - wrapper.clientWidth);
+    if (totalDistance <= 10) return;
+
+    // Initial state: Card 1 active, subsequent cards gently dimmed
+    slides.forEach((slide, idx) => {
+      gsap.set(slide, {
+        opacity: idx === 0 ? 1 : 0.35,
+        scale: idx === 0 ? 1 : 0.98,
+        transformOrigin: "center center"
+      });
+    });
+
+    // Build timeline for buttery smooth GPU horizontal glide + card focus transitions
+    activeTL = gsap.timeline();
+
+    const slideCount = slides.length;
+    const moveDuration = slideCount * 1.0;
+    const dwellDuration = 1.35; // Generous dwell buffer so the user rests comfortably on the final card before unpinning!
+
+    // 1. Horizontal track glide: runs from 0 to moveDuration, then rests still during dwellDuration
+    activeTL.to(track, {
+      x: -totalDistance,
+      ease: "none",
+      duration: moveDuration
+    }, 0);
+
+    // 2. Smooth card entrance and focus transitions
+    slides.forEach((slide, i) => {
+      if (i > 0) {
+        // Entering card smoothly blooms to full opacity and scale
+        activeTL.to(slide, {
+          opacity: 1,
+          scale: 1,
+          ease: "power2.out",
+          duration: 0.7
+        }, (i * 0.95) - 0.35);
+      }
+
+      if (i < slides.length - 1) {
+        // Exiting card gently dims to 0.35 opacity and subtle 0.98 scale
+        activeTL.to(slide, {
+          opacity: 0.35,
+          scale: 0.98,
+          ease: "power2.in",
+          duration: 0.7
+        }, (i * 0.95) + 0.3);
+      }
+    });
+
+    // 3. End Dwell Period: hold the timeline still on the final card so users don't jump out
+    activeTL.to({}, {
+      duration: dwellDuration
+    }, moveDuration);
+
+    // Pin distance: gives plenty of comfortable scroll space for both the glide and the end rest
+    const pinDistance = Math.round(totalDistance * 1.6 + 600);
+
+    activeST = ScrollTrigger.create({
+      trigger: serviceCards,
+      animation: activeTL,
+      pin: true,
+      anticipatePin: 1,
+      start: "top 70px",
+      end: `+=${pinDistance}`,
+      scrub: 1.4, // Luxurious 1.4s inertia damping matching the slow smooth scroll
+      invalidateOnRefresh: true
+    });
+  }
+
+  window.__refreshServiceScrollTrigger = () => {
+    createTrigger();
+    ScrollTrigger.refresh();
+  };
+
+  // matchMedia for clean breakpoint switching
+  ScrollTrigger.matchMedia({
+    "(min-width: 961px)": function() {
+      createTrigger();
+      return () => {
+        if (activeTL) {
+          activeTL.kill();
+          activeTL = null;
+        }
+        if (activeST) {
+          activeST.kill();
+          activeST = null;
+        }
+      };
+    },
+    "(max-width: 960px)": function() {
+      if (activeTL) {
+        activeTL.kill();
+        activeTL = null;
+      }
+      if (activeST) {
+        activeST.kill();
+        activeST = null;
+      }
+    }
+  });
+
+  window.addEventListener('load', () => ScrollTrigger.refresh());
+  setTimeout(() => ScrollTrigger.refresh(), 300);
+  setTimeout(() => ScrollTrigger.refresh(), 1000);
 }
 
 /* --------------------------------------------------------------------------
@@ -741,7 +1026,7 @@ function initAddonToggles() {
 
 
 /* --------------------------------------------------------------------------
-   11. Studio Project Inquiry Modal ("Let's Talk About Your Project")
+   11. Studio Project Inquiry Modal ("Let's Talk About Your Project") - Pattern B
    -------------------------------------------------------------------------- */
 function initInquiryModal() {
   if (!document.getElementById('kre8mind-inquiry-modal')) {
@@ -757,37 +1042,43 @@ function initInquiryModal() {
               <span id="inq-service-name-label" class="inquiry-service-badge">APPLICATION REDESIGN</span>
               <span id="inq-price-tag-label" class="inquiry-starting-price">Starting at $2,000</span>
             </div>
-
-            <p class="inquiry-pricing-scope-text">
-              Final pricing depends on scope and complexity. We'll review your project and confirm the right scope and price with you.
-            </p>
           </div>
 
           <form id="kre8mind-inquiry-form" class="inquiry-modal-form">
             <input type="hidden" id="inq-service-hidden" value="APPLICATION REDESIGN">
             <input type="hidden" id="inq-price-hidden" value="Starting at $2,000">
+            <input type="hidden" id="inq-timeline-hidden" value="Urgent (1–2 wks)">
 
-            <div class="inquiry-fields-compact">
+            <div class="inquiry-fields-container">
               <div class="inquiry-form-group">
                 <label class="inquiry-label" for="inq-name">YOUR NAME</label>
-                <input type="text" id="inq-name" class="inquiry-input" placeholder="Enter your full name" required autocomplete="name">
+                <input type="text" id="inq-name" class="inquiry-input" placeholder="e.g. Alex Vance" required autocomplete="name">
               </div>
 
               <div class="inquiry-form-group">
-                <label class="inquiry-label" for="inq-email">YOUR EMAIL ADDRESS</label>
-                <input type="email" id="inq-email" class="inquiry-input" placeholder="name@company.com" required autocomplete="email">
+                <label class="inquiry-label" for="inq-email">WORK EMAIL OR TELEGRAM</label>
+                <input type="text" id="inq-email" class="inquiry-input" placeholder="name@company.com or @handle" required autocomplete="email">
               </div>
-            </div>
 
-            <div class="inquiry-form-group" style="margin-top: 12px;">
-              <label class="inquiry-label" for="inq-details">TELL US A LITTLE BIT ABOUT YOUR PROJECT</label>
-              <textarea id="inq-details" class="inquiry-input inquiry-textarea" placeholder="Briefly describe your goals, timeline, or current challenges..." rows="3" style="resize: vertical; min-height: 68px; padding: 10px 14px; font-family: inherit; font-size: 13.5px; line-height: 1.5;"></textarea>
+              <div class="inquiry-form-group">
+                <label class="inquiry-label" for="inq-link-or-goal">PRODUCT LINK OR 1-LINE GOAL</label>
+                <input type="text" id="inq-link-or-goal" class="inquiry-input" placeholder="e.g. https://ourapp.io or &quot;Rebuilding checkout flow&quot;">
+              </div>
+
+              <div class="inquiry-form-group">
+                <label class="inquiry-label">TARGET TIMELINE</label>
+                <div class="inquiry-timeline-chips" id="inq-timeline-chips" role="radiogroup" aria-label="Target Timeline">
+                  <button type="button" class="inquiry-chip active" data-timeline="Urgent (1–2 wks)" aria-checked="true" role="radio">Urgent (1–2 wks)</button>
+                  <button type="button" class="inquiry-chip" data-timeline="1 Month" aria-checked="false" role="radio">1 Month</button>
+                  <button type="button" class="inquiry-chip" data-timeline="Flexible" aria-checked="false" role="radio">Flexible</button>
+                </div>
+              </div>
             </div>
 
             <div id="inquiry-feedback-msg" class="inquiry-feedback"></div>
 
             <button type="submit" id="inquiry-submit-btn" class="inquiry-submit-btn">
-              <span class="btn-text">SEND PROJECT REQUEST →</span>
+              <span class="btn-text">SEND REQUEST →</span>
               <span class="btn-spinner" style="display: none;">SENDING REQUEST...</span>
             </button>
 
@@ -812,7 +1103,7 @@ function initInquiryModal() {
           left: 0;
           width: 100vw;
           height: 100vh;
-          background: rgba(10, 10, 12, 0.65);
+          background: rgba(10, 10, 12, 0.68);
           backdrop-filter: blur(8px);
           -webkit-backdrop-filter: blur(8px);
           z-index: 99999;
@@ -834,10 +1125,10 @@ function initInquiryModal() {
           background: #ffffff;
           border: 1px solid var(--border-light, #e4e4e7);
           border-radius: 12px !important;
-          box-shadow: 0 20px 40px rgba(0,0,0,0.08) !important;
+          box-shadow: 0 24px 48px rgba(0,0,0,0.1) !important;
           max-width: 480px;
           width: 100%;
-          padding: 40px 36px 36px 36px;
+          padding: 34px 32px 30px 32px;
           position: relative;
           box-sizing: border-box;
           transform: translateY(12px);
@@ -850,17 +1141,17 @@ function initInquiryModal() {
         }
         .inquiry-modal-close {
           position: absolute;
-          top: 22px;
-          right: 22px;
+          top: 20px;
+          right: 20px;
           background: var(--bg-surface, #f4f4f5);
           border: 1px solid var(--border-light, #e4e4e7);
           color: var(--text-muted, #71717a);
-          font-size: 14px;
+          font-size: 13px;
           cursor: pointer;
           transition: all 0.2s;
           border-radius: 50% !important;
-          width: 32px;
-          height: 32px;
+          width: 30px;
+          height: 30px;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -869,14 +1160,19 @@ function initInquiryModal() {
         .inquiry-modal-close:hover {
           color: var(--text-primary, #0a0a0a);
           border-color: var(--text-primary, #0a0a0a);
+          background: #ebebee;
+        }
+        .inquiry-modal-header {
+          margin-bottom: 20px;
+          padding-right: 32px;
         }
         .inquiry-modal-title {
           font-family: var(--font-sans, 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
-          font-size: 21px;
+          font-size: 20px;
           font-weight: 500;
           letter-spacing: -0.03em;
-          line-height: 1.2;
-          margin: 0 0 14px 0;
+          line-height: 1.25;
+          margin: 0 0 10px 0;
           color: var(--text-primary, #0a0a0a);
           text-transform: uppercase;
         }
@@ -884,15 +1180,15 @@ function initInquiryModal() {
           display: flex;
           align-items: baseline;
           gap: 10px;
-          margin-bottom: 10px;
+          flex-wrap: wrap;
         }
         .inquiry-service-badge {
           font-family: var(--font-sans, 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
-          font-size: 11.5px;
+          font-size: 11px;
           font-weight: 600;
           color: var(--brand-purple, #6C3BFF);
           background: rgba(108, 59, 255, 0.08);
-          border: 1px solid rgba(108, 59, 255, 0.3);
+          border: 1px solid rgba(108, 59, 255, 0.28);
           border-radius: 100px !important;
           padding: 3px 10px;
           text-transform: uppercase;
@@ -904,19 +1200,11 @@ function initInquiryModal() {
           font-weight: 400;
           color: var(--text-secondary, #52525b);
         }
-        .inquiry-pricing-scope-text {
-          font-family: var(--font-sans, 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
-          font-size: 13.5px;
-          font-weight: 400;
-          color: var(--text-muted, #71717a);
-          line-height: 1.5;
-          margin: 0 0 24px 0;
-        }
-        .inquiry-fields-compact {
+        .inquiry-fields-container {
           display: flex;
           flex-direction: column;
-          gap: 16px;
-          margin-bottom: 24px;
+          gap: 14px;
+          margin-bottom: 20px;
         }
         .inquiry-form-group {
           display: flex;
@@ -925,10 +1213,10 @@ function initInquiryModal() {
         }
         .inquiry-label {
           font-family: var(--font-sans, 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
-          font-size: 11px;
+          font-size: 10.5px;
           font-weight: 500;
           color: var(--text-muted, #71717a);
-          letter-spacing: 0.04em;
+          letter-spacing: 0.05em;
           text-transform: uppercase;
         }
         .inquiry-input {
@@ -937,16 +1225,50 @@ function initInquiryModal() {
           border-radius: 8px !important;
           box-shadow: none !important;
           color: var(--text-primary, #0a0a0a);
-          padding: 12px 14px;
+          padding: 11px 14px;
           font-family: var(--font-sans, 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
-          font-size: 14px;
+          font-size: 13.5px;
           font-weight: 400;
           outline: none;
           box-sizing: border-box;
-          transition: border-color 0.2s;
+          transition: border-color 0.2s, background-color 0.2s;
         }
         .inquiry-input:focus {
           border-color: var(--border-dark, #0a0a0a);
+        }
+        .inquiry-input::placeholder {
+          color: #a1a1aa;
+        }
+        .inquiry-timeline-chips {
+          display: flex;
+          gap: 8px;
+          flex-wrap: wrap;
+          margin-top: 2px;
+        }
+        .inquiry-chip {
+          background: #ffffff;
+          border: 1px solid var(--border-light, #e4e4e7);
+          color: var(--text-secondary, #52525b);
+          font-family: var(--font-sans, 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
+          font-size: 12px;
+          font-weight: 500;
+          padding: 7px 14px;
+          border-radius: 100px !important;
+          cursor: pointer;
+          transition: all 0.18s ease;
+          outline: none;
+          line-height: 1.2;
+          user-select: none;
+        }
+        .inquiry-chip:hover {
+          border-color: var(--text-primary, #0a0a0a);
+          color: var(--text-primary, #0a0a0a);
+          background: var(--bg-surface, #f4f4f5);
+        }
+        .inquiry-chip.active {
+          background: var(--text-primary, #0a0a0a);
+          border-color: var(--text-primary, #0a0a0a);
+          color: #ffffff;
         }
         .inquiry-submit-btn {
           width: 100%;
@@ -955,23 +1277,26 @@ function initInquiryModal() {
           border: none;
           border-radius: 100px !important;
           box-shadow: none !important;
-          padding: 15px 24px;
+          padding: 14px 24px;
           font-family: var(--font-sans, 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
-          font-size: 13.5px;
+          font-size: 13px;
           font-weight: 500;
-          letter-spacing: -0.01em;
+          letter-spacing: 0.02em;
           text-transform: uppercase;
           cursor: pointer;
-          transition: background-color 0.2s;
+          transition: background-color 0.2s, transform 0.1s ease;
         }
         .inquiry-submit-btn:hover {
           background: #27272a;
         }
+        .inquiry-submit-btn:active {
+          transform: scale(0.99);
+        }
         .inquiry-book-call-row {
-          margin-top: 18px;
+          margin-top: 16px;
           text-align: center;
           font-family: var(--font-sans, 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
-          font-size: 13.5px;
+          font-size: 13px;
           font-weight: 400;
           color: var(--text-muted, #71717a);
           display: flex;
@@ -981,7 +1306,7 @@ function initInquiryModal() {
         }
         .inquiry-book-call-link {
           font-family: var(--font-sans, 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
-          font-size: 13.5px;
+          font-size: 13px;
           font-weight: 500;
           color: var(--text-primary, #0a0a0a);
           text-decoration: none;
@@ -994,9 +1319,10 @@ function initInquiryModal() {
           opacity: 0.7;
         }
         .inquiry-feedback {
-          padding: 10px;
+          padding: 10px 14px;
           font-family: var(--font-sans, 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
-          font-size: 13px;
+          font-size: 12.5px;
+          border-radius: 6px;
           margin-bottom: 14px;
           display: none;
         }
@@ -1024,8 +1350,25 @@ function initInquiryModal() {
   const priceLabel = document.getElementById('inq-price-tag-label');
   const serviceHidden = document.getElementById('inq-service-hidden');
   const priceHidden = document.getElementById('inq-price-hidden');
+  const timelineHidden = document.getElementById('inq-timeline-hidden');
+  const timelineChips = document.querySelectorAll('#inq-timeline-chips .inquiry-chip');
   const feedbackMsg = document.getElementById('inquiry-feedback-msg');
   const submitBtn = document.getElementById('inquiry-submit-btn');
+
+  // Interactive timeline chips
+  timelineChips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      timelineChips.forEach(c => {
+        c.classList.remove('active');
+        c.setAttribute('aria-checked', 'false');
+      });
+      chip.classList.add('active');
+      chip.setAttribute('aria-checked', 'true');
+      if (timelineHidden) {
+        timelineHidden.value = chip.getAttribute('data-timeline') || 'Urgent (1–2 wks)';
+      }
+    });
+  });
 
   // Close handlers
   if (closeBtn) closeBtn.addEventListener('click', () => modal.classList.remove('open'));
@@ -1096,18 +1439,28 @@ function initInquiryModal() {
     });
   });
 
-  // 3. Form Submission
+  // 3. Form Submission (Pattern B Fast-Track)
   if (form) {
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
 
-      const detailsVal = document.getElementById('inq-details')?.value?.trim() || '';
+      const nameVal = document.getElementById('inq-name').value.trim();
+      const emailVal = document.getElementById('inq-email').value.trim();
+      const linkOrGoalVal = document.getElementById('inq-link-or-goal')?.value?.trim() || '';
+      const timelineVal = timelineHidden?.value || 'Urgent (1–2 wks)';
+
+      let formattedDetails = `Target timeline: ${timelineVal}`;
+      if (linkOrGoalVal) {
+        formattedDetails = `${linkOrGoalVal} (Target timeline: ${timelineVal})`;
+      }
+
       const payload = {
-        name: document.getElementById('inq-name').value.trim(),
-        email: document.getElementById('inq-email').value.trim(),
+        name: nameVal,
+        email: emailVal,
         serviceTier: serviceHidden.value,
         budget: priceHidden.value,
-        details: detailsVal || `Client inquiry for ${serviceHidden.value} (${priceHidden.value}).`
+        timeline: timelineVal,
+        details: formattedDetails
       };
 
       submitBtn.querySelector('.btn-text').style.display = 'none';
@@ -1127,6 +1480,17 @@ function initInquiryModal() {
           feedbackMsg.className = 'inquiry-feedback success';
           feedbackMsg.style.display = 'block';
           form.reset();
+          // Reset active chip to default
+          timelineChips.forEach((c, idx) => {
+            if (idx === 0) {
+              c.classList.add('active');
+              c.setAttribute('aria-checked', 'true');
+              if (timelineHidden) timelineHidden.value = c.getAttribute('data-timeline');
+            } else {
+              c.classList.remove('active');
+              c.setAttribute('aria-checked', 'false');
+            }
+          });
           setTimeout(() => {
             modal.classList.remove('open');
           }, 2000);

@@ -25,10 +25,12 @@
   <!-- Canonical URL -->
   <link rel="canonical" href="https://kre8mind.com/">
 
-  <!-- Favicon -->
-  <link rel="icon" type="image/jpeg" href="/assets/FAVICON.jpg">
+  <!-- Favicon (Google SERP & Retina Display Compliant) -->
+  <link rel="icon" type="image/png" sizes="48x48" href="/assets/favicon-48.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="/assets/favicon-96.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="/assets/favicon-192.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
   <link rel="shortcut icon" href="/favicon.ico">
-  <link rel="apple-touch-icon" href="/assets/FAVICON.jpg">
 
   <!-- OpenGraph & Twitter Social Meta -->
   <meta property="og:site_name" content="Kre8mind">
@@ -79,11 +81,78 @@
         "@id": "https://kre8mind.com/#website",
         "url": "https://kre8mind.com/",
         "name": "Kre8mind",
+        "alternateName": ["Kre8mind Studio", "kre8mind", "kree8mind", "kre8"],
         "description": "Clarity by Design — Product Redesign, UX/UI Architecture, and Scalable Web Design Studio.",
         "publisher": {
           "@id": "https://kre8mind.com/#organization"
         },
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": "https://kre8mind.com/projects?search={search_term_string}",
+          "query-input": "required name=search_term_string"
+        },
         "inLanguage": "en"
+      },
+      {
+        "@type": "ItemList",
+        "@id": "https://kre8mind.com/#sitelinks-navigation",
+        "name": "Kre8mind Primary Sitelinks Navigation",
+        "itemListElement": [
+          {
+            "@type": "SiteNavigationElement",
+            "position": 1,
+            "name": "Services",
+            "description": "Comprehensive UX/UI design, product redesign, SaaS interface architecture, and Figma design systems.",
+            "url": "https://kre8mind.com/services"
+          },
+          {
+            "@type": "SiteNavigationElement",
+            "position": 2,
+            "name": "Selected Projects",
+            "description": "Curated case studies of FinTech, SaaS, AI, PropTech, and digital product redesigns.",
+            "url": "https://kre8mind.com/projects"
+          },
+          {
+            "@type": "SiteNavigationElement",
+            "position": 3,
+            "name": "Pricing & Retainers",
+            "description": "Transparent pricing for design sprints, full product redesigns, and dedicated studio retainers.",
+            "url": "https://kre8mind.com/#pricing"
+          },
+          {
+            "@type": "SiteNavigationElement",
+            "position": 4,
+            "name": "Journal & Perspectives",
+            "description": "Strategic insights and design perspectives on user psychology, interface clarity, and design systems.",
+            "url": "https://kre8mind.com/journal"
+          },
+          {
+            "@type": "SiteNavigationElement",
+            "position": 5,
+            "name": "How We Work",
+            "description": "Our 4-step clarity design sprint framework: Deconstruct, Architect, Refine, and Scale.",
+            "url": "https://kre8mind.com/#how-we-work"
+          },
+          {
+            "@type": "SiteNavigationElement",
+            "position": 6,
+            "name": "Book a Discovery Call",
+            "description": "Schedule a direct introductory call with the Kre8mind design team to discuss your project.",
+            "url": "https://cal.com/kre8mind/project-discovery"
+          }
+        ]
+      },
+      {
+        "@type": "BreadcrumbList",
+        "@id": "https://kre8mind.com/#breadcrumb",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "https://kre8mind.com/"
+          }
+        ]
       },
       {
         "@type": "ProfessionalService",
@@ -184,14 +253,15 @@
     href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap"
     rel="stylesheet">
 
-  <!-- Lucide Icons -->
-  <script src="https://unpkg.com/lucide@latest"></script>
 
   <!-- Styles -->
-  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/style.css?v=5.0">
 </head>
 
 <body>
+
+  <!-- Luxury Hairline Scroll Progress Bar -->
+  <div class="scroll-progress-bar" id="scrollProgressBar" aria-hidden="true"></div>
 
   <!-- Floating Header / Navigation -->
   <header class="site-header" id="header">
@@ -297,35 +367,35 @@
           <!-- Slide 1 -->
           <div class="showcase-card">
             <div class="showcase-card-inner">
-              <img src="assets/showcase/hERO%20SHOW/1.jpg" alt="Kre8mind Design Showcase 1" loading="eager" />
+              <img src="assets/showcase/hERO SHOW/1.webp" decoding="async" alt="Kre8mind Design Showcase 1" loading="eager" />
             </div>
           </div>
 
           <!-- Slide 2 -->
           <div class="showcase-card">
             <div class="showcase-card-inner">
-              <img src="assets/showcase/hERO%20SHOW/2.jpg" alt="Kre8mind Design Showcase 2" loading="eager" />
+              <img src="assets/showcase/hERO SHOW/2.webp" decoding="async" alt="Kre8mind Design Showcase 2" loading="eager" />
             </div>
           </div>
 
           <!-- Slide 3 -->
           <div class="showcase-card">
             <div class="showcase-card-inner">
-              <img src="assets/showcase/hERO%20SHOW/3.jpg" alt="Kre8mind Design Showcase 3" loading="eager" />
+              <img src="assets/showcase/hERO SHOW/3.webp" decoding="async" alt="Kre8mind Design Showcase 3" loading="eager" />
             </div>
           </div>
 
           <!-- Slide 4 -->
           <div class="showcase-card">
             <div class="showcase-card-inner">
-              <img src="assets/showcase/hERO%20SHOW/4.jpg" alt="Kre8mind Design Showcase 4" loading="eager" />
+              <img src="assets/showcase/hERO SHOW/4.webp" decoding="async" alt="Kre8mind Design Showcase 4" loading="eager" />
             </div>
           </div>
 
           <!-- Slide 5 -->
           <div class="showcase-card">
             <div class="showcase-card-inner">
-              <img src="assets/showcase/hERO%20SHOW/5.jpg" alt="Kre8mind Design Showcase 5" loading="eager" />
+              <img src="assets/showcase/hERO SHOW/5.webp" decoding="async" alt="Kre8mind Design Showcase 5" loading="eager" />
             </div>
           </div>
 
@@ -466,7 +536,7 @@
               <!-- Tab 01 Content -->
               <div class="preview-card-content active" id="tabContent01">
                 <div class="preview-image-wrapper">
-                  <img src="assets/showcase/HWCH/clarity-1.png" alt="How we help simplify complex product experiences"
+                  <img src="assets/showcase/HWCH/clarity-1.webp" loading="lazy" decoding="async" alt="How we help simplify complex product experiences"
                     class="preview-img" />
                 </div>
                 <div class="preview-card-footer">
@@ -479,7 +549,7 @@
               <!-- Tab 02 Content -->
               <div class="preview-card-content" id="tabContent02">
                 <div class="preview-image-wrapper">
-                  <img src="assets/showcase/HWCH/how we help 2.png"
+                  <img src="assets/showcase/HWCH/how we help 2.webp" loading="lazy" decoding="async"
                     alt="Website Conversion Optimization before and after clarity" class="preview-img" />
                 </div>
                 <div class="preview-card-footer">
@@ -493,7 +563,7 @@
               <!-- Tab 03 Content -->
               <div class="preview-card-content" id="tabContent03">
                 <div class="preview-image-wrapper">
-                  <img src="assets/showcase/HWCH/3.png"
+                  <img src="assets/showcase/HWCH/3.webp" loading="lazy" decoding="async"
                     alt="From initial sketch wireframe to high authority MVP product" class="preview-img" />
                 </div>
                 <div class="preview-card-footer">
@@ -532,7 +602,7 @@
             <div class="das-card-anchor" data-project-id="proj_1788486163854">
               <div class="das-image-container">
                 <span class="das-category-tag top-left">PROP-TECH</span>
-                <img src="assets/showcase/ave_cover_1788514443500.jpg" alt="Avenor Real Estate Flagship Redesign"
+                <img src="assets/showcase/ave_cover_1788514443500.webp" loading="lazy" decoding="async" alt="Avenor Real Estate Flagship Redesign"
                   loading="lazy" />
                 <div class="das-view-overlay">
                   <span class="das-view-badge">VIEW</span>
@@ -550,7 +620,7 @@
             <div class="das-card-anchor" data-project-id="proj_01">
               <div class="das-image-container">
                 <span class="das-category-tag top-left">PRODUCT DESIGN</span>
-                <img src="assets/showcase/mockup-1.jpg" alt="Flowmetric Realtime Trading and Fintech Analytics"
+                <img src="assets/showcase/mockup-1.webp" loading="lazy" decoding="async" alt="Flowmetric Realtime Trading and Fintech Analytics"
                   loading="lazy" />
                 <div class="das-view-overlay">
                   <span class="das-view-badge">VIEW</span>
@@ -568,7 +638,7 @@
             <div class="das-card-anchor" data-project-id="proj_02">
               <div class="das-image-container">
                 <span class="das-category-tag top-left">WEB PLATFORM</span>
-                <img src="assets/showcase/mockup-2.jpg" alt="Hospitality Health Web App Redesign" loading="lazy" />
+                <img src="assets/showcase/mockup-2.webp" loading="lazy" decoding="async" alt="Hospitality Health Web App Redesign" loading="lazy" />
                 <div class="das-view-overlay">
                   <span class="das-view-badge">VIEW</span>
                 </div>
@@ -585,7 +655,7 @@
             <div class="das-card-anchor" data-project-id="proj_03">
               <div class="das-image-container">
                 <span class="das-category-tag top-left">SAAS / SYSTEM</span>
-                <img src="assets/showcase/mockup-3.jpg" alt="SaaSify Platform Architecture" loading="lazy" />
+                <img src="assets/showcase/mockup-3.webp" loading="lazy" decoding="async" alt="SaaSify Platform Architecture" loading="lazy" />
                 <div class="das-view-overlay">
                   <span class="das-view-badge">VIEW</span>
                 </div>
@@ -848,85 +918,69 @@
           <div class="transform-infinite-track" id="trackBefore">
             <!-- 01: Avenor -->
             <div class="transform-card-pair">
-              <div class="t-card-img-wrap"><img src="assets/Before%20and%20afters/AVENO%20BEFORE.jpg"
-                  alt="Avenor Before Redesign" /></div>
+              <div class="t-card-img-wrap"><img src="assets/Before and afters/AVENO BEFORE.webp" alt="Avenor Before Redesign" loading="lazy" decoding="async" /></div>
             </div>
             <!-- 02: Health In Tech -->
             <div class="transform-card-pair">
-              <div class="t-card-img-wrap"><img src="assets/Before%20and%20afters/HIT%20BEFORE.jpg"
-                  alt="Health In Tech Before Redesign" /></div>
+              <div class="t-card-img-wrap"><img src="assets/Before and afters/HIT BEFORE.webp" alt="Health In Tech Before Redesign" loading="lazy" decoding="async" /></div>
             </div>
             <!-- 03: The Future of Futures (1PS) -->
             <div class="transform-card-pair">
-              <div class="t-card-img-wrap"><img src="assets/Before%20and%20afters/1PS%20BEFORE.jpg"
-                  alt="1PS Before Redesign" /></div>
+              <div class="t-card-img-wrap"><img src="assets/Before and afters/1PS BEFORE.webp" alt="1PS Before Redesign" loading="lazy" decoding="async" /></div>
             </div>
             <!-- 04: Swychr -->
             <div class="transform-card-pair">
-              <div class="t-card-img-wrap"><img src="assets/Before%20and%20afters/SWYCHR%20BEFORE.jpg"
-                  alt="Swychr Before Redesign" /></div>
+              <div class="t-card-img-wrap"><img src="assets/Before and afters/SWYCHR BEFORE.webp" alt="Swychr Before Redesign" loading="lazy" decoding="async" /></div>
             </div>
             <!-- 05: TOC Consults -->
             <div class="transform-card-pair">
-              <div class="t-card-img-wrap"><img src="assets/Before%20and%20afters/TOC%20BEFORE.png"
-                  alt="TOC Before Redesign" /></div>
+              <div class="t-card-img-wrap"><img src="assets/Before and afters/TOC BEFORE.webp" alt="TOC Before Redesign" loading="lazy" decoding="async" /></div>
             </div>
             <!-- 06: Wagestream -->
             <div class="transform-card-pair">
-              <div class="t-card-img-wrap"><img src="assets/Before%20and%20afters/WAGESTREEM%20BEFORE.jpg"
-                  alt="Wagestream Before Redesign" /></div>
+              <div class="t-card-img-wrap"><img src="assets/Before and afters/WAGESTREEM BEFORE.webp" alt="Wagestream Before Redesign" loading="lazy" decoding="async" /></div>
             </div>
             <!-- 07: Wysa -->
             <div class="transform-card-pair">
-              <div class="t-card-img-wrap"><img src="assets/Before%20and%20afters/wysa%20before.jpg"
-                  alt="Wysa Before Redesign" /></div>
+              <div class="t-card-img-wrap"><img src="assets/Before and afters/wysa before.webp" alt="Wysa Before Redesign" loading="lazy" decoding="async" /></div>
             </div>
             <!-- 08: Wayve -->
             <div class="transform-card-pair">
-              <div class="t-card-img-wrap"><img src="assets/Before%20and%20afters/wavye%20BEFORE.jpg"
-                  alt="Wayve Before Redesign" /></div>
+              <div class="t-card-img-wrap"><img src="assets/Before and afters/wavye BEFORE.webp" alt="Wayve Before Redesign" loading="lazy" decoding="async" /></div>
             </div>
 
             <!-- Clones for Seamless Infinite Loop -->
             <!-- 01 Clone: Avenor -->
             <div class="transform-card-pair">
-              <div class="t-card-img-wrap"><img src="assets/Before%20and%20afters/AVENO%20BEFORE.jpg"
-                  alt="Avenor Before Redesign" /></div>
+              <div class="t-card-img-wrap"><img src="assets/Before and afters/AVENO BEFORE.webp" alt="Avenor Before Redesign" loading="lazy" decoding="async" /></div>
             </div>
             <!-- 02 Clone: Health In Tech -->
             <div class="transform-card-pair">
-              <div class="t-card-img-wrap"><img src="assets/Before%20and%20afters/HIT%20BEFORE.jpg"
-                  alt="Health In Tech Before Redesign" /></div>
+              <div class="t-card-img-wrap"><img src="assets/Before and afters/HIT BEFORE.webp" alt="Health In Tech Before Redesign" loading="lazy" decoding="async" /></div>
             </div>
             <!-- 03 Clone: The Future of Futures (1PS) -->
             <div class="transform-card-pair">
-              <div class="t-card-img-wrap"><img src="assets/Before%20and%20afters/1PS%20BEFORE.jpg"
-                  alt="1PS Before Redesign" /></div>
+              <div class="t-card-img-wrap"><img src="assets/Before and afters/1PS BEFORE.webp" alt="1PS Before Redesign" loading="lazy" decoding="async" /></div>
             </div>
             <!-- 04 Clone: Swychr -->
             <div class="transform-card-pair">
-              <div class="t-card-img-wrap"><img src="assets/Before%20and%20afters/SWYCHR%20BEFORE.jpg"
-                  alt="Swychr Before Redesign" /></div>
+              <div class="t-card-img-wrap"><img src="assets/Before and afters/SWYCHR BEFORE.webp" alt="Swychr Before Redesign" loading="lazy" decoding="async" /></div>
             </div>
             <!-- 05 Clone: TOC Consults -->
             <div class="transform-card-pair">
-              <div class="t-card-img-wrap"><img src="assets/Before%20and%20afters/TOC%20BEFORE.png"
-                  alt="TOC Before Redesign" /></div>
+              <div class="t-card-img-wrap"><img src="assets/Before and afters/TOC BEFORE.webp" alt="TOC Before Redesign" loading="lazy" decoding="async" /></div>
             </div>
             <!-- 06 Clone: Wagestream -->
             <div class="transform-card-pair">
-              <div class="t-card-img-wrap"><img src="assets/Before%20and%20afters/WAGESTREEM%20BEFORE.jpg"
-                  alt="Wagestream Before Redesign" /></div>
+              <div class="t-card-img-wrap"><img src="assets/Before and afters/WAGESTREEM BEFORE.webp" alt="Wagestream Before Redesign" loading="lazy" decoding="async" /></div>
             </div>
             <!-- 07 Clone: Wysa -->
             <div class="transform-card-pair">
-              <div class="t-card-img-wrap"><img src="assets/Before%20and%20afters/wysa%20before.jpg"
-                  alt="Wysa Before Redesign" /></div>
+              <div class="t-card-img-wrap"><img src="assets/Before and afters/wysa before.webp" alt="Wysa Before Redesign" loading="lazy" decoding="async" /></div>
             </div>
             <!-- 08 Clone: Wayve -->
             <div class="transform-card-pair">
-              <div class="t-card-img-wrap"><img src="assets/Before%20and%20afters/wavye%20BEFORE.jpg"
-                  alt="Wayve Before Redesign" /></div>
+              <div class="t-card-img-wrap"><img src="assets/Before and afters/wavye BEFORE.webp" alt="Wayve Before Redesign" loading="lazy" decoding="async" /></div>
             </div>
           </div>
         </div>
@@ -936,85 +990,69 @@
           <div class="transform-infinite-track" id="trackAfter">
             <!-- 01: Avenor -->
             <div class="transform-card-pair">
-              <div class="t-card-img-wrap"><img src="assets/Before%20and%20afters/AVENOR%20AFTER.jpg"
-                  alt="Avenor After Redesign" /></div>
+              <div class="t-card-img-wrap"><img src="assets/Before and afters/AVENOR AFTER.webp" alt="Avenor After Redesign" loading="lazy" decoding="async" /></div>
             </div>
             <!-- 02: Health In Tech -->
             <div class="transform-card-pair">
-              <div class="t-card-img-wrap"><img src="assets/Before%20and%20afters/HIT%20AFTER.jpg"
-                  alt="Health In Tech After Redesign" /></div>
+              <div class="t-card-img-wrap"><img src="assets/Before and afters/HIT AFTER.webp" alt="Health In Tech After Redesign" loading="lazy" decoding="async" /></div>
             </div>
             <!-- 03: The Future of Futures (1PS) -->
             <div class="transform-card-pair">
-              <div class="t-card-img-wrap"><img src="assets/Before%20and%20afters/1PS%20aFTER.jpg"
-                  alt="1PS After Redesign" /></div>
+              <div class="t-card-img-wrap"><img src="assets/Before and afters/1PS aFTER.webp" alt="1PS After Redesign" loading="lazy" decoding="async" /></div>
             </div>
             <!-- 04: Swychr -->
             <div class="transform-card-pair">
-              <div class="t-card-img-wrap"><img src="assets/Before%20and%20afters/SWYCHR%20AFTER.jpg"
-                  alt="Swychr After Redesign" /></div>
+              <div class="t-card-img-wrap"><img src="assets/Before and afters/SWYCHR AFTER.webp" alt="Swychr After Redesign" loading="lazy" decoding="async" /></div>
             </div>
             <!-- 05: TOC Consults -->
             <div class="transform-card-pair">
-              <div class="t-card-img-wrap"><img src="assets/Before%20and%20afters/TOC%20AFTER.png"
-                  alt="TOC After Redesign" /></div>
+              <div class="t-card-img-wrap"><img src="assets/Before and afters/TOC AFTER.webp" alt="TOC After Redesign" loading="lazy" decoding="async" /></div>
             </div>
             <!-- 06: Wagestream -->
             <div class="transform-card-pair">
-              <div class="t-card-img-wrap"><img src="assets/Before%20and%20afters/WAGE%20STREAM%20AFTER.jpg"
-                  alt="Wagestream After Redesign" /></div>
+              <div class="t-card-img-wrap"><img src="assets/Before and afters/WAGE STREAM AFTER.webp" alt="Wagestream After Redesign" loading="lazy" decoding="async" /></div>
             </div>
             <!-- 07: Wysa -->
             <div class="transform-card-pair">
-              <div class="t-card-img-wrap"><img src="assets/Before%20and%20afters/wysa%20after.jpg"
-                  alt="Wysa After Redesign" /></div>
+              <div class="t-card-img-wrap"><img src="assets/Before and afters/wysa after.webp" alt="Wysa After Redesign" loading="lazy" decoding="async" /></div>
             </div>
             <!-- 08: Wayve -->
             <div class="transform-card-pair">
-              <div class="t-card-img-wrap"><img src="assets/Before%20and%20afters/wavye%20AFTER.jpg"
-                  alt="Wayve After Redesign" /></div>
+              <div class="t-card-img-wrap"><img src="assets/Before and afters/wavye AFTER.webp" alt="Wayve After Redesign" loading="lazy" decoding="async" /></div>
             </div>
 
             <!-- Clones for Seamless Infinite Loop -->
             <!-- 01 Clone: Avenor -->
             <div class="transform-card-pair">
-              <div class="t-card-img-wrap"><img src="assets/Before%20and%20afters/AVENOR%20AFTER.jpg"
-                  alt="Avenor After Redesign" /></div>
+              <div class="t-card-img-wrap"><img src="assets/Before and afters/AVENOR AFTER.webp" alt="Avenor After Redesign" loading="lazy" decoding="async" /></div>
             </div>
             <!-- 02 Clone: Health In Tech -->
             <div class="transform-card-pair">
-              <div class="t-card-img-wrap"><img src="assets/Before%20and%20afters/HIT%20AFTER.jpg"
-                  alt="Health In Tech After Redesign" /></div>
+              <div class="t-card-img-wrap"><img src="assets/Before and afters/HIT AFTER.webp" alt="Health In Tech After Redesign" loading="lazy" decoding="async" /></div>
             </div>
             <!-- 03 Clone: The Future of Futures (1PS) -->
             <div class="transform-card-pair">
-              <div class="t-card-img-wrap"><img src="assets/Before%20and%20afters/1PS%20aFTER.jpg"
-                  alt="1PS After Redesign" /></div>
+              <div class="t-card-img-wrap"><img src="assets/Before and afters/1PS aFTER.webp" alt="1PS After Redesign" loading="lazy" decoding="async" /></div>
             </div>
             <!-- 04 Clone: Swychr -->
             <div class="transform-card-pair">
-              <div class="t-card-img-wrap"><img src="assets/Before%20and%20afters/SWYCHR%20AFTER.jpg"
-                  alt="Swychr After Redesign" /></div>
+              <div class="t-card-img-wrap"><img src="assets/Before and afters/SWYCHR AFTER.webp" alt="Swychr After Redesign" loading="lazy" decoding="async" /></div>
             </div>
             <!-- 05 Clone: TOC Consults -->
             <div class="transform-card-pair">
-              <div class="t-card-img-wrap"><img src="assets/Before%20and%20afters/TOC%20AFTER.png"
-                  alt="TOC After Redesign" /></div>
+              <div class="t-card-img-wrap"><img src="assets/Before and afters/TOC AFTER.webp" alt="TOC After Redesign" loading="lazy" decoding="async" /></div>
             </div>
             <!-- 06 Clone: Wagestream -->
             <div class="transform-card-pair">
-              <div class="t-card-img-wrap"><img src="assets/Before%20and%20afters/WAGE%20STREAM%20AFTER.jpg"
-                  alt="Wagestream After Redesign" /></div>
+              <div class="t-card-img-wrap"><img src="assets/Before and afters/WAGE STREAM AFTER.webp" alt="Wagestream After Redesign" loading="lazy" decoding="async" /></div>
             </div>
             <!-- 07 Clone: Wysa -->
             <div class="transform-card-pair">
-              <div class="t-card-img-wrap"><img src="assets/Before%20and%20afters/wysa%20after.jpg"
-                  alt="Wysa After Redesign" /></div>
+              <div class="t-card-img-wrap"><img src="assets/Before and afters/wysa after.webp" alt="Wysa After Redesign" loading="lazy" decoding="async" /></div>
             </div>
             <!-- 08 Clone: Wayve -->
             <div class="transform-card-pair">
-              <div class="t-card-img-wrap"><img src="assets/Before%20and%20afters/wavye%20AFTER.jpg"
-                  alt="Wayve After Redesign" /></div>
+              <div class="t-card-img-wrap"><img src="assets/Before and afters/wavye AFTER.webp" alt="Wayve After Redesign" loading="lazy" decoding="async" /></div>
             </div>
           </div>
         </div>
@@ -1514,13 +1552,21 @@
   <script>
     const lenis = new Lenis({
       autoRaf: true,
-      lerp: 0.1
+      lerp: 0.055,
+      smoothWheel: true,
+      wheelMultiplier: 0.78,
+      touchMultiplier: 1.5,
+      infinite: false
     });
     window.lenis = lenis;
   </script>
-  <script src="/js/main.js"></script>
+  <script src="/js/main.js?v=5.0"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
   <script>
-    lucide.createIcons();
+    if (typeof lucide !== 'undefined') {
+      lucide.createIcons();
+    }
   </script>
 </body>
 

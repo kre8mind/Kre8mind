@@ -23,10 +23,12 @@
   <!-- Canonical URL -->
   <link rel="canonical" href="https://kre8mind.com/journal">
   
-  <!-- Favicon -->
-  <link rel="icon" type="image/jpeg" href="/assets/FAVICON.jpg">
+  <!-- Favicon (Google SERP & Retina Display Compliant) -->
+  <link rel="icon" type="image/png" sizes="48x48" href="/assets/favicon-48.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="/assets/favicon-96.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="/assets/favicon-192.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
   <link rel="shortcut icon" href="/favicon.ico">
-  <link rel="apple-touch-icon" href="/assets/FAVICON.jpg">
 
   <!-- OpenGraph & Twitter Social Meta -->
   <meta property="og:site_name" content="Kre8mind">
@@ -93,9 +95,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   
   <script src="https://unpkg.com/lucide@latest"></script>
-  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/style.css?v=5.0">
 </head>
 <body>
+
+  <!-- Luxury Hairline Scroll Progress Bar -->
+  <div class="scroll-progress-bar" id="scrollProgressBar" aria-hidden="true"></div>
 
   <!-- Floating Header -->
   <header class="site-header" id="header">
@@ -223,11 +228,15 @@
   <script>
     const lenis = new Lenis({
       autoRaf: true,
-      lerp: 0.1
+      lerp: 0.055,
+      smoothWheel: true,
+      wheelMultiplier: 0.78,
+      touchMultiplier: 1.5,
+      infinite: false
     });
     window.lenis = lenis;
   </script>
-  <script src="/js/main.js"></script>
+  <script src="/js/main.js?v=5.0"></script>
   <script>lucide.createIcons();</script>
 </body>
 </html>

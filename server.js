@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import compression from 'compression';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
@@ -23,20 +24,55 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// High-performance gzip/brotli response compression
+app.use(compression());
+
 // Middleware
 app.use(cors());
 app.use(express.json({ limit: '20mb' }));
 app.use(express.urlencoded({ extended: true, limit: '20mb' }));
 
-// Serve static assets (CSS, JS, Images, Fonts) - disable directory redirect loops
-app.use(express.static(__dirname, { index: false, redirect: false }));
+// Serve static assets (WebP, Images, Fonts cached; CSS/JS non-cached in development)
+const isProd = process.env.NODE_ENV === 'production';
+app.use(express.static(__dirname, {
+  index: false,
+  redirect: false,
+  maxAge: isProd ? '7d' : 0,
+  setHeaders: (res, filePath) => {
+    if (/\.(webp|jpg|jpeg|png|gif|svg|ico|woff2|woff|ttf)$/i.test(filePath)) {
+      res.setHeader('Cache-Control', 'public, max-age=604800, stale-while-revalidate=86400');
+    } else if (/\.(css|js)$/i.test(filePath)) {
+      res.setHeader('Cache-Control', isProd ? 'public, max-age=86400' : 'no-cache, no-store, must-revalidate');
+    }
+  }
+}));
 
 // Direct Favicon & Social Cover Endpoints
-app.get(['/favicon.ico', '/favicon.jpg', '/favicon.png'], (req, res) => {
+app.get('/favicon.ico', (req, res) => {
+  const icoPath = path.join(__dirname, 'assets', 'favicon.ico');
+  if (fs.existsSync(icoPath)) {
+    res.setHeader('Content-Type', 'image/x-icon');
+    res.setHeader('Cache-Control', 'public, max-age=604800');
+    return res.sendFile(icoPath);
+  }
+  res.status(404).end();
+});
+
+app.get(['/favicon.png', '/assets/favicon-96.png'], (req, res) => {
+  const pngPath = path.join(__dirname, 'assets', 'favicon-96.png');
+  if (fs.existsSync(pngPath)) {
+    res.setHeader('Content-Type', 'image/png');
+    res.setHeader('Cache-Control', 'public, max-age=604800');
+    return res.sendFile(pngPath);
+  }
+  res.status(404).end();
+});
+
+app.get('/favicon.jpg', (req, res) => {
   const icoPath = path.join(__dirname, 'assets', 'FAVICON.jpg');
   if (fs.existsSync(icoPath)) {
     res.setHeader('Content-Type', 'image/jpeg');
-    res.setHeader('Cache-Control', 'public, max-age=86400');
+    res.setHeader('Cache-Control', 'public, max-age=604800');
     return res.sendFile(icoPath);
   }
   res.status(404).end();

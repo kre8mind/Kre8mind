@@ -211,43 +211,51 @@ button {
 }
 
 /* ==========================================================================
-   SUBPAGE HERO (Projects, Journal, Services)
+   SUBPAGE HERO (Projects, Journal)
    ========================================================================== */
 .subpage-hero-section {
+  position: relative;
   padding-top: 140px;
-  padding-bottom: 50px;
+  padding-bottom: 56px;
   background-color: var(--bg-primary);
+  border-bottom: 1px solid var(--border-light);
+  width: 100%;
 }
 
 .subpage-hero-row {
+  position: relative;
   display: flex;
   justify-content: space-between;
-  align-items: flex-end;
-  gap: 40px;
-  border-bottom: 1px solid var(--border-light);
-  padding-bottom: 40px;
+  align-items: flex-start;
+  gap: 36px;
+  width: 100%;
 }
 
 .subpage-hero-title {
+  position: relative;
   font-family: var(--font-sans);
-  font-size: clamp(38px, 5.5vw, 68px);
+  font-size: clamp(38px, 5.5vw, 72px);
   font-weight: var(--fw-medium);
   letter-spacing: -0.04em;
-  line-height: 1.02;
+  line-height: 1.0;
   text-transform: uppercase;
   color: var(--text-primary);
   margin: 0;
+  flex-shrink: 0;
 }
 
 .subpage-hero-subtext {
+  position: relative;
   font-family: var(--font-sans);
-  font-size: clamp(15px, 1.3vw, 17px);
+  font-size: clamp(15px, 1.25vw, 17.5px);
   font-weight: var(--fw-regular);
   line-height: 1.6;
   color: var(--text-secondary);
-  max-width: 460px;
+  max-width: 480px;
   letter-spacing: -0.015em;
   margin: 0;
+  text-align: right;
+  padding-top: 10px;
 }
 
 .projects-section {
@@ -257,14 +265,18 @@ button {
 
 @media (max-width: 900px) {
   .subpage-hero-section {
-    padding-top: 110px;
-    padding-bottom: 30px;
+    padding-top: 105px;
+    padding-bottom: 36px;
   }
   .subpage-hero-row {
     flex-direction: column;
     align-items: flex-start;
-    gap: 20px;
-    padding-bottom: 30px;
+    gap: 16px;
+  }
+  .subpage-hero-subtext {
+    text-align: left;
+    max-width: 100%;
+    padding-top: 0;
   }
 }
 
@@ -2360,7 +2372,47 @@ button {
   padding: 40px 0 100px 0;
   background-color: var(--bg-primary);
   overflow: hidden;
+  position: relative;
 }
+
+@media (min-width: 961px) {
+  .services-section {
+    padding: 20px 0 28px 0;
+  }
+
+  .services-section .services-tabs-nav {
+    margin-bottom: 20px;
+  }
+
+  .services-section .services-carousel-wrapper {
+    overflow: hidden;
+    cursor: default;
+    width: 100%;
+  }
+
+  .services-section .services-carousel-track {
+    display: flex;
+    flex-wrap: nowrap;
+    width: max-content;
+    overflow: visible;
+    scroll-snap-type: none;
+    will-change: transform;
+    gap: 36px;
+    padding-bottom: 8px;
+    padding-right: 64px;
+  }
+
+  .services-section .service-showcase-slide {
+    flex: 0 0 clamp(720px, 76vw, 1060px);
+    scroll-snap-align: none;
+    margin-right: 0;
+    will-change: transform, opacity;
+    padding: clamp(24px, 2.8vw, 38px);
+    gap: clamp(24px, 3.5vw, 48px);
+  }
+}
+
+
 
 /* Centered Tab Switcher */
 .services-tabs-nav {
@@ -2725,57 +2777,7 @@ button {
   }
 }
 
-/* ==========================================================================
-   SUBPAGE SHARED HERO SPLIT SECTION (Clean Das Studio Style)
-   ========================================================================== */
-.subpage-hero-section {
-  padding: 130px 0 64px 0;
-  background-color: var(--bg-primary);
-  border-bottom: 1px solid var(--border-light);
-}
 
-.subpage-hero-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  gap: 40px;
-}
-
-.subpage-hero-title {
-  font-size: clamp(36px, 4.8vw, 68px);
-  font-weight: var(--fw-medium);
-  letter-spacing: -0.04em;
-  line-height: 1.0;
-  text-transform: uppercase;
-  color: var(--text-primary);
-  margin: 0;
-}
-
-.subpage-hero-subtext {
-  font-size: clamp(15px, 1.25vw, 18px);
-  font-weight: var(--fw-regular);
-  line-height: 1.55;
-  color: var(--text-secondary);
-  max-width: 520px;
-  letter-spacing: -0.01em;
-  margin: 0;
-  text-align: right;
-}
-
-@media (max-width: 900px) {
-  .subpage-hero-section {
-    padding: 100px 0 48px 0;
-  }
-  .subpage-hero-row {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 20px;
-  }
-  .subpage-hero-subtext {
-    text-align: left;
-    max-width: 100%;
-  }
-}
 
 /* ==========================================================================
    LUXURY EDITORIAL JOURNAL GRID (Framer Magazine Style)
@@ -3929,14 +3931,30 @@ button {
 
 
 /* ==========================================================================
-   FRAMER-QUALITY SCROLL REVEAL MOTION
+   LUXURY EDITORIAL SCROLL PROGRESS BAR (Zero Overhead, Pure Elegance)
    ========================================================================== */
+.scroll-progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, #0a0a0a 0%, #6C3BFF 60%, #9D7BFF 100%);
+  transform-origin: 0% 50%;
+  transform: scaleX(0);
+  z-index: 99999;
+  pointer-events: none;
+  will-change: transform;
+}
+
+/* ==========================================================================
+   LUXURY EDITORIAL SCROLL REVEALS (Zero AI Glitter, Pure Studio Precision)
+   ========================================================================== */
+.luxury-reveal,
 .framer-reveal,
 .hero-title,
 .hero-subtitle,
 .hero-ctas,
-.subpage-hero-title,
-.subpage-hero-subtext,
 .solution-header-grid,
 .solution-interactive-grid,
 .flow-header-row,
@@ -3944,9 +3962,21 @@ button {
 .plan-premium-card,
 .cta-banner-box {
   opacity: 0;
-  transform: translateY(24px);
-  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: opacity, transform;
+  transform: translateY(28px);
+  filter: blur(8px);
+  transition: 
+    opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.85s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform, filter;
+}
+
+.is-revealed,
+.framer-reveal.is-revealed,
+.luxury-reveal.is-revealed {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+  filter: blur(0px) !important;
 }
 
 .das-section-header,
@@ -3955,6 +3985,51 @@ button {
   opacity: 1 !important;
   transform: translateY(0) !important;
   visibility: visible !important;
+}
+
+/* Luxury Card Lift & Media Tactile Depth */
+.das-card-item .das-image-container img,
+.showcase-card-inner img,
+.preview-card-frame img {
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), filter 0.6s ease;
+  will-change: transform;
+}
+
+.das-card-item:hover .das-image-container img {
+  transform: scale(1.03);
+}
+
+/* Sibling Staggering (Natural Editorial Rhythm) */
+.flow-grid .flow-column-item:nth-child(1) { transition-delay: 0.05s; }
+.flow-grid .flow-column-item:nth-child(2) { transition-delay: 0.14s; }
+.flow-grid .flow-column-item:nth-child(3) { transition-delay: 0.23s; }
+.flow-grid .flow-column-item:nth-child(4) { transition-delay: 0.32s; }
+
+.das-studio-grid .das-card-item:nth-child(odd) { transition-delay: 0.06s; }
+.das-studio-grid .das-card-item:nth-child(even) { transition-delay: 0.16s; }
+
+.journal-editorial-grid .journal-article-card:nth-child(odd) { transition-delay: 0.06s; }
+.journal-editorial-grid .journal-article-card:nth-child(even) { transition-delay: 0.16s; }
+
+.plans-grid .plan-premium-card:nth-child(1) { transition-delay: 0.06s; }
+.plans-grid .plan-premium-card:nth-child(2) { transition-delay: 0.16s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .luxury-reveal,
+  .solution-header-grid,
+  .solution-interactive-grid,
+  .flow-header-row,
+  .flow-column-item,
+  .plan-premium-card,
+  .cta-banner-box {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+    transition: none !important;
+  }
+  .scroll-progress-bar {
+    display: none !important;
+  }
 }
 
 /* ==========================================================================
@@ -3989,27 +4064,6 @@ button {
 .case-study-slice-card video {
   border-radius: 12px !important;
 }
-
-.is-revealed,
-.framer-reveal.is-revealed {
-  opacity: 1 !important;
-  transform: translateY(0) !important;
-}
-
-/* Sibling Staggering */
-.flow-grid .flow-column-item:nth-child(1) { transition-delay: 0.05s; }
-.flow-grid .flow-column-item:nth-child(2) { transition-delay: 0.12s; }
-.flow-grid .flow-column-item:nth-child(3) { transition-delay: 0.19s; }
-.flow-grid .flow-column-item:nth-child(4) { transition-delay: 0.26s; }
-
-.das-studio-grid .das-card-item:nth-child(odd) { transition-delay: 0.05s; }
-.das-studio-grid .das-card-item:nth-child(even) { transition-delay: 0.15s; }
-
-.journal-editorial-grid .journal-article-card:nth-child(odd) { transition-delay: 0.05s; }
-.journal-editorial-grid .journal-article-card:nth-child(even) { transition-delay: 0.15s; }
-
-.plans-grid .plan-premium-card:nth-child(1) { transition-delay: 0.05s; }
-.plans-grid .plan-premium-card:nth-child(2) { transition-delay: 0.15s; }
 
 /* ==========================================================================
    FOOTER
