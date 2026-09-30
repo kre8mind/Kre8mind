@@ -83,9 +83,15 @@ html.lenis body {
   overflow: hidden;
 }
 
-.lenis.lenis-scrolling iframe,
-.lenis.lenis-smooth iframe {
+.lenis.lenis-scrolling iframe {
   pointer-events: none;
+}
+
+iframe.cal-embed,
+cal-modal-box iframe,
+[data-cal-modal] iframe,
+.cal-embed {
+  pointer-events: auto !important;
 }
 
 body {

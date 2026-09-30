@@ -1430,7 +1430,8 @@ function initInquiryModal() {
           calLink: "kre8mind/project-discovery",
           config: {
             theme: "light",
-            layout: "month_view"
+            layout: "month_view",
+            useSlotsViewOnSmallScreen: "true"
           }
         });
       } else {
@@ -2097,7 +2098,8 @@ function initCaseStudyViewer() {
           calLink: "kre8mind/project-discovery",
           config: {
             theme: "light",
-            layout: "month_view"
+            layout: "month_view",
+            useSlotsViewOnSmallScreen: "true"
           }
         });
       }
@@ -2548,7 +2550,7 @@ function initJournalReader() {
         e.preventDefault();
         window.Cal("modal", {
           calLink: "kre8mind/project-discovery",
-          config: { theme: "light", layout: "month_view" }
+          config: { theme: "light", layout: "month_view", useSlotsViewOnSmallScreen: "true" }
         });
       }
     });

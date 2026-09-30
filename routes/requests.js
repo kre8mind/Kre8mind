@@ -27,7 +27,7 @@ router.get('/', async (req, res) => {
 // POST new client inquiry from frontend services/contact forms
 router.post('/', async (req, res) => {
   try {
-    const { name, email, company, serviceTier, addons, budget, timeline, details } = req.body;
+    const { name, email, company, serviceTier, addons, budget, timeline, details, status } = req.body;
 
     if (!name || !email) {
       return res.status(400).json({
@@ -35,6 +35,9 @@ router.post('/', async (req, res) => {
         error: 'Name and email are required fields.'
       });
     }
+
+    const validStatuses = ['NEW', 'ONGOING', 'COMPLETED', 'REJECTED', 'BOOKED_CALL', 'REVIEWED', 'ARCHIVED', 'CONTACTED'];
+    const initialStatus = validStatuses.includes(status) ? status : 'NEW';
 
     const col = await getCollection('inquiries');
     const newInquiry = {
@@ -48,7 +51,7 @@ router.post('/', async (req, res) => {
       budget: budget || 'To be discussed',
       timeline: timeline || 'Standard',
       details: details ? details.trim() : '',
-      status: 'NEW'
+      status: initialStatus
     };
 
     await col.insertOne({ ...newInquiry });
