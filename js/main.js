@@ -54,6 +54,7 @@ function initStaticServerLinkAdapter() {
 
 document.addEventListener('DOMContentLoaded', () => {
   initStaticServerLinkAdapter();
+  initPageLoadEntrance();
   initLenisSmoothScroll();
   initScrollProgressBar();
   initSubtleParallax();
@@ -73,6 +74,23 @@ document.addEventListener('DOMContentLoaded', () => {
   initInquiryModal();
   initVisitorTracking();
 });
+
+/* --------------------------------------------------------------------------
+   0a. Subtle Page Load Entrance Orchestrator (Restrained Studio Sequence)
+   -------------------------------------------------------------------------- */
+function initPageLoadEntrance() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    document.documentElement.classList.add('is-page-ready');
+    return;
+  }
+
+  // Microtask delay allows browser to construct initial layout tree without flash
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      document.documentElement.classList.add('is-page-ready');
+    });
+  });
+}
 
 /* --------------------------------------------------------------------------
    0. Ultra-Silky Smooth Momentum Scroll Engine (Lenis)
@@ -146,7 +164,7 @@ function initSubtleParallax() {
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   if (window.innerWidth <= 768) return; // Keep mobile lightweight
 
-  const parallaxTargets = document.querySelectorAll('.das-card-item, .preview-card-frame, .service-image-container');
+  const parallaxTargets = document.querySelectorAll('[data-subtle-parallax]');
   if (parallaxTargets.length === 0) return;
 
   let ticking = false;
@@ -156,11 +174,8 @@ function initSubtleParallax() {
       const rect = card.getBoundingClientRect();
       if (rect.bottom >= -50 && rect.top <= windowHeight + 50) {
         const centerOffset = (rect.top + rect.height / 2) - (windowHeight / 2);
-        const drift = Math.max(Math.min(centerOffset * -0.035, 16), -16);
-        const img = card.querySelector('img');
-        if (img) {
-          img.style.transform = `translate3d(0, ${drift.toFixed(1)}px, 0)`;
-        }
+        const drift = Math.max(Math.min(centerOffset * -0.02, 10), -10);
+        card.style.transform = `translate3d(0, ${drift.toFixed(1)}px, 0)`;
       }
     });
     ticking = false;
@@ -182,19 +197,16 @@ function initHeader() {
   if (!header) return;
 
   let isScrolled = false;
-  window.addEventListener('scroll', () => {
-    const shouldBeScrolled = window.scrollY > 30;
+  const handleScroll = () => {
+    const shouldBeScrolled = window.scrollY > 24;
     if (shouldBeScrolled !== isScrolled) {
       isScrolled = shouldBeScrolled;
-      if (isScrolled) {
-        header.classList.add('is-scrolled');
-        header.style.borderBottomColor = 'rgba(10, 10, 10, 0.10)';
-      } else {
-        header.classList.remove('is-scrolled');
-        header.style.borderBottomColor = 'var(--border-light)';
-      }
+      header.classList.toggle('is-scrolled', isScrolled);
     }
-  }, { passive: true });
+  };
+
+  window.addEventListener('scroll', handleScroll, { passive: true });
+  handleScroll();
 }
 
 /* --------------------------------------------------------------------------
@@ -232,7 +244,7 @@ function initMobileMenu() {
 }
 
 /* --------------------------------------------------------------------------
-   3. Ultra-Smooth Showcase Carousel (Smooth 2.5s step & Infinite Transition)
+   3. Ultra-Smooth Showcase Carousel (Smooth, Calm Studio Pacing)
    -------------------------------------------------------------------------- */
 function initSeamlessShowcaseCarousel() {
   const track = document.getElementById('showcaseTrack');
@@ -246,10 +258,10 @@ function initSeamlessShowcaseCarousel() {
 
   if (initialCards.length === 0) return;
 
-  const totalSlides = initialCards.length; // 4 original slides
+  const totalSlides = initialCards.length;
   let currentIndex = 0;
   let autoTimer = null;
-  const slideInterval = 2600; // moves every 2.6s
+  const slideInterval = 4800; // Calm, measured studio pacing
 
   // Clone slides to create seamless infinite loop
   initialCards.forEach(card => {
@@ -328,9 +340,10 @@ function initSeamlessShowcaseCarousel() {
     });
   });
 
-  // Autoplay
+  // Autoplay management
   const startAutoplay = () => {
     if (autoTimer) clearInterval(autoTimer);
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     autoTimer = setInterval(advanceSlide, slideInterval);
   };
 
@@ -346,8 +359,29 @@ function initSeamlessShowcaseCarousel() {
     startAutoplay();
   };
 
-  // Keep carousel looping continuously even on hover so visitors can watch it
+  // View-aware performance: pause carousel when off-screen
+  let isCarouselInView = true;
+  if ('IntersectionObserver' in window) {
+    const carouselObs = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        isCarouselInView = entry.isIntersecting;
+        if (!isCarouselInView) {
+          stopAutoplay();
+        } else if (!isDragging) {
+          startAutoplay();
+        }
+      });
+    }, { threshold: 0.1 });
+    carouselObs.observe(wrapper || track);
+  }
 
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      stopAutoplay();
+    } else if (isCarouselInView && !isDragging) {
+      startAutoplay();
+    }
+  });
 
   // Sync index on manual drag/scroll
   let isDragging = false;
@@ -367,7 +401,7 @@ function initSeamlessShowcaseCarousel() {
       const cardWidth = getCardWidth();
       currentIndex = Math.round(track.scrollLeft / cardWidth);
       updateIndicators(currentIndex);
-      startAutoplay();
+      if (isCarouselInView) startAutoplay();
     }
   });
 
@@ -379,7 +413,7 @@ function initSeamlessShowcaseCarousel() {
     track.scrollLeft = scrollStart - walk;
   });
 
-  // Start immediately
+  // Start immediately if in viewport
   startAutoplay();
 }
 
@@ -403,23 +437,10 @@ function initSolutionSwitcher() {
     tabs.forEach(t => t.classList.remove('active'));
     tab.classList.add('active');
 
-    // Crossfade preview content with gentle transition
+    // Crossfade preview content with CSS Grid stacked transitions (zero layout shifts)
     Object.entries(contents).forEach(([key, contentEl]) => {
       if (!contentEl) return;
-      if (key === tabKey) {
-        contentEl.style.display = 'block';
-        void contentEl.offsetWidth; // Force reflow
-        requestAnimationFrame(() => {
-          contentEl.classList.add('active');
-        });
-      } else {
-        contentEl.classList.remove('active');
-        setTimeout(() => {
-          if (!contentEl.classList.contains('active')) {
-            contentEl.style.display = 'none';
-          }
-        }, 350);
-      }
+      contentEl.classList.toggle('active', key === tabKey);
     });
   };
 
@@ -429,7 +450,7 @@ function initSolutionSwitcher() {
         clearTimeout(hoverTimer);
         hoverTimer = setTimeout(() => {
           activateTab(tab);
-        }, 60); // silky gentle debounce
+        }, 50); // silky gentle debounce
       }
     });
     tab.addEventListener('mouseleave', () => {
@@ -494,8 +515,9 @@ function initAccordions() {
    6. Luxury Scroll-Triggered Editorial Reveal Observer
    -------------------------------------------------------------------------- */
 function initScrollAnimations() {
+  // Elements that reveal gently once on scroll (excluding hero elements handled by page-ready entrance)
   const animatedElements = document.querySelectorAll(
-    '.hero-title, .hero-subtitle, .hero-ctas, .solution-header-grid, .solution-interactive-grid, .das-section-header, .das-card-item, .flow-header-row, .flow-column-item, .journal-article-card, .plan-premium-card, .cta-banner-box, .pricing-card, .faq-das-item, .framer-reveal, .luxury-reveal'
+    '.solution-header-grid, .solution-interactive-grid, .das-section-header, .das-card-item, .flow-header-row, .flow-column-item, .journal-article-card, .plan-premium-card, .cta-banner-box, .pricing-card, .faq-das-item, .framer-reveal, .luxury-reveal'
   );
 
   animatedElements.forEach(el => {
@@ -542,7 +564,7 @@ function initScrollAnimations() {
     });
   }, {
     threshold: 0.08,
-    rootMargin: '0px 0px -50px 0px'
+    rootMargin: '0px 0px -40px 0px'
   });
 
   animatedElements.forEach(el => {
@@ -626,12 +648,37 @@ async function initClientStories() {
   bindClientStoryTriggers();
 }
 
+function stabilizeQuoteStageHeight() {
+  const quoteStage = document.getElementById('storyQuoteStage');
+  const quotes = document.querySelectorAll('.story-quote-item');
+  if (!quoteStage || quotes.length === 0) return;
+
+  let maxH = 0;
+  quotes.forEach(q => {
+    const prevVis = q.style.visibility;
+    const prevPos = q.style.position;
+    q.style.visibility = 'hidden';
+    q.style.position = 'relative';
+    const h = q.offsetHeight;
+    if (h > maxH) maxH = h;
+    q.style.visibility = prevVis;
+    q.style.position = prevPos;
+  });
+
+  if (maxH > 0) {
+    quoteStage.style.minHeight = `${Math.max(maxH, 180)}px`;
+  }
+}
+
 function bindClientStoryTriggers() {
   const clientCards = document.querySelectorAll('.story-client-card');
   const quoteItems = document.querySelectorAll('.story-quote-item');
   const toggleBtn = document.getElementById('toggleStoriesBtn');
 
   if (clientCards.length === 0) return;
+
+  stabilizeQuoteStageHeight();
+  window.addEventListener('resize', stabilizeQuoteStageHeight, { passive: true });
 
   const activateStory = (card) => {
     const targetIndex = card.getAttribute('data-story');
@@ -659,7 +706,6 @@ function bindClientStoryTriggers() {
       const isMobile = window.innerWidth <= 960;
 
       if (isMobile) {
-        // If tapping directly on the quote text itself, allow text interaction without closing
         if (e.target.closest('.story-mobile-quote')) return;
 
         const wasActive = card.classList.contains('active');
@@ -717,42 +763,158 @@ function initServiceTabs() {
   };
 
   const serviceCards = document.getElementById('serviceCards');
+  let isSwitchingTab = false;
 
   tabBtns.forEach(btn => {
     btn.addEventListener('click', () => {
       const targetTab = btn.getAttribute('data-tab');
+      const targetPanel = panels[targetTab];
+      if (!targetPanel) return;
+      if (btn.classList.contains('active')) return;
+      if (isSwitchingTab) return;
+      isSwitchingTab = true;
 
-      // Update button active state
-      tabBtns.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
+      // Micro-spring tactile feedback on clicked button
+      if (window.gsap) {
+        gsap.fromTo(btn, { scale: 0.94 }, { scale: 1, duration: 0.28, ease: "back.out(2)" });
+      }
 
-      // Update panels
-      Object.entries(panels).forEach(([key, panelEl]) => {
-        if (!panelEl) return;
-        if (key === targetTab) {
-          panelEl.classList.add('active');
-          const panelTrack = panelEl.querySelector('.services-carousel-track');
-          if (panelTrack) panelTrack.scrollLeft = 0;
+      // 1. Calculate true document top of the serviceCards section (accounting for any pin-spacer)
+      const spacer = serviceCards ? serviceCards.closest('.pin-spacer') : null;
+      const targetEl = spacer || serviceCards;
+      const sectionTop = targetEl ? Math.max(0, Math.round(targetEl.getBoundingClientRect().top + window.scrollY - 70)) : 0;
+
+      // 2. Cleanly revert active ScrollTrigger so DOM pin-spacer is cleanly undone
+      if (typeof window.__revertServiceScrollTrigger === 'function') {
+        window.__revertServiceScrollTrigger();
+      }
+
+      // 3. If currently scrolled into or past the section, reset scroll immediately to section top
+      if (window.scrollY > sectionTop) {
+        if (window.lenis && typeof window.lenis.scrollTo === 'function') {
+          window.lenis.scrollTo(sectionTop, { immediate: true });
         } else {
-          panelEl.classList.remove('active');
-        }
-      });
-
-      // If currently scrolled into the pinned section, smoothly reset to section top
-      if (serviceCards && window.ScrollTrigger) {
-        const rect = serviceCards.getBoundingClientRect();
-        if (rect.top < 65) {
-          if (window.lenis && typeof window.lenis.scrollTo === 'function') {
-            window.lenis.scrollTo('#serviceCards', { offset: -70, duration: 0.4 });
-          } else {
-            window.scrollTo({ top: serviceCards.offsetTop - 70, behavior: 'smooth' });
-          }
+          window.scrollTo(0, sectionTop);
         }
       }
 
-      // Recreate ScrollTrigger for the newly active panel
-      if (typeof window.__refreshServiceScrollTrigger === 'function') {
-        setTimeout(window.__refreshServiceScrollTrigger, 40);
+      // 4. Update button active state
+      tabBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      const currentActivePanel = serviceCards.querySelector('.service-tab-panel.active');
+
+      const performPanelSwitch = () => {
+        // 5. Update panels display state
+        Object.entries(panels).forEach(([key, panelEl]) => {
+          if (!panelEl) return;
+          if (key === targetTab) {
+            panelEl.classList.add('active');
+            panelEl.style.display = 'block';
+            const panelTrack = panelEl.querySelector('.services-carousel-track');
+            if (panelTrack) panelTrack.scrollLeft = 0;
+          } else {
+            panelEl.classList.remove('active');
+            panelEl.style.display = 'none';
+          }
+        });
+
+        // 6. Reset all tracks & slides inline styles
+        document.querySelectorAll('.services-carousel-track').forEach(t => {
+          if (window.gsap) gsap.set(t, { clearProps: "all", x: 0 });
+          t.scrollLeft = 0;
+        });
+        document.querySelectorAll('.service-showcase-slide').forEach(s => {
+          if (window.gsap) gsap.set(s, { clearProps: "all" });
+        });
+
+        // 7. Recreate ScrollTrigger cleanly for the newly active panel
+        if (typeof window.__refreshServiceScrollTrigger === 'function') {
+          window.__refreshServiceScrollTrigger();
+        }
+
+        // 8. Choreographed studio entrance animation for incoming panel and cards
+        if (window.gsap) {
+          gsap.killTweensOf(targetPanel);
+          gsap.fromTo(targetPanel, 
+            { opacity: 0, y: 14 }, 
+            { 
+              opacity: 1, 
+              y: 0, 
+              duration: 0.4, 
+              ease: "power3.out", 
+              clearProps: "transform",
+              onComplete: () => { isSwitchingTab = false; }
+            }
+          );
+
+          // Animate inner contents of Slide 0
+          const slides = targetPanel.querySelectorAll('.service-showcase-slide');
+          if (slides.length > 0) {
+            const firstLeft = slides[0].querySelector('.service-card-left');
+            const firstPurple = slides[0].querySelector('.service-purple-card');
+            const firstBtn = slides[0].querySelector('.btn-send-request');
+
+            if (firstLeft) {
+              gsap.killTweensOf(firstLeft);
+              gsap.fromTo(firstLeft, 
+                { opacity: 0, x: -14 }, 
+                { opacity: 1, x: 0, duration: 0.42, ease: "power3.out", delay: 0.04, clearProps: "transform,opacity" }
+              );
+            }
+            if (firstPurple) {
+              gsap.killTweensOf(firstPurple);
+              gsap.fromTo(firstPurple, 
+                { opacity: 0, scale: 0.95, y: 14 }, 
+                { opacity: 1, scale: 1, y: 0, duration: 0.46, ease: "power3.out", delay: 0.06, clearProps: "transform,opacity" }
+              );
+            }
+            if (firstBtn) {
+              gsap.killTweensOf(firstBtn);
+              gsap.fromTo(firstBtn, 
+                { opacity: 0, y: 8 }, 
+                { opacity: 1, y: 0, duration: 0.36, ease: "power2.out", delay: 0.1, clearProps: "transform,opacity" }
+              );
+            }
+
+            // Animate subsequent peeking slides inner contents
+            for (let i = 1; i < slides.length; i++) {
+              const peekingLeft = slides[i].querySelector('.service-card-left');
+              const peekingRight = slides[i].querySelector('.service-card-right');
+              if (peekingLeft) {
+                gsap.killTweensOf(peekingLeft);
+                gsap.fromTo(peekingLeft,
+                  { opacity: 0, x: 18 },
+                  { opacity: 1, x: 0, duration: 0.44, ease: "power3.out", delay: 0.08 + (i * 0.04), clearProps: "transform,opacity" }
+                );
+              }
+              if (peekingRight) {
+                gsap.killTweensOf(peekingRight);
+                gsap.fromTo(peekingRight,
+                  { opacity: 0, x: 18 },
+                  { opacity: 1, x: 0, duration: 0.44, ease: "power3.out", delay: 0.08 + (i * 0.04), clearProps: "transform,opacity" }
+                );
+              }
+            }
+          } else {
+            isSwitchingTab = false;
+          }
+        } else {
+          isSwitchingTab = false;
+        }
+      };
+
+      if (currentActivePanel && currentActivePanel !== targetPanel && window.gsap) {
+        gsap.killTweensOf(currentActivePanel);
+        gsap.to(currentActivePanel, {
+          opacity: 0,
+          y: -8,
+          duration: 0.15,
+          ease: "power2.in",
+          onComplete: performPanelSwitch
+        });
+      } else {
+        performPanelSwitch();
       }
     });
   });
@@ -830,23 +992,37 @@ function initServiceScrollTrigger() {
   let activeST = null;
   let activeTL = null;
 
-  function createTrigger() {
+  window.__revertServiceScrollTrigger = () => {
     if (activeTL) {
       activeTL.kill();
       activeTL = null;
     }
     if (activeST) {
-      activeST.kill();
+      activeST.revert();
+      activeST.kill(true);
       activeST = null;
     }
+    // Explicitly unwrap any orphaned pin-spacer that GSAP may have left behind
+    const spacer = serviceCards ? serviceCards.closest('.pin-spacer') : null;
+    if (spacer && spacer.parentNode) {
+      spacer.parentNode.insertBefore(serviceCards, spacer);
+      spacer.parentNode.removeChild(spacer);
+      gsap.set(serviceCards, {
+        clearProps: "position,top,left,width,max-width,height,max-height,transform,translate,rotate,scale,margin,padding,box-sizing,zIndex"
+      });
+    }
+  };
+
+  function createTrigger() {
+    window.__revertServiceScrollTrigger();
 
     // Reset inline styles across all tracks and slides
     document.querySelectorAll('.services-carousel-track').forEach(t => {
-      gsap.set(t, { clearProps: "x,transform" });
+      gsap.set(t, { clearProps: "all", x: 0 });
       t.scrollLeft = 0;
     });
     document.querySelectorAll('.service-showcase-slide').forEach(s => {
-      gsap.set(s, { clearProps: "opacity,transform,scale" });
+      gsap.set(s, { clearProps: "all" });
     });
 
     if (window.innerWidth <= 960) return;
@@ -872,6 +1048,11 @@ function initServiceScrollTrigger() {
         scale: idx === 0 ? 1 : 0.98,
         transformOrigin: "center center"
       });
+      if (idx > 0) {
+        slide.classList.add('is-peeking');
+      } else {
+        slide.classList.remove('is-peeking');
+      }
     });
 
     // Build timeline for buttery smooth GPU horizontal glide + card focus transitions
@@ -888,15 +1069,17 @@ function initServiceScrollTrigger() {
       duration: moveDuration
     }, 0);
 
-    // 2. Smooth card entrance and focus transitions
+    // 2. Smooth card entrance and focus transitions with fluid inOut easing
     slides.forEach((slide, i) => {
       if (i > 0) {
         // Entering card smoothly blooms to full opacity and scale
         activeTL.to(slide, {
           opacity: 1,
           scale: 1,
-          ease: "power2.out",
-          duration: 0.7
+          ease: "power2.inOut",
+          duration: 0.7,
+          onStart: () => slide.classList.remove('is-peeking'),
+          onReverseComplete: () => slide.classList.add('is-peeking')
         }, (i * 0.95) - 0.35);
       }
 
@@ -905,8 +1088,10 @@ function initServiceScrollTrigger() {
         activeTL.to(slide, {
           opacity: 0.35,
           scale: 0.98,
-          ease: "power2.in",
-          duration: 0.7
+          ease: "power2.inOut",
+          duration: 0.7,
+          onStart: () => slide.classList.add('is-peeking'),
+          onReverseComplete: () => slide.classList.remove('is-peeking')
         }, (i * 0.95) + 0.3);
       }
     });
@@ -929,6 +1114,26 @@ function initServiceScrollTrigger() {
       scrub: 1.4, // Luxurious 1.4s inertia damping matching the slow smooth scroll
       invalidateOnRefresh: true
     });
+
+    // Click on a peeking card to smoothly glide directly to it
+    slides.forEach((slide, idx) => {
+      slide.addEventListener('click', (e) => {
+        if (e.target.closest('a') || e.target.closest('button') || e.target.closest('.addon-switch') || e.target.closest('input')) {
+          return;
+        }
+        if (activeST && slide.classList.contains('is-peeking')) {
+          const totalTL = moveDuration + dwellDuration;
+          const slideTime = idx * 0.95;
+          const targetProgress = Math.min(1, Math.max(0, slideTime / totalTL));
+          const targetScroll = activeST.start + (pinDistance * targetProgress);
+          if (window.lenis && typeof window.lenis.scrollTo === 'function') {
+            window.lenis.scrollTo(targetScroll, { duration: 0.8 });
+          } else {
+            window.scrollTo({ top: targetScroll, behavior: 'smooth' });
+          }
+        }
+      });
+    });
   }
 
   window.__refreshServiceScrollTrigger = () => {
@@ -941,25 +1146,11 @@ function initServiceScrollTrigger() {
     "(min-width: 961px)": function() {
       createTrigger();
       return () => {
-        if (activeTL) {
-          activeTL.kill();
-          activeTL = null;
-        }
-        if (activeST) {
-          activeST.kill();
-          activeST = null;
-        }
+        window.__revertServiceScrollTrigger();
       };
     },
     "(max-width: 960px)": function() {
-      if (activeTL) {
-        activeTL.kill();
-        activeTL = null;
-      }
-      if (activeST) {
-        activeST.kill();
-        activeST = null;
-      }
+      window.__revertServiceScrollTrigger();
     }
   });
 
@@ -1627,10 +1818,21 @@ function initCustomSquareCursor() {
   let isClicking = false;
   let isVisible = false;
 
+  let isMoving = false;
+  let rafId = null;
+  let idleTimer = null;
+
+  function wakeCursor() {
+    if (!rafId) {
+      rafId = requestAnimationFrame(renderCursor);
+    }
+  }
+
   // Track real mouse coordinates
   window.addEventListener('mousemove', (e) => {
     mouseX = e.clientX;
     mouseY = e.clientY;
+    isMoving = true;
 
     if (!isVisible) {
       isVisible = true;
@@ -1639,17 +1841,28 @@ function initCustomSquareCursor() {
     }
 
     dot.style.transform = `translate3d(${mouseX}px, ${mouseY}px, 0) translate(-50%, -50%)`;
+    wakeCursor();
+
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(() => { isMoving = false; }, 90);
   }, { passive: true });
 
-  // Smooth Lerp Physics Loop for trailing geometric square follower
+  // Smooth Lerp Physics Loop for trailing geometric square follower (Sleeps when idle)
   function renderCursor() {
     followerX += (mouseX - followerX) * 0.18;
     followerY += (mouseY - followerY) * 0.18;
 
     follower.style.transform = `translate3d(${followerX.toFixed(2)}px, ${followerY.toFixed(2)}px, 0) translate(-50%, -50%)`;
-    requestAnimationFrame(renderCursor);
+
+    const dx = Math.abs(mouseX - followerX);
+    const dy = Math.abs(mouseY - followerY);
+    if (dx > 0.08 || dy > 0.08 || isMoving) {
+      rafId = requestAnimationFrame(renderCursor);
+    } else {
+      rafId = null;
+    }
   }
-  requestAnimationFrame(renderCursor);
+  wakeCursor();
 
   // Dynamic interactive element hover detection via event delegation
   document.addEventListener('mouseover', (e) => {
@@ -1657,7 +1870,6 @@ function initCustomSquareCursor() {
     if (!target) return;
 
     // Check for real clickable project card view triggers (featured projects & archive)
-    // EXCLUDES showcase-card in the hero section per user directive
     const isProjectCard = target.closest('.das-card-item') || target.closest('.project-card-item');
     if (isProjectCard) {
       follower.classList.add('is-viewing');
@@ -1744,12 +1956,19 @@ function initTransformationSweep() {
     }
   ];
 
+  // Preload transformation images for instant, zero-flicker transitions
+  transformations.forEach(t => {
+    const b = new Image(); b.src = t.beforeImg;
+    const a = new Image(); a.src = t.afterImg;
+  });
+
   let currentPercent = 50;
   let targetPercent = 50;
   let isDragging = false;
   let isHovering = false;
   let sweepDirection = 1;
-  const sweepSpeed = 0.26; // Hypnotic, buttery smooth auto-sweep speed
+  const sweepSpeed = 0.22; // Hypnotic, calm studio auto-sweep speed
+  let isSweepInView = true;
 
   function updateSweepPosition(pct) {
     pct = Math.max(0, Math.min(100, pct));
@@ -1757,15 +1976,18 @@ function initTransformationSweep() {
     frame.style.setProperty('--sweep-pct', `${pct}%`);
   }
 
-  // Smooth Continuous Auto-Sweep Animation Loop
+  // Smooth Continuous Auto-Sweep Animation Loop (Paused when off-screen)
   function autoSweepLoop() {
+    if (!isSweepInView) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
     if (!isDragging && !isHovering) {
       targetPercent += sweepSpeed * sweepDirection;
-      if (targetPercent >= 86) {
-        targetPercent = 86;
+      if (targetPercent >= 84) {
+        targetPercent = 84;
         sweepDirection = -1;
-      } else if (targetPercent <= 14) {
-        targetPercent = 14;
+      } else if (targetPercent <= 16) {
+        targetPercent = 16;
         sweepDirection = 1;
       }
       currentPercent += (targetPercent - currentPercent) * 0.07;
@@ -1774,7 +1996,21 @@ function initTransformationSweep() {
     requestAnimationFrame(autoSweepLoop);
   }
 
-  requestAnimationFrame(autoSweepLoop);
+  // Viewport Observer to avoid running sweep loop offscreen
+  if ('IntersectionObserver' in window) {
+    const sweepObs = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        const wasInView = isSweepInView;
+        isSweepInView = entry.isIntersecting;
+        if (isSweepInView && !wasInView) {
+          requestAnimationFrame(autoSweepLoop);
+        }
+      });
+    }, { threshold: 0.1 });
+    sweepObs.observe(frame);
+  } else {
+    requestAnimationFrame(autoSweepLoop);
+  }
 
   // Compute position percentage relative to frame
   function getEventPercent(e) {
@@ -1817,7 +2053,7 @@ function initTransformationSweep() {
     targetPercent = currentPercent;
   });
 
-  // Transformation Switcher Tabs
+  // Transformation Switcher Tabs with gentle crossfade
   tabBtns.forEach((btn, idx) => {
     btn.addEventListener('click', () => {
       tabBtns.forEach(b => b.classList.remove('active'));
@@ -1826,17 +2062,20 @@ function initTransformationSweep() {
       const data = transformations[idx];
       if (!data) return;
 
-      if (imgBefore) imgBefore.src = data.beforeImg;
-      if (imgAfter) imgAfter.src = data.afterImg;
-      if (projectTitle) projectTitle.textContent = data.title;
-      if (projectSummary) projectSummary.textContent = data.summary;
-      if (statNum) statNum.textContent = data.statNum;
-      if (statLabel) statLabel.textContent = data.statLabel;
+      frame.style.opacity = '0.75';
+      setTimeout(() => {
+        if (imgBefore) imgBefore.src = data.beforeImg;
+        if (imgAfter) imgAfter.src = data.afterImg;
+        if (projectTitle) projectTitle.textContent = data.title;
+        if (projectSummary) projectSummary.textContent = data.summary;
+        if (statNum) statNum.textContent = data.statNum;
+        if (statLabel) statLabel.textContent = data.statLabel;
 
-      // Animate sweep reveal on tab switch
-      currentPercent = 15;
-      targetPercent = 65;
-      updateSweepPosition(currentPercent);
+        frame.style.opacity = '1';
+        currentPercent = 18;
+        targetPercent = 65;
+        updateSweepPosition(currentPercent);
+      }, 120);
     });
   });
 
@@ -1882,10 +2121,16 @@ async function initDynamicProjects() {
     const json = await res.json();
     const projects = json.data || json.projects || [];
     
+    const prevSig = cachedStudioProjects.map(p => `${p.id || p._id}-${p.title}`).join('|');
+    const nextSig = projects.map(p => `${p.id || p._id}-${p.title}`).join('|');
+
     cachedStudioProjects = projects;
     setStoredProjects(projects);
 
-    renderStudioProjects(projects);
+    // Only re-render if data actually changed to avoid destroying active hover state or causing layout flicker
+    if (prevSig !== nextSig || !prevSig) {
+      renderStudioProjects(projects);
+    }
     checkDeepLinkProject();
   } catch (err) {
     console.log('Project loader note:', err);
