@@ -6,6 +6,7 @@ import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 
 import fs from 'fs';
+import sharp from 'sharp';
 import { getCollection, connectToDatabase } from './db/mongodb.js';
 import { GridFSBucket } from 'mongodb';
 
@@ -247,32 +248,59 @@ if (!fs.existsSync(uploadDir)) {
 app.get('/assets/showcase/:file', async (req, res, next) => {
   const diskPath = path.join(uploadDir, req.params.file);
   if (fs.existsSync(diskPath)) {
+    res.setHeader('Cache-Control', 'public, max-age=31536000, s-maxage=31536000, stale-while-revalidate=86400, immutable');
     return res.sendFile(diskPath);
   }
   try {
     const media = await getMediaFromAtlas(req.params.file);
     if (media) {
       res.setHeader('Content-Type', media.mimetype);
-      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      res.setHeader('Cache-Control', 'public, max-age=31536000, s-maxage=31536000, stale-while-revalidate=86400, immutable');
       return res.send(media.buffer);
     }
   } catch {}
   next();
 });
 
-// Helper to save buffer to MongoDB Atlas (regular collection or GridFS)
+// Helper to save buffer to MongoDB Atlas with automated retina-grade compression
 async function saveMediaToAtlas({ mediaId, filename, originalName, mimetype, buffer, size }) {
-  const isLarge = size >= 15 * 1024 * 1024;
+  let finalBuffer = buffer;
+  let finalMimetype = mimetype || 'image/jpeg';
+  let finalSize = size || buffer.length;
+
+  // Lossless/high-fidelity compression for images
+  if (mimetype && mimetype.startsWith('image/') && !mimetype.includes('svg')) {
+    try {
+      const meta = await sharp(buffer).metadata();
+      if (meta.width && meta.height) {
+        const isTall = meta.height > 16000;
+        const targetWidth = Math.min(meta.width, 1920);
+        let transformer = sharp(buffer).resize({ width: targetWidth, withoutEnlargement: true });
+        if (isTall || mimetype === 'image/jpeg') {
+          finalBuffer = await transformer.jpeg({ quality: 82, mozjpeg: true, progressive: true }).toBuffer();
+          finalMimetype = 'image/jpeg';
+        } else {
+          finalBuffer = await transformer.webp({ quality: 84, effort: 4 }).toBuffer();
+          finalMimetype = 'image/webp';
+        }
+        finalSize = finalBuffer.length;
+      }
+    } catch (optErr) {
+      console.warn('Media upload auto-compression note:', optErr.message);
+    }
+  }
+
+  const isLarge = finalSize >= 15 * 1024 * 1024;
   if (isLarge) {
     const { db } = await connectToDatabase();
     const bucket = new GridFSBucket(db, { bucketName: 'media_files' });
     return new Promise((resolve, reject) => {
       const uploadStream = bucket.openUploadStream(filename, {
-        metadata: { mediaId, originalName, mimetype, size, createdAt: new Date() }
+        metadata: { mediaId, originalName, mimetype: finalMimetype, size: finalSize, createdAt: new Date() }
       });
       uploadStream.on('error', reject);
       uploadStream.on('finish', () => resolve({ id: uploadStream.id, gridfs: true }));
-      uploadStream.end(buffer);
+      uploadStream.end(finalBuffer);
     });
   } else {
     const mediaCol = await getCollection('media');
@@ -283,9 +311,9 @@ async function saveMediaToAtlas({ mediaId, filename, originalName, mimetype, buf
           mediaId,
           filename,
           originalName,
-          mimetype,
-          data: buffer,
-          size,
+          mimetype: finalMimetype,
+          data: finalBuffer,
+          size: finalSize,
           updatedAt: new Date()
         },
         $setOnInsert: { createdAt: new Date() }
@@ -362,6 +390,7 @@ app.get('/api/media/:id', async (req, res) => {
     // Check if directly available in assets/showcase on disk
     const diskPath = path.join(uploadDir, id);
     if (fs.existsSync(diskPath)) {
+      res.setHeader('Cache-Control', 'public, max-age=31536000, s-maxage=31536000, stale-while-revalidate=86400, immutable');
       return res.sendFile(diskPath);
     }
 
@@ -371,7 +400,7 @@ app.get('/api/media/:id', async (req, res) => {
     }
 
     res.setHeader('Content-Type', media.mimetype);
-    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    res.setHeader('Cache-Control', 'public, max-age=31536000, s-maxage=31536000, stale-while-revalidate=86400, immutable');
     return res.send(media.buffer);
   } catch (err) {
     console.error('Error serving media:', err);
