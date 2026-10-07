@@ -26,29 +26,19 @@
     <priority>0.8</priority>
   </url>
 
-  <!-- Selected Featured Case Studies -->
+  <!-- Published Real Showcase Case Study -->
   <url>
     <loc>https://kre8mind.com/project/proj_1788486163854</loc>
     <lastmod>2026-09-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
+
+  <!-- Published Real Journal Article -->
   <url>
-    <loc>https://kre8mind.com/project/proj_01</loc>
+    <loc>https://kre8mind.com/journal/post_1789073041581</loc>
     <lastmod>2026-09-14</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://kre8mind.com/project/proj_02</loc>
-    <lastmod>2026-09-14</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://kre8mind.com/project/proj_03</loc>
-    <lastmod>2026-09-14</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
   </url>
 </urlset>

@@ -171,7 +171,7 @@ app.get('/sitemap.xml', async (req, res) => {
     }
 
     // Baseline project guarantees
-    const defaultProjIds = ['proj_1788486163854', 'proj_01', 'proj_02', 'proj_03'];
+    const defaultProjIds = ['proj_1788486163854'];
     defaultProjIds.forEach(id => {
       if (!urlMap.has(`${baseUrl}/project/${id}`)) {
         urlMap.set(`${baseUrl}/project/${id}`, {
@@ -687,27 +687,6 @@ const FALLBACK_PROJECTS = [
     category: 'PROP-TECH',
     summary: 'Strategic Prop-Tech flagship platform redesign focusing on immersive property discovery, verified deal rooms, and transactional clarity.',
     image: '/assets/showcase/ave_cover_1788514443500.jpg'
-  },
-  {
-    id: 'proj_01',
-    title: 'Flowmetric',
-    category: 'PRODUCT DESIGN',
-    summary: 'Realtime quantitative trading and fintech analytics with ultra-low cognitive load data dashboards and instant order execution.',
-    image: '/assets/showcase/mockup-1.jpg'
-  },
-  {
-    id: 'proj_02',
-    title: 'Hospitality Health',
-    category: 'WEB PLATFORM',
-    summary: 'Healthcare patient intake and clinical workforce management platform redesigned for frictionless onboarding.',
-    image: '/assets/showcase/mockup-2.jpg'
-  },
-  {
-    id: 'proj_03',
-    title: 'SaaSify HQ',
-    category: 'SAAS / SYSTEM',
-    summary: 'B2B SaaS subscription billing and customer lifecycle command center.',
-    image: '/assets/showcase/mockup-3.jpg'
   }
 ];
 

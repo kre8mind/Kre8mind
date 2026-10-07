@@ -92,36 +92,6 @@
       "details": "",
       "status": "REVIEWED",
       "updatedAt": "2026-09-03T23:36:31.913Z"
-    },
-    {
-      "id": "req_1788477924476_5svi",
-      "createdAt": "2026-09-03T23:25:24.479Z",
-      "name": "Julian Hayes",
-      "email": "julian@hayes.io",
-      "company": "Hayes Design",
-      "serviceTier": "Design Audit",
-      "addons": [],
-      "budget": ",000 - ,000",
-      "timeline": "Standard",
-      "details": "Need a 2-week deep UX evaluation of our enterprise dashboard.",
-      "status": "CONTACTED",
-      "updatedAt": "2026-09-03T23:36:24.217Z"
-    },
-    {
-      "id": "req_demo_01",
-      "createdAt": "2026-09-03T23:19:00.125Z",
-      "name": "Marcus Vance",
-      "email": "marcus@vancecapital.com",
-      "company": "Vance Capital",
-      "serviceTier": "Full Product Design",
-      "addons": [
-        "Design System & Tokens",
-        "Web Development"
-      ],
-      "budget": "$10,000 - $15,000",
-      "timeline": "4-6 Weeks",
-      "details": "Need a complete overhaul of our investor platform UI and institutional design system.",
-      "status": "NEW"
     }
   ],
   "projects": [
@@ -147,102 +117,6 @@
           "type": "image",
           "url": "assets/showcase/ave_casestudy_1788514480021.jpg",
           "caption": "01 / Avenor Design Architecture & Layout Slices"
-        }
-      ]
-    },
-    {
-      "id": "proj_01",
-      "title": "FLOWMETRIC",
-      "category": "PRODUCT DESIGN",
-      "year": "2026",
-      "summary": "Realtime institutional trading interface and fintech analytics platform.",
-      "image": "assets/showcase/mockup-1.jpg",
-      "tags": [
-        "Trading UI",
-        "Fintech",
-        "Design Tokens"
-      ],
-      "order": 2,
-      "featured": true,
-      "createdAt": "2026-09-04T00:00:00.000Z",
-      "hasCaseStudy": true,
-      "caseStudySlices": [
-        {
-          "type": "image",
-          "url": "assets/showcase/mockup-1.jpg",
-          "caption": "01 / Trading Dashboard & Telemetry"
-        }
-      ]
-    },
-    {
-      "id": "proj_02",
-      "title": "HOSPITALITY HEALTH",
-      "category": "WEB PLATFORM",
-      "year": "2026",
-      "summary": "Clinical hospital management and patient onboarding web platform.",
-      "image": "assets/showcase/mockup-2.jpg",
-      "tags": [
-        "Healthcare",
-        "Web App",
-        "UX Architecture"
-      ],
-      "order": 3,
-      "featured": true,
-      "createdAt": "2026-09-04T00:00:00.000Z",
-      "hasCaseStudy": true,
-      "caseStudySlices": [
-        {
-          "type": "image",
-          "url": "assets/showcase/mockup-2.jpg",
-          "caption": "01 / Clinical Workflow Ergonomics"
-        }
-      ]
-    },
-    {
-      "id": "proj_03",
-      "title": "SAASIFY HQ",
-      "category": "SAAS / SYSTEM",
-      "year": "2026",
-      "summary": "B2B SaaS subscription billing and telemetry architecture.",
-      "image": "assets/showcase/mockup-3.jpg",
-      "tags": [
-        "B2B SaaS",
-        "Dashboard",
-        "Figma Tokens"
-      ],
-      "order": 4,
-      "featured": true,
-      "createdAt": "2026-09-04T00:00:00.000Z",
-      "hasCaseStudy": true,
-      "caseStudySlices": [
-        {
-          "type": "image",
-          "url": "assets/showcase/mockup-3.jpg",
-          "caption": "01 / SaaS Architecture & Components"
-        }
-      ]
-    },
-    {
-      "id": "proj_04",
-      "title": "AETHER LABS",
-      "category": "BRAND IDENTITY",
-      "year": "2025",
-      "summary": "Visual identity system and spatial digital design guidelines.",
-      "image": "assets/showcase/mockup.jpg",
-      "tags": [
-        "Brand Identity",
-        "Design System",
-        "Creative Direction"
-      ],
-      "order": 5,
-      "featured": false,
-      "createdAt": "2026-09-04T00:00:00.000Z",
-      "hasCaseStudy": true,
-      "caseStudySlices": [
-        {
-          "type": "image",
-          "url": "assets/showcase/mockup.jpg",
-          "caption": "01 / Visual Identity Guidelines"
         }
       ]
     }
