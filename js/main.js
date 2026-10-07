@@ -2591,7 +2591,23 @@ function checkDeepLinkProject() {
 /* --------------------------------------------------------------------------
    16. Dynamic Journal & Insights Loader, Editorial Reader Modal & Deep Links
    -------------------------------------------------------------------------- */
-let cachedJournalArticles = [];
+const JOURNAL_CACHE_KEY = 'kre8mind_cached_journal_v1';
+
+function getStoredJournal() {
+  try {
+    const raw = localStorage.getItem(JOURNAL_CACHE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {}
+  return [];
+}
+
+function setStoredJournal(list) {
+  try {
+    localStorage.setItem(JOURNAL_CACHE_KEY, JSON.stringify(list || []));
+  } catch {}
+}
+
+let cachedJournalArticles = getStoredJournal();
 let activeJournalArticle = null;
 
 function renderArticleContent(rawContent) {
@@ -3033,6 +3049,69 @@ function checkDeepLinkJournal() {
   }, 120);
 }
 
+function renderJournalArticles(articles, container) {
+  if (!container) return;
+
+  if (!articles || articles.length === 0) {
+    container.innerHTML = `
+      <div class="journal-empty-state-wrap">
+        <div class="journal-empty-box">
+          <span class="journal-water-badge">PUBLISHING SOON</span>
+          <h2 class="journal-empty-title">JOURNAL COMING SOON</h2>
+          <p class="journal-empty-desc" style="margin-bottom: 0;">
+            We are currently writing and curating our perspectives on interface clarity, user psychology, design systems, and modern digital engineering.
+          </p>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  // Render articles in editorial grid
+  container.innerHTML = `
+    <div class="journal-editorial-grid">
+      ${articles.map((art, idx) => `
+        <article class="journal-article-card" data-article-id="${escapeHtml(art.id)}" role="button" tabindex="0" aria-label="Read perspective: ${escapeHtml(art.title)}">
+          <div class="journal-card-anchor">
+            <div class="journal-cover-frame">
+              <span class="journal-badge-tag">${escapeHtml(art.category || 'DESIGN PHILOSOPHY')}</span>
+              <img src="${escapeHtml(art.image || 'assets/showcase/journal-1.jpg')}" alt="${escapeHtml(art.title)}" class="journal-cover-img" loading="lazy" onerror="this.src='assets/showcase/journal-1.jpg'" />
+            </div>
+            <div class="journal-card-content">
+              <div class="journal-meta-row">
+                <span>0${idx + 1} / ESSAY</span>
+                <span>${escapeHtml(art.date || '2026')} • ${escapeHtml(art.readTime || '5 MIN READ')}</span>
+              </div>
+              <h2 class="journal-card-title">${escapeHtml(art.title)}</h2>
+              <p class="journal-card-excerpt">${escapeHtml(art.snippet || (art.content ? art.content.substring(0, 150) + '...' : ''))}</p>
+              <div class="journal-read-more">
+                <span>Read Essay</span>
+                <span class="arrow">→</span>
+              </div>
+            </div>
+          </div>
+        </article>
+      `).join('')}
+    </div>
+  `;
+
+  // Bind Interactive Card Click & Keyboard triggers
+  const cards = container.querySelectorAll('.journal-article-card');
+  cards.forEach(card => {
+    const artId = card.getAttribute('data-article-id');
+    card.addEventListener('click', (e) => {
+      e.preventDefault();
+      window.openJournalArticle(artId);
+    });
+    card.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        window.openJournalArticle(artId);
+      }
+    });
+  });
+}
+
 async function initJournal() {
   initJournalReader();
 
@@ -3042,75 +3121,33 @@ async function initJournal() {
     return;
   }
 
+  // Render from localStorage cache immediately if available (0ms latency, no flash)
+  if (cachedJournalArticles && cachedJournalArticles.length > 0) {
+    renderJournalArticles(cachedJournalArticles, container);
+  }
+
   try {
     const res = await fetch(`${API_BASE}/api/journal`);
     if (!res.ok) return;
     const json = await res.json();
     const articles = json.data || json.articles || [];
+
+    const prevSig = (cachedJournalArticles || []).map(a => `${a.id}-${a.title}`).join('|');
+    const nextSig = (articles || []).map(a => `${a.id}-${a.title}`).join('|');
+
     cachedJournalArticles = articles;
+    setStoredJournal(articles);
 
-    if (!articles || articles.length === 0) {
-      container.innerHTML = `
-        <div class="journal-empty-state-wrap">
-          <div class="journal-empty-box">
-            <span class="journal-water-badge">PUBLISHING SOON</span>
-            <h2 class="journal-empty-title">JOURNAL COMING SOON</h2>
-            <p class="journal-empty-desc" style="margin-bottom: 0;">
-              We are currently writing and curating our perspectives on interface clarity, user psychology, design systems, and modern digital engineering.
-            </p>
-          </div>
-        </div>
-      `;
-      return;
+    if (prevSig !== nextSig || !prevSig) {
+      renderJournalArticles(articles, container);
     }
-
-    // Render articles in editorial grid
-    container.innerHTML = `
-      <div class="journal-editorial-grid">
-        ${articles.map((art, idx) => `
-          <article class="journal-article-card" data-article-id="${escapeHtml(art.id)}" role="button" tabindex="0" aria-label="Read perspective: ${escapeHtml(art.title)}">
-            <div class="journal-card-anchor">
-              <div class="journal-cover-frame">
-                <span class="journal-badge-tag">${escapeHtml(art.category || 'DESIGN PHILOSOPHY')}</span>
-                <img src="${escapeHtml(art.image || 'assets/showcase/journal-1.jpg')}" alt="${escapeHtml(art.title)}" class="journal-cover-img" loading="lazy" onerror="this.src='assets/showcase/journal-1.jpg'" />
-              </div>
-              <div class="journal-card-content">
-                <div class="journal-meta-row">
-                  <span>0${idx + 1} / ESSAY</span>
-                  <span>${escapeHtml(art.date || '2026')} • ${escapeHtml(art.readTime || '5 MIN READ')}</span>
-                </div>
-                <h2 class="journal-card-title">${escapeHtml(art.title)}</h2>
-                <p class="journal-card-excerpt">${escapeHtml(art.snippet || art.content.substring(0, 150) + '...')}</p>
-                <div class="journal-read-more">
-                  <span>Read Essay</span>
-                  <span class="arrow">→</span>
-                </div>
-              </div>
-            </div>
-          </article>
-        `).join('')}
-      </div>
-    `;
-
-    // Bind Interactive Card Click & Keyboard triggers
-    const cards = container.querySelectorAll('.journal-article-card');
-    cards.forEach(card => {
-      const artId = card.getAttribute('data-article-id');
-      card.addEventListener('click', (e) => {
-        e.preventDefault();
-        window.openJournalArticle(artId);
-      });
-      card.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          window.openJournalArticle(artId);
-        }
-      });
-    });
 
     checkDeepLinkJournal();
   } catch (err) {
     console.log('Error initializing journal:', err);
+    if (cachedJournalArticles && cachedJournalArticles.length > 0) {
+      renderJournalArticles(cachedJournalArticles, container);
+    }
   }
 }
 

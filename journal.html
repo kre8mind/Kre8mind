@@ -158,15 +158,28 @@
     <!-- LUXURY EDITORIAL ARTICLES / DYNAMIC JOURNAL -->
     <section class="journal-section">
       <div class="section-container" id="journalContainer">
-        <!-- Dynamically rendered via initJournal() in main.js -->
-        <div class="journal-empty-state-wrap">
-          <div class="journal-empty-box">
-            <span class="journal-water-badge">PUBLISHING SOON</span>
-            <h2 class="journal-empty-title">JOURNAL COMING SOON</h2>
-            <p class="journal-empty-desc">
-              We are currently writing and curating our perspectives on interface clarity, user psychology, design systems, and modern digital engineering.
-            </p>
-          </div>
+        <!-- Dynamically rendered via initJournal() in main.js, with fast static fallback -->
+        <div class="journal-editorial-grid">
+          <article class="journal-article-card" data-article-id="post_1789073041581" role="button" tabindex="0" aria-label="Read perspective: Ditching the 5-Step Process: The New Logic of FinTech Onboarding">
+            <div class="journal-card-anchor">
+              <div class="journal-cover-frame">
+                <span class="journal-badge-tag">ONBOARDING PHILOSOPHY</span>
+                <img src="/api/media/linkedin_post_1789073020999.jpg" alt="Ditching the 5-Step Process: The New Logic of FinTech Onboarding" class="journal-cover-img" loading="lazy" onerror="this.src='assets/showcase/journal-1.jpg'" />
+              </div>
+              <div class="journal-card-content">
+                <div class="journal-meta-row">
+                  <span>01 / ESSAY</span>
+                  <span>SEPTEMBER 2026 • 3 MIN READ</span>
+                </div>
+                <h2 class="journal-card-title">Ditching the 5-Step Process: The New Logic of FinTech Onboarding</h2>
+                <p class="journal-card-excerpt">There is a pattern we keep seeing in FinTech onboarding. You open the app for the first time and before you can do anything, you're taken through three, four, sometimes five screens explaining what the app does...</p>
+                <div class="journal-read-more">
+                  <span>Read Essay</span>
+                  <span class="arrow">→</span>
+                </div>
+              </div>
+            </div>
+          </article>
         </div>
       </div>
     </section>
