@@ -1,111 +1,17 @@
 {
-  "inquiries": [
-    {
-      "id": "req_1788482178795_o7od",
-      "createdAt": "2026-09-04T00:36:18.795Z",
-      "name": "Emmanuel Bliss Chukwuemeka",
-      "email": "blissstudio44@gmail.com",
-      "company": "",
-      "serviceTier": "APPLICATION REDESIGN",
-      "addons": [],
-      "budget": "Starting at $2,000",
-      "timeline": "Standard",
-      "details": "Client inquiry for APPLICATION REDESIGN (Starting at $2,000).",
-      "status": "COMPLETED",
-      "updatedAt": "2026-09-04T00:36:57.018Z"
-    },
-    {
-      "id": "req_1788480928533_0fbt",
-      "createdAt": "2026-09-04T00:15:28.533Z",
-      "name": "Cal.com Lead",
-      "email": "cal-booking@lead.com",
-      "company": "",
-      "serviceTier": "15-Min Strategy Call (Cal.com)",
-      "addons": [],
-      "budget": "N/A",
-      "timeline": "Standard",
-      "details": "User initiated Cal.com booking.",
-      "status": "NEW"
-    },
-    {
-      "id": "req_1788480902093_381e",
-      "createdAt": "2026-09-04T00:15:02.093Z",
-      "name": "Emmanuel Bliss Chukwuemeka",
-      "email": "blissstudio44@gmail.com",
-      "company": "",
-      "serviceTier": "APPLICATION REDESIGN",
-      "addons": [],
-      "budget": "Starting at $2,000",
-      "timeline": "Standard",
-      "details": "Client inquiry for APPLICATION REDESIGN (Starting at $2,000).",
-      "status": "NEW"
-    },
-    {
-      "id": "req_1788479978828_ayzj",
-      "createdAt": "2026-09-03T23:59:38.828Z",
-      "name": "Cal.com Lead",
-      "email": "cal-booking@lead.com",
-      "company": "",
-      "serviceTier": "15-Min Strategy Call (Cal.com)",
-      "addons": [],
-      "budget": "N/A",
-      "timeline": "Standard",
-      "details": "User initiated Cal.com booking.",
-      "status": "NEW"
-    },
-    {
-      "id": "req_1788479675910_3lii",
-      "createdAt": "2026-09-03T23:54:35.910Z",
-      "name": "Emmanuel Bliss Chukwuemeka",
-      "email": "blissstudio44@gmail.com",
-      "company": "",
-      "serviceTier": "APPLICATION REDESIGN",
-      "addons": [],
-      "budget": "$2,000",
-      "timeline": "Standard",
-      "details": "Client requested APPLICATION REDESIGN ($2,000).",
-      "status": "NEW"
-    },
-    {
-      "id": "req_1788479156411_yrd0",
-      "createdAt": "2026-09-03T23:45:56.411Z",
-      "name": "Emmanuel Bliss Chukwuemeka",
-      "email": "blissstudio44@gmail.com",
-      "company": "",
-      "serviceTier": "APPLICATION REDESIGN",
-      "addons": [],
-      "budget": "$2,000",
-      "timeline": "Standard",
-      "details": "Client requested APPLICATION REDESIGN ($2,000).",
-      "status": "NEW"
-    },
-    {
-      "id": "req_1788478521062_fl6x",
-      "createdAt": "2026-09-03T23:35:21.062Z",
-      "name": "Emmanuel Bliss Chukwuemeka",
-      "email": "blissstudio44@gmail.com",
-      "company": "Freelancer",
-      "serviceTier": "APPLICATION REDESIGN",
-      "addons": [],
-      "budget": "$2,000 - $5,000",
-      "timeline": "Standard (3-5 Weeks)",
-      "details": "",
-      "status": "REVIEWED",
-      "updatedAt": "2026-09-03T23:36:31.913Z"
-    }
-  ],
   "projects": [
     {
+      "_id": "6a9c1dba311e0ec043be6998",
       "id": "proj_1788486163854",
       "title": "Avenor",
       "category": "PROP-TECH",
-      "year": "2026",
-      "summary": "A high-conversion real estate flagship landing page redesign engineered for spatial clarity.",
+      "year": "1 Week",
+      "summary": "Real Estate Landing page redesign",
       "image": "assets/showcase/ave_cover_1788514443500.jpg",
       "tags": [
         "Landing Page",
         "PropTech",
-        "Design System"
+        "Dev"
       ],
       "order": 1,
       "featured": true,
@@ -118,1073 +24,295 @@
           "url": "assets/showcase/ave_casestudy_1788514480021.jpg",
           "caption": "01 / Avenor Design Architecture & Layout Slices"
         }
-      ]
+      ],
+      "skills": "Landing Page · PropTech · Dev",
+      "timeline": "1 Week",
+      "link": "https://avenorhome.vercel.app"
+    },
+    {
+      "_id": "6a9ddc826b663a4556e3993a",
+      "id": "proj_1788730498860",
+      "title": "WYSA",
+      "category": "Healthcare",
+      "year": "1 Day",
+      "summary": "A redesign of a mental health product chat flow focused on improving clarity, emotional comfort",
+      "layout": "16:9 Standard",
+      "image": "/api/media/wysa_cover_1788730118994.webp",
+      "tags": [
+        "UX Redesign",
+        "Mobile App"
+      ],
+      "order": 2,
+      "featured": true,
+      "hasCaseStudy": true,
+      "caseStudySlices": [
+        {
+          "type": "image",
+          "url": "/api/media/wysa_casestudy_1788732147564.jpg",
+          "caption": "wysa casestudy"
+        }
+      ],
+      "createdAt": "2026-09-06T21:34:58.860Z",
+      "skills": "UX Redesign, Mobile App",
+      "timeline": "1 Day"
+    },
+    {
+      "_id": "6a9e0417a2194311722366dc",
+      "id": "proj_1788740631023",
+      "title": "Wage Stream",
+      "category": "Fintech",
+      "timeline": "2 Days",
+      "skills": "Onboarding Redesign, Mobile App,",
+      "link": "",
+      "year": "2 Days",
+      "summary": "Concept Onboarding Redesign of Wagestream flow",
+      "layout": "16:9 Standard",
+      "image": "/api/media/stream_cover_1788738628332.jpg",
+      "tags": [
+        "Onboarding Redesign",
+        "Mobile App"
+      ],
+      "order": 5,
+      "featured": true,
+      "hasCaseStudy": true,
+      "caseStudySlices": [
+        {
+          "type": "image",
+          "url": "/api/media/wagwage_1788740552541.jpg",
+          "caption": "wagwage"
+        }
+      ],
+      "createdAt": "2026-09-07T00:23:51.023Z"
+    },
+    {
+      "_id": "6a9e04dda2194311722366dd",
+      "id": "proj_1788740829980",
+      "title": "Riki-AI",
+      "category": "SAAS",
+      "timeline": "6 Days",
+      "skills": "Landing Page, UI/UX Design",
+      "link": "",
+      "year": "6 Days",
+      "summary": "A Saas Landing page design",
+      "layout": "16:9 Standard",
+      "image": "/api/media/riki_cover_1788740744190.jpg",
+      "tags": [
+        "Landing Page",
+        "UI/UX Design"
+      ],
+      "order": 4,
+      "featured": true,
+      "hasCaseStudy": true,
+      "caseStudySlices": [
+        {
+          "type": "image",
+          "url": "/api/media/riki_1788740804648.jpg",
+          "caption": "riki"
+        }
+      ],
+      "createdAt": "2026-09-07T00:27:09.980Z"
+    },
+    {
+      "_id": "6a9e0a47bab0822611cf8fb6",
+      "id": "proj_1788742215992",
+      "title": "HEALTH IN TECH",
+      "category": "HealthTech",
+      "timeline": "5 Days",
+      "skills": "Web Redesign, UX Design",
+      "link": "",
+      "year": "5 Days",
+      "summary": "A concept redesign of health in tech home page showing how redesign can detail a company more",
+      "layout": "16:9 Standard",
+      "image": "/api/media/project_height_1788742190809.jpg",
+      "tags": [
+        "Web Redesign",
+        "UX Design"
+      ],
+      "order": 6,
+      "featured": false,
+      "hasCaseStudy": true,
+      "caseStudySlices": [
+        {
+          "type": "image",
+          "url": "/api/media/hit_case_1788742194651.jpg",
+          "caption": "hit case"
+        }
+      ],
+      "createdAt": "2026-09-07T00:50:15.992Z"
+    },
+    {
+      "_id": "6a9e0b76bab0822611cf8fb7",
+      "id": "proj_1788742518634",
+      "title": "DR Sarah",
+      "category": "Healthcare",
+      "timeline": "1 Week",
+      "skills": "Personal Website, UI/UX, Dev",
+      "link": "https://dr-sarah-khan.vercel.app/",
+      "year": "1 Week",
+      "summary": "Personal website designed and develop for a doctor",
+      "layout": "16:9 Standard",
+      "image": "/api/media/dr_potfolio_cover_1788742484752.jpg",
+      "tags": [
+        "Personal Website",
+        "UI/UX",
+        "Dev"
+      ],
+      "order": 7,
+      "featured": false,
+      "hasCaseStudy": true,
+      "caseStudySlices": [
+        {
+          "type": "image",
+          "url": "/api/media/full_case_study_for_dr_1788742512123.jpg",
+          "caption": "full case study for DR"
+        }
+      ],
+      "createdAt": "2026-09-07T00:55:18.634Z"
+    },
+    {
+      "_id": "6a9e0cc4bab0822611cf8fb8",
+      "id": "proj_1788742852428",
+      "title": "Wayve",
+      "category": "LifeStyle",
+      "timeline": "1 Day",
+      "skills": "App Screenshot, UX Design, Mobile App",
+      "link": "https://play.google.com/store/apps/details?id=com.wayve",
+      "year": "1 Day",
+      "summary": "We redesign a goal tracking app store screenshot, making it clear and improving the first impression",
+      "layout": "16:9 Standard",
+      "image": "/api/media/wayve_cover_1788742703358.jpg",
+      "tags": [
+        "App Screenshot",
+        "UX Design",
+        "Mobile App"
+      ],
+      "order": 3,
+      "featured": true,
+      "hasCaseStudy": true,
+      "caseStudySlices": [
+        {
+          "type": "image",
+          "url": "/api/media/wayve_app_ss_casestudy_1788742810341.jpg",
+          "caption": "wayve app ss casestudy"
+        }
+      ],
+      "createdAt": "2026-09-07T01:00:52.428Z"
     }
   ],
   "journal": [
     {
+      "_id": "6aa31691faae7a734dd66c8e",
       "id": "post_1789073041581",
       "title": "Ditching the 5-Step Process: The New Logic of FinTech Onboarding",
       "category": "ONBOARDING PHILOSOPHY",
       "readTime": "3 MIN READ",
       "date": "SEPTEMBER 2026",
       "image": "/api/media/linkedin_post_1789073020999.jpg",
-      "snippet": "There is a pattern we keep seeing in FinTech onboarding. You open the app for the first time and before you can do anything, you're taken through three, four, sometimes five screens explaining what the app does...",
+      "snippet": "There is a pattern we keep seeing in FinTech onboarding. You open the app for the first time and before you can do anything, you're taken through three, four, s...",
       "content": "There is a pattern we keep seeing in FinTech onboarding. You open the app for the first time and before you can do anything, you're taken through three, four, sometimes five screens explaining what the app does.\n\nThere's usually an illustration on each screen. A few lines of copy. A button that says “Next.” Then another screen. And another.\n\nIt makes sense on paper. The product wants to introduce itself before asking the user to trust it with their money.\n\nBut that is exactly where the problem starts.\n\nPeople don't open a financial app because they want to learn how the app works. They open it because they already have something they want to do. Send money. Pay a bill. Create an account. Check their balance.\n\nThe longer onboarding stands between them and that action, the more unnecessary work we're asking them to do.\n\nFor a FinTech product, the first screen should do less explaining and more reassuring.\n\nThat's one reason we took a different approach with JutPay. Instead of another collection of financial illustrations, we used real imagery and a much simpler message: “Your Money Stays Protected.”\n\nThe choice was deliberate. A real person creates a different feeling from a cartoon vault or a floating coin. It gives the product some humanity while making the experience feel more grounded and mature.\n\nAnd the copy doesn't try to explain everything. It answers one of the first questions a user is likely to have: *Can I trust this with my money?*\n\nThe rest can come later.\n\nThis doesn't mean onboarding has to disappear completely. It means we should stop treating the number of onboarding screens as a requirement.\n\nIf one screen can establish the value, create confidence and give the user a clear next step, why make them swipe through five?\n\nGood onboarding isn't about showing users everything before they start. It's about giving them enough confidence to start.\n\nFor FinTech, that distinction matters. The product is asking for something more valuable than attention. It's asking for trust.\n\nAnd trust is probably not something you should make people swipe five times to find.",
       "createdAt": "2026-09-10T20:44:01.581Z"
     }
   ],
-  "settings": {
-    "adminPasswordHash": "kre8mind2026",
-    "contactEmail": "hello@kre8mind.com",
-    "notificationsEnabled": true,
-    "adminPassword": "kre8mind2026"
-  },
-  "analytics": [
-    {
-      "id": "v_1788585151908_n1m5i",
-      "visitorId": "f05153d1c977",
-      "path": "project/proj_1788486163854",
-      "referrer": "Direct",
-      "device": "Desktop",
-      "createdAt": "2026-09-05T05:12:31.909Z"
-    },
-    {
-      "id": "v_1788578003463_rdl0j",
-      "visitorId": "f05153d1c977",
-      "path": "projects",
-      "referrer": "Direct",
-      "device": "Desktop",
-      "createdAt": "2026-09-05T03:13:23.473Z"
-    },
-    {
-      "id": "v_1788568846051_2433j",
-      "visitorId": "f05153d1c977",
-      "path": "home",
-      "referrer": "Direct",
-      "device": "Desktop",
-      "createdAt": "2026-09-05T00:40:46.052Z"
-    },
-    {
-      "id": "v_1788566711865_u8421",
-      "visitorId": "f05153d1c977",
-      "path": "home",
-      "referrer": "Direct",
-      "device": "Mobile",
-      "createdAt": "2026-09-05T00:05:11.866Z"
-    },
-    {
-      "id": "v_1788566405990_fzrh0",
-      "visitorId": "f05153d1c977",
-      "path": "home",
-      "referrer": "Direct",
-      "device": "Mobile",
-      "createdAt": "2026-09-05T00:00:05.991Z"
-    },
-    {
-      "id": "v_1788565991190_74ebw",
-      "visitorId": "f05153d1c977",
-      "path": "home",
-      "referrer": "Direct",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T23:53:11.191Z"
-    },
-    {
-      "id": "v_1788563593159_pxmv1",
-      "visitorId": "f05153d1c977",
-      "path": "home",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T23:13:13.159Z"
-    },
-    {
-      "id": "v_1788562711893_6p8ia",
-      "visitorId": "f05153d1c977",
-      "path": "home",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T22:58:32.019Z"
-    },
-    {
-      "id": "v_1788561891811_45sx0",
-      "visitorId": "f05153d1c977",
-      "path": "home",
-      "referrer": "Direct",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T22:44:51.814Z"
-    },
-    {
-      "id": "v_1788560313583_eixl3",
-      "visitorId": "f05153d1c977",
-      "path": "home",
-      "referrer": "Direct",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T22:18:33.584Z"
-    },
-    {
-      "id": "v_1788553856025_vmfso",
-      "visitorId": "f05153d1c977",
-      "path": "home",
-      "referrer": "Direct",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T20:30:56.026Z"
-    },
-    {
-      "id": "v_1788553565464_qfk7t",
-      "visitorId": "f05153d1c977",
-      "path": "home",
-      "referrer": "Direct",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T20:26:05.465Z"
-    },
-    {
-      "id": "v_1788553228623_oke87",
-      "visitorId": "f05153d1c977",
-      "path": "home",
-      "referrer": "Direct",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T20:20:28.624Z"
-    },
-    {
-      "id": "v_1788546802462_mf9xm",
-      "visitorId": "f05153d1c977",
-      "path": "index.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T18:33:22.463Z"
-    },
-    {
-      "id": "v_1788546147521_hjn57",
-      "visitorId": "f05153d1c977",
-      "path": "index.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T18:22:27.531Z"
-    },
-    {
-      "id": "v_1788522393717_xhu8j",
-      "visitorId": "f05153d1c977",
-      "path": "index.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T11:46:33.717Z"
-    },
-    {
-      "id": "v_1788522324910_75wqf",
-      "visitorId": "f05153d1c977",
-      "path": "journal.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T11:45:24.911Z"
-    },
-    {
-      "id": "v_1788522177161_al0tv",
-      "visitorId": "f05153d1c977",
-      "path": "index.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T11:42:57.161Z"
-    },
-    {
-      "id": "v_1788521907994_98lug",
-      "visitorId": "f05153d1c977",
-      "path": "index.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T11:38:27.994Z"
-    },
-    {
-      "id": "v_1788521884934_kpurb",
-      "visitorId": "f05153d1c977",
-      "path": "projects.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T11:38:04.934Z"
-    },
-    {
-      "id": "v_1788521878075_k80kw",
-      "visitorId": "f05153d1c977",
-      "path": "projects.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T11:37:58.083Z"
-    },
-    {
-      "id": "v_1788521456959_92muo",
-      "visitorId": "f05153d1c977",
-      "path": "services.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T11:30:56.969Z"
-    },
-    {
-      "id": "v_1788521409061_hb07c",
-      "visitorId": "f05153d1c977",
-      "path": "index.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T11:30:09.067Z"
-    },
-    {
-      "id": "v_1788520531714_4tajs",
-      "visitorId": "f05153d1c977",
-      "path": "projects.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T11:15:31.714Z"
-    },
-    {
-      "id": "v_1788520518051_6d53t",
-      "visitorId": "f05153d1c977",
-      "path": "projects.html",
-      "referrer": "Direct",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T11:15:18.051Z"
-    },
-    {
-      "id": "v_1788520480446_dwt2x",
-      "visitorId": "f05153d1c977",
-      "path": "index.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T11:14:40.446Z"
-    },
-    {
-      "id": "v_1788520394340_3hcdr",
-      "visitorId": "f05153d1c977",
-      "path": "services.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T11:13:14.342Z"
-    },
-    {
-      "id": "v_1788519818403_0la8b",
-      "visitorId": "f05153d1c977",
-      "path": "services.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T11:03:38.405Z"
-    },
-    {
-      "id": "v_1788519663446_oazpr",
-      "visitorId": "f05153d1c977",
-      "path": "services.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T11:01:03.446Z"
-    },
-    {
-      "id": "v_1788519657012_o83gq",
-      "visitorId": "f05153d1c977",
-      "path": "services.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T11:00:57.013Z"
-    },
-    {
-      "id": "v_1788519604918_umcwv",
-      "visitorId": "f05153d1c977",
-      "path": "index.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T11:00:04.919Z"
-    },
-    {
-      "id": "v_1788519396893_o3pfh",
-      "visitorId": "f05153d1c977",
-      "path": "index.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T10:56:36.893Z"
-    },
-    {
-      "id": "v_1788519312439_tslvd",
-      "visitorId": "f05153d1c977",
-      "path": "projects.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T10:55:12.439Z"
-    },
-    {
-      "id": "v_1788519249657_surq2",
-      "visitorId": "f05153d1c977",
-      "path": "services.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T10:54:09.657Z"
-    },
-    {
-      "id": "v_1788519182403_liq8q",
-      "visitorId": "f05153d1c977",
-      "path": "index.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T10:53:02.404Z"
-    },
-    {
-      "id": "v_1788518971029_25ev3",
-      "visitorId": "f05153d1c977",
-      "path": "index.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T10:49:31.029Z"
-    },
-    {
-      "id": "v_1788518912215_2endo",
-      "visitorId": "f05153d1c977",
-      "path": "index.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T10:48:32.215Z"
-    },
-    {
-      "id": "v_1788518905389_ostnt",
-      "visitorId": "f05153d1c977",
-      "path": "index.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T10:48:25.404Z"
-    },
-    {
-      "id": "v_1788518631662_jhzfb",
-      "visitorId": "f05153d1c977",
-      "path": "index.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T10:43:51.662Z"
-    },
-    {
-      "id": "v_1788518627373_jqtkb",
-      "visitorId": "f05153d1c977",
-      "path": "services.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T10:43:47.374Z"
-    },
-    {
-      "id": "v_1788518624215_0hs3n",
-      "visitorId": "f05153d1c977",
-      "path": "services.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T10:43:44.215Z"
-    },
-    {
-      "id": "v_1788518586791_w1kdv",
-      "visitorId": "f05153d1c977",
-      "path": "index.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T10:43:06.838Z"
-    },
-    {
-      "id": "v_1788518255842_p9p76",
-      "visitorId": "f05153d1c977",
-      "path": "index.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T10:37:35.847Z"
-    },
-    {
-      "id": "v_1788517783444_1d1wg",
-      "visitorId": "f05153d1c977",
-      "path": "projects.html",
-      "referrer": "Direct",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T10:29:43.444Z"
-    },
-    {
-      "id": "v_1788517683761_y2g2c",
-      "visitorId": "f05153d1c977",
-      "path": "index.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T10:28:03.761Z"
-    },
-    {
-      "id": "v_1788517131166_70gf0",
-      "visitorId": "f05153d1c977",
-      "path": "index.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T10:18:51.166Z"
-    },
-    {
-      "id": "v_1788517127294_slz5h",
-      "visitorId": "f05153d1c977",
-      "path": "services.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T10:18:47.300Z"
-    },
-    {
-      "id": "v_1788516517272_2419t",
-      "visitorId": "f05153d1c977",
-      "path": "projects.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T10:08:37.272Z"
-    },
-    {
-      "id": "v_1788516416125_0m5ot",
-      "visitorId": "f05153d1c977",
-      "path": "index.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T10:06:56.125Z"
-    },
-    {
-      "id": "v_1788516413493_fni45",
-      "visitorId": "f05153d1c977",
-      "path": "projects.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T10:06:53.496Z"
-    },
-    {
-      "id": "v_1788515841453_brk3b",
-      "visitorId": "f05153d1c977",
-      "path": "projects.html",
-      "referrer": "Direct",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T09:57:21.453Z"
-    },
-    {
-      "id": "v_1788515840464_e2p5v",
-      "visitorId": "f05153d1c977",
-      "path": "projects.html",
-      "referrer": "Direct",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T09:57:20.464Z"
-    },
-    {
-      "id": "v_1788515839634_vglez",
-      "visitorId": "f05153d1c977",
-      "path": "projects.html",
-      "referrer": "Direct",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T09:57:19.634Z"
-    },
-    {
-      "id": "v_1788515838518_kk165",
-      "visitorId": "f05153d1c977",
-      "path": "projects.html",
-      "referrer": "Direct",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T09:57:18.518Z"
-    },
-    {
-      "id": "v_1788515824496_g7z3v",
-      "visitorId": "f05153d1c977",
-      "path": "projects.html",
-      "referrer": "Direct",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T09:57:04.496Z"
-    },
-    {
-      "id": "v_1788515252900_k2go3",
-      "visitorId": "f05153d1c977",
-      "path": "index.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T09:47:32.901Z"
-    },
-    {
-      "id": "v_1788515245091_5dz72",
-      "visitorId": "f05153d1c977",
-      "path": "services.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T09:47:25.094Z"
-    },
-    {
-      "id": "v_1788515109877_xpcdq",
-      "visitorId": "f05153d1c977",
-      "path": "projects.html",
-      "referrer": "Direct",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T09:45:09.877Z"
-    },
-    {
-      "id": "v_1788514528043_flhdh",
-      "visitorId": "f05153d1c977",
-      "path": "projects.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T09:35:28.043Z"
-    },
-    {
-      "id": "v_1788514523064_9aeld",
-      "visitorId": "f05153d1c977",
-      "path": "index.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T09:35:23.064Z"
-    },
-    {
-      "id": "v_1788514515873_lvz6f",
-      "visitorId": "f05153d1c977",
-      "path": "index.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T09:35:15.876Z"
-    },
-    {
-      "id": "v_1788514389662_473bg",
-      "visitorId": "f05153d1c977",
-      "path": "index.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T09:33:09.662Z"
-    },
-    {
-      "id": "v_1788514384009_n60hn",
-      "visitorId": "f05153d1c977",
-      "path": "projects.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T09:33:04.033Z"
-    },
-    {
-      "id": "v_1788514362041_9r0i0",
-      "visitorId": "f05153d1c977",
-      "path": "projects.html",
-      "referrer": "Direct",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T09:32:42.042Z"
-    },
-    {
-      "id": "v_1788499130921_5au9q",
-      "visitorId": "f05153d1c977",
-      "path": "projects.html",
-      "referrer": "Direct",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T05:18:50.921Z"
-    },
-    {
-      "id": "v_1788496372822_rcwfg",
-      "visitorId": "f05153d1c977",
-      "path": "index.html",
-      "referrer": "Direct",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T04:32:52.822Z"
-    },
-    {
-      "id": "v_1788496356412_1ar8p",
-      "visitorId": "f05153d1c977",
-      "path": "projects.html",
-      "referrer": "Direct",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T04:32:36.412Z"
-    },
-    {
-      "id": "v_1788496189260_73t4r",
-      "visitorId": "f05153d1c977",
-      "path": "projects.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T04:29:49.284Z"
-    },
-    {
-      "id": "v_1788496115209_zs3kn",
-      "visitorId": "f05153d1c977",
-      "path": "projects.html",
-      "referrer": "Direct",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T04:28:35.209Z"
-    },
-    {
-      "id": "v_1788496070650_zsbum",
-      "visitorId": "f05153d1c977",
-      "path": "index.html",
-      "referrer": "Direct",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T04:27:50.650Z"
-    },
-    {
-      "id": "v_1788496013886_z5rm7",
-      "visitorId": "f05153d1c977",
-      "path": "projects.html",
-      "referrer": "Direct",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T04:26:53.886Z"
-    },
-    {
-      "id": "v_1788495927703_3nmsb",
-      "visitorId": "f05153d1c977",
-      "path": "index.html",
-      "referrer": "Direct",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T04:25:27.703Z"
-    },
-    {
-      "id": "v_1788495110454_y0fyt",
-      "visitorId": "f05153d1c977",
-      "path": "projects.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T04:11:50.454Z"
-    },
-    {
-      "id": "v_1788495100319_g4051",
-      "visitorId": "f05153d1c977",
-      "path": "index.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T04:11:40.319Z"
-    },
-    {
-      "id": "v_1788495091233_jejor",
-      "visitorId": "f05153d1c977",
-      "path": "index.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T04:11:31.234Z"
-    },
-    {
-      "id": "v_1788495086546_v85e2",
-      "visitorId": "f05153d1c977",
-      "path": "projects.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T04:11:26.546Z"
-    },
-    {
-      "id": "v_1788495083640_57i9z",
-      "visitorId": "f05153d1c977",
-      "path": "projects.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T04:11:23.653Z"
-    },
-    {
-      "id": "v_1788494296355_o7joc",
-      "visitorId": "f05153d1c977",
-      "path": "projects.html",
-      "referrer": "Direct",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T03:58:16.356Z"
-    },
-    {
-      "id": "v_1788493977966_ze1sa",
-      "visitorId": "f05153d1c977",
-      "path": "index.html",
-      "referrer": "Direct",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T03:52:57.966Z"
-    },
-    {
-      "id": "v_1788493573748_plyoc",
-      "visitorId": "f05153d1c977",
-      "path": "projects.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T03:46:13.748Z"
-    },
-    {
-      "id": "v_1788493571906_q4lfm",
-      "visitorId": "f05153d1c977",
-      "path": "services.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T03:46:11.906Z"
-    },
-    {
-      "id": "v_1788493131727_fb7pq",
-      "visitorId": "f05153d1c977",
-      "path": "services.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T03:38:51.727Z"
-    },
-    {
-      "id": "v_1788493021338_gdbvb",
-      "visitorId": "f05153d1c977",
-      "path": "index.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T03:37:01.338Z"
-    },
-    {
-      "id": "v_1788492976701_4bsep",
-      "visitorId": "f05153d1c977",
-      "path": "journal.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T03:36:16.701Z"
-    },
-    {
-      "id": "v_1788492921904_1f671",
-      "visitorId": "f05153d1c977",
-      "path": "journal.html",
-      "referrer": "Direct",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T03:35:21.904Z"
-    },
-    {
-      "id": "v_1788492823682_zeg9j",
-      "visitorId": "f05153d1c977",
-      "path": "index.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T03:33:43.682Z"
-    },
-    {
-      "id": "v_1788492739505_ujmg2",
-      "visitorId": "f05153d1c977",
-      "path": "journal.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T03:32:19.505Z"
-    },
-    {
-      "id": "v_1788492733736_13dxg",
-      "visitorId": "f05153d1c977",
-      "path": "projects.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T03:32:13.736Z"
-    },
-    {
-      "id": "v_1788492727435_9l0h7",
-      "visitorId": "f05153d1c977",
-      "path": "projects.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T03:32:07.438Z"
-    },
-    {
-      "id": "v_1788492182329_4pn6q",
-      "visitorId": "f05153d1c977",
-      "path": "journal.html",
-      "referrer": "Direct",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T03:23:02.329Z"
-    },
-    {
-      "id": "v_1788491932185_2xhhx",
-      "visitorId": "f05153d1c977",
-      "path": "journal.html",
-      "referrer": "Direct",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T03:18:52.185Z"
-    },
-    {
-      "id": "v_1788491839950_zgibd",
-      "visitorId": "f05153d1c977",
-      "path": "journal.html",
-      "referrer": "Direct",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T03:17:19.950Z"
-    },
-    {
-      "id": "v_1788491532322_awxse",
-      "visitorId": "f05153d1c977",
-      "path": "projects.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T03:12:12.322Z"
-    },
-    {
-      "id": "v_1788491503501_z3aph",
-      "visitorId": "f05153d1c977",
-      "path": "journal.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T03:11:43.501Z"
-    },
-    {
-      "id": "v_1788491489581_iw7rb",
-      "visitorId": "f05153d1c977",
-      "path": "index.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T03:11:29.581Z"
-    },
-    {
-      "id": "v_1788491483557_3mdpm",
-      "visitorId": "f05153d1c977",
-      "path": "projects.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T03:11:23.557Z"
-    },
-    {
-      "id": "v_1788491480536_j89s6",
-      "visitorId": "f05153d1c977",
-      "path": "services.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T03:11:20.536Z"
-    },
-    {
-      "id": "v_1788491476838_tr62y",
-      "visitorId": "f05153d1c977",
-      "path": "journal.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T03:11:16.839Z"
-    },
-    {
-      "id": "v_1788491214431_0kij7",
-      "visitorId": "f05153d1c977",
-      "path": "projects.html",
-      "referrer": "Direct",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T03:06:54.431Z"
-    },
-    {
-      "id": "v_1788491171545_586j1",
-      "visitorId": "f05153d1c977",
-      "path": "journal.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T03:06:11.545Z"
-    },
-    {
-      "id": "v_1788491164552_82ums",
-      "visitorId": "f05153d1c977",
-      "path": "projects.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T03:06:04.552Z"
-    },
-    {
-      "id": "v_1788491162325_ss9ad",
-      "visitorId": "f05153d1c977",
-      "path": "services.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T03:06:02.325Z"
-    },
-    {
-      "id": "v_1788491153143_p5hl6",
-      "visitorId": "f05153d1c977",
-      "path": "journal.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T03:05:53.143Z"
-    },
-    {
-      "id": "v_1788491147658_c2yxb",
-      "visitorId": "f05153d1c977",
-      "path": "projects.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T03:05:47.658Z"
-    },
-    {
-      "id": "v_1788491142904_yeqn8",
-      "visitorId": "f05153d1c977",
-      "path": "projects.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T03:05:42.904Z"
-    },
-    {
-      "id": "v_1788491101482_8ewab",
-      "visitorId": "f05153d1c977",
-      "path": "services.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T03:05:01.482Z"
-    },
-    {
-      "id": "v_1788491098158_dolzm",
-      "visitorId": "f05153d1c977",
-      "path": "index.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T03:04:58.158Z"
-    },
-    {
-      "id": "v_1788491089846_j7o7w",
-      "visitorId": "f05153d1c977",
-      "path": "projects.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T03:04:49.846Z"
-    },
-    {
-      "id": "v_1788491084292_4qcyc",
-      "visitorId": "f05153d1c977",
-      "path": "index.html",
-      "referrer": "Direct",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T03:04:44.292Z"
-    },
-    {
-      "id": "v_1788491076799_s5q7l",
-      "visitorId": "f05153d1c977",
-      "path": "index.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T03:04:36.799Z"
-    },
-    {
-      "id": "v_1788491044462_cq5o6",
-      "visitorId": "f05153d1c977",
-      "path": "index.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T03:04:04.468Z"
-    },
-    {
-      "id": "v_1788490594307_fmqmj",
-      "visitorId": "f05153d1c977",
-      "path": "index.html",
-      "referrer": "Direct",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T02:56:34.307Z"
-    },
-    {
-      "id": "v_1788490551594_dumj0",
-      "visitorId": "f05153d1c977",
-      "path": "index.html",
-      "referrer": "Direct",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T02:55:51.594Z"
-    },
-    {
-      "id": "v_1788490542674_tiaiv",
-      "visitorId": "f05153d1c977",
-      "path": "index.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T02:55:42.674Z"
-    },
-    {
-      "id": "v_1788490505984_g3r2p",
-      "visitorId": "f05153d1c977",
-      "path": "projects.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T02:55:05.984Z"
-    },
-    {
-      "id": "v_1788489415052_v8i5z",
-      "visitorId": "f05153d1c977",
-      "path": "projects.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T02:36:55.052Z"
-    },
-    {
-      "id": "v_1788489410923_sthnm",
-      "visitorId": "f05153d1c977",
-      "path": "index.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T02:36:50.924Z"
-    },
-    {
-      "id": "v_1788488662125_bfp5a",
-      "visitorId": "f05153d1c977",
-      "path": "journal.html",
-      "referrer": "Direct",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T02:24:22.126Z"
-    },
-    {
-      "id": "v_1788487721304_3po8j",
-      "visitorId": "f05153d1c977",
-      "path": "journal.html",
-      "referrer": "Direct",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T02:08:41.304Z"
-    },
-    {
-      "id": "v_1788487413685_s7cm0",
-      "visitorId": "f05153d1c977",
-      "path": "services.html",
-      "referrer": "Direct",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T02:03:33.685Z"
-    },
-    {
-      "id": "v_1788486660972_edmp6",
-      "visitorId": "f05153d1c977",
-      "path": "projects.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T01:51:00.972Z"
-    },
-    {
-      "id": "v_1788486638329_wlzzp",
-      "visitorId": "f05153d1c977",
-      "path": "index.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T01:50:38.347Z"
-    },
-    {
-      "id": "v_1788486503086_714gp",
-      "visitorId": "f05153d1c977",
-      "path": "journal.html",
-      "referrer": "Direct",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T01:48:23.087Z"
-    },
-    {
-      "id": "v_1788485530428_kkxh4",
-      "visitorId": "f05153d1c977",
-      "path": "journal.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T01:32:10.428Z"
-    },
-    {
-      "id": "v_1788485519973_77x3o",
-      "visitorId": "f05153d1c977",
-      "path": "projects.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T01:31:59.973Z"
-    },
-    {
-      "id": "v_1788485441534_rrsks",
-      "visitorId": "f05153d1c977",
-      "path": "services.html",
-      "referrer": "localhost",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T01:30:41.535Z"
-    },
-    {
-      "id": "v_1788485269483_8b6nk",
-      "visitorId": "f05153d1c977",
-      "path": "index.html",
-      "referrer": "Direct",
-      "device": "Desktop",
-      "createdAt": "2026-09-04T01:27:49.483Z"
+  "inquiries": [
+    {
+      "_id": "6ab644243c5ce2354d5b48c3",
+      "id": "req_1790329892996_38ev",
+      "createdAt": "2026-09-25T09:51:32.996Z",
+      "name": "Cal.com Client",
+      "email": "client@cal.com",
+      "company": "",
+      "serviceTier": "Project Discovery Call (Cal.com)",
+      "addons": [],
+      "budget": "N/A",
+      "timeline": "Standard",
+      "details": "Cal.com meeting scheduled for Upcoming Date",
+      "status": "BOOKED_CALL",
+      "updatedAt": "2026-09-29T21:12:26.659Z"
+    },
+    {
+      "_id": "6abd17c3f84673b2855bcbbe",
+      "id": "req_1790777283500_58ha",
+      "createdAt": "2026-09-30T14:08:03.500Z",
+      "name": "Cal.com Client",
+      "email": "client@cal.com",
+      "company": "",
+      "serviceTier": "Project Discovery Call (Cal.com)",
+      "addons": [],
+      "budget": "N/A",
+      "timeline": "Standard",
+      "details": "Cal.com meeting scheduled for Upcoming Date",
+      "status": "COMPLETED",
+      "updatedAt": "2026-09-30T14:16:27.802Z"
+    },
+    {
+      "_id": "6ac6a743d8dfbfa5d7e53883",
+      "id": "req_1791403843359_d6ke",
+      "createdAt": "2026-10-07T20:10:43.359Z",
+      "name": "Cal.com Client",
+      "email": "client@cal.com",
+      "company": "",
+      "serviceTier": "Project Discovery Call (Cal.com)",
+      "addons": [],
+      "budget": "N/A",
+      "timeline": "Standard",
+      "details": "Cal.com meeting scheduled for Upcoming Date",
+      "status": "BOOKED_CALL"
     }
   ],
   "testimonials": [
     {
-      "id": "testi_01",
+      "_id": "6a9c1dbb311e0ec043be699f",
+      "id": "testi_03",
+      "name": "RAFAEL RIBEIRO",
+      "role": "Co-Founder",
+      "company": "Xoria",
+      "avatar": "/api/media/media_1788617768431_a5ri0",
+      "quote": "We we're kinda lost on where to go design wise, after Emmanuel stepped in everything became more clear. With the help of Kre8mind, we at xoria were able to create a better website to better display our product in a way that it becomes clear what we're trying to sell.",
+      "order": 3
+    },
+    {
+      "_id": "6a9c238068ad59b100c32930",
+      "id": "testi_1788617600930",
+      "name": "ALEXANDRE ERZADEOGLU",
+      "role": "Founder",
+      "company": "Wayve",
+      "quote": "Great experience working with Kre8mind, very easy to work with, understands requirements quickly, and delivers high-quality results fast. Would definitely recommend them to anyone looking for a reliable and talented designers",
+      "avatar": "/api/media/media_1788617553872_klnja",
+      "order": 3,
+      "createdAt": "2026-09-05T14:13:20.930Z"
+    },
+    {
+      "_id": "6a9c251468ad59b100c32935",
+      "id": "testi_1788618004056",
+      "name": "AARON MUNGA",
+      "role": "Founder & CEO",
+      "company": "SWYCHR",
+      "quote": "Kre8mind contributed to improving both our website and mobile app experience at Swychr.  they brought thoughtful ideas to the table, identified user experience challenges, and was proactive in proposing solutions that helped move the product forward. The lead took feedback well and showed noticeable growth in his communication and collaboration throughout our time working together. I appreciate his contributions and would recommend him to teams looking for a dedicated and growth-minded Product Designer.",
+      "avatar": "/api/media/media_1788617932251_lnb5i",
+      "order": 4,
+      "createdAt": "2026-09-05T14:20:04.056Z"
+    },
+    {
+      "_id": "6ac022fd41ee26e88c662a01",
+      "id": "testi_1790976765741",
       "name": "Tife Ojo",
       "role": "Founder",
-      "company": "Tife Ojo Consults",
-      "avatar": "assets/clients/Tife Ojo Consults.png",
-      "quote": "Before working with Kre8mind, our clients struggled to grasp our full consulting depth. They distilled our proposition into an interface that feels effortless, commanding, and directly drove a 3x surge in qualified inquiries.",
-      "order": 1
+      "company": "Tifi Ojo Consult",
+      "quote": "It was a pleasure working with Emmanuel @ kre8mind from the discovery call till the end of the project. Helped with creating a website for my career coaching business. And it really looks good. Thank you!   \nDefinitely recommend.",
+      "avatar": "/api/media/1787045994314_1790976715176.jpg",
+      "order": 4,
+      "createdAt": "2026-10-02T21:32:45.741Z"
     },
     {
-      "id": "testi_02",
-      "name": "Adebayo Davies",
-      "role": "Co-Founder & CEO",
-      "company": "SwyChr",
-      "avatar": "assets/clients/Swychr Logo PNG 1.png",
-      "quote": "Kre8mind didn't just redesign our product; they fundamentally changed how we communicate our value. The clarity and precision they brought to the table turned confusion into confidence, reducing drop-off by 44%.",
-      "order": 2
-    },
-    {
-      "id": "testi_03",
-      "name": "Marcus Vance",
-      "role": "Head of Product",
-      "company": "Xoria",
-      "avatar": "assets/clients/xoria.png",
-      "quote": "The precision in their Figma systems and technical handoff is world-class. Our engineering sprint velocity doubled because every edge case, state, and interaction was thoroughly resolved.",
-      "order": 3
+      "_id": "6ac023e641ee26e88c662a02",
+      "id": "testi_1790976998378",
+      "name": "はたけやま HATAKE",
+      "role": "FOUNDER",
+      "company": "RIKI-AI",
+      "quote": "His passion for UI/UX design is truly remarkable. He consistently comes up with creative ideas and practical suggestions, and he has an excellent ability to understand and translate our requirements into effective designs. Working with him is both exciting and rewarding. He delivers high quality results that meet our expectations and requirements every time.",
+      "avatar": "/api/media/1776268521033_535sxf_1790976924483.jpg",
+      "order": 5,
+      "createdAt": "2026-10-02T21:36:38.378Z"
     }
   ]
 }
