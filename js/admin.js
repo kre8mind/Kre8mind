@@ -249,9 +249,13 @@ async function fetchInquiries() {
       inquiriesData = json.data || json.inquiries || [];
       renderInquiries();
       updateMetricCounts();
+    } else {
+      if (tbody) tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 30px;">${escapeHtml(json.error || 'No inquiries found.')}</td></tr>`;
+      inquiriesData = [];
+      updateMetricCounts();
     }
   } catch {
-    if (tbody) tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 30px;">Error loading inquiries.</td></tr>`;
+    if (tbody) tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 30px;">Error loading inquiries.</td></tr>`;
   }
 }
 

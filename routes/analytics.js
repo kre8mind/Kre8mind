@@ -1,8 +1,30 @@
 import express from 'express';
 import crypto from 'crypto';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { getCollection } from '../db/mongodb.js';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const DB_JSON_PATH = path.join(__dirname, '../data/db.json');
+
 const router = express.Router();
+
+function readLocalDbAnalytics() {
+  try {
+    if (fs.existsSync(DB_JSON_PATH)) {
+      const parsed = JSON.parse(fs.readFileSync(DB_JSON_PATH, 'utf8'));
+      return {
+        analytics: Array.isArray(parsed.analytics) ? parsed.analytics : [],
+        inquiries: Array.isArray(parsed.inquiries) ? parsed.inquiries : []
+      };
+    }
+  } catch (e) {
+    console.error('Error reading local db.json analytics:', e);
+  }
+  return { analytics: [], inquiries: [] };
+}
 
 // Helper to hash IP for privacy-friendly unique visitor tracking
 function anonymizeIp(ip) {
@@ -13,7 +35,7 @@ function anonymizeIp(ip) {
 // 1. Record Page Visit
 router.post('/track', async (req, res) => {
   try {
-    const { path = '/', referrer = '', device = 'Desktop', screenWidth = 1440 } = req.body;
+    const { path: rawPath = '/', referrer = '', device = 'Desktop', screenWidth = 1440 } = req.body;
     const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1';
     const visitorId = anonymizeIp(ip);
     const userAgent = req.headers['user-agent'] || '';
@@ -30,14 +52,18 @@ router.post('/track', async (req, res) => {
     const newVisit = {
       id: `v_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
       visitorId,
-      path: (path.split('?')[0] || '/').replace(/^\/+/, '') || 'home',
-      referrer: referrer ? new URL(referrer, 'http://localhost').hostname : 'Direct',
+      path: (rawPath.split('?')[0] || '/').replace(/^\/+/, '') || 'home',
+      referrer: referrer ? (function() { try { return new URL(referrer).hostname; } catch { return 'Direct'; } })() : 'Direct',
       device: detectedDevice,
       createdAt: new Date().toISOString()
     };
 
-    const col = await getCollection('analytics');
-    await col.insertOne(newVisit);
+    try {
+      const col = await getCollection('analytics');
+      await col.insertOne(newVisit);
+    } catch (mErr) {
+      console.warn('Atlas analytics track note:', mErr.message);
+    }
 
     res.json({ success: true });
   } catch (err) {
@@ -49,11 +75,25 @@ router.post('/track', async (req, res) => {
 // 2. Get Analytics Overview & Time-series data
 router.get('/overview', async (req, res) => {
   try {
-    const analyticsCol = await getCollection('analytics');
-    const inqCol = await getCollection('inquiries');
+    let visits = [];
+    let inquiries = [];
 
-    const visits = await analyticsCol.find({}).sort({ createdAt: -1 }).limit(1000).toArray();
-    const inquiries = await inqCol.find({}).sort({ createdAt: -1 }).toArray();
+    try {
+      const analyticsCol = await getCollection('analytics');
+      const inqCol = await getCollection('inquiries');
+      visits = await analyticsCol.find({}).sort({ createdAt: -1 }).limit(1000).toArray();
+      inquiries = await inqCol.find({}).sort({ createdAt: -1 }).toArray();
+    } catch (dbErr) {
+      console.warn('Analytics DB query note, using local fallback:', dbErr.message);
+    }
+
+    if (!visits || visits.length === 0) {
+      const local = readLocalDbAnalytics();
+      visits = local.analytics;
+      if (!inquiries || inquiries.length === 0) {
+        inquiries = local.inquiries;
+      }
+    }
 
     const now = new Date();
     const todayStr = now.toISOString().split('T')[0];
@@ -99,7 +139,7 @@ router.get('/overview', async (req, res) => {
       // Recent 10 stream
       if (idx < 10) {
         recentStream.push({
-          id: v.id,
+          id: v.id || String(v._id),
           path: v.path,
           device: v.device,
           referrer: v.referrer,
@@ -126,7 +166,7 @@ router.get('/overview', async (req, res) => {
 
     // Top pages
     const topPages = Object.entries(pageCounts)
-      .map(([path, count]) => ({ path, count }))
+      .map(([pagePath, count]) => ({ path: pagePath, count }))
       .sort((a, b) => b.count - a.count)
       .slice(0, 6);
 
@@ -141,7 +181,7 @@ router.get('/overview', async (req, res) => {
         visitsToday,
         uniqueToday: uniqueToday.size,
         totalInquiries,
-        conversionRate: `${conversionRate}%`,
+        conversionRate,
         timeline,
         topPages,
         deviceCounts,
@@ -149,8 +189,8 @@ router.get('/overview', async (req, res) => {
       }
     });
   } catch (err) {
-    console.error('Analytics overview error:', err);
-    res.status(500).json({ success: false, error: 'Failed to generate analytics overview' });
+    console.error('Error fetching analytics overview:', err);
+    res.status(500).json({ success: false, error: 'Failed to fetch analytics overview' });
   }
 });
 

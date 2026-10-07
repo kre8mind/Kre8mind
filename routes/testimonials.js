@@ -11,6 +11,18 @@ const DB_JSON_PATH = path.join(__dirname, '../data/db.json');
 
 const router = express.Router();
 
+function readLocalDbTestimonials() {
+  try {
+    if (fs.existsSync(DB_JSON_PATH)) {
+      const parsed = JSON.parse(fs.readFileSync(DB_JSON_PATH, 'utf8'));
+      return Array.isArray(parsed.testimonials) ? parsed.testimonials : [];
+    }
+  } catch (e) {
+    console.error('Error reading local db.json testimonials:', e);
+  }
+  return [];
+}
+
 function syncTestimonialToLocalDb(action, item) {
   try {
     if (!fs.existsSync(DB_JSON_PATH)) return;
@@ -38,12 +50,22 @@ function syncTestimonialToLocalDb(action, item) {
 // GET all testimonials
 router.get('/', async (req, res) => {
   try {
-    const col = await getCollection('testimonials');
-    const list = await col.find({}).sort({ order: 1, createdAt: -1 }).toArray();
-    const sanitized = list.map(item => {
-      const { _id, ...rest } = item;
-      return { id: item.id || String(_id), ...rest };
-    });
+    let sanitized = [];
+    try {
+      const col = await getCollection('testimonials');
+      const list = await col.find({}).sort({ order: 1, createdAt: -1 }).toArray();
+      sanitized = list.map(item => {
+        const { _id, ...rest } = item;
+        return { id: item.id || String(_id), ...rest };
+      });
+    } catch (dbErr) {
+      console.warn('Testimonials DB query note, using local fallback:', dbErr.message);
+    }
+
+    if (!sanitized || sanitized.length === 0) {
+      sanitized = readLocalDbTestimonials();
+    }
+
     res.json({
       success: true,
       count: sanitized.length,
@@ -52,7 +74,13 @@ router.get('/', async (req, res) => {
     });
   } catch (err) {
     console.error('Error fetching testimonials:', err);
-    res.status(500).json({ success: false, error: 'Failed to fetch testimonials' });
+    const local = readLocalDbTestimonials();
+    res.json({
+      success: true,
+      count: local.length,
+      data: local,
+      testimonials: local
+    });
   }
 });
 
@@ -64,9 +92,6 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ success: false, error: 'Client name and quote are required.' });
     }
 
-    const col = await getCollection('testimonials');
-    const count = await col.countDocuments();
-
     const newTesti = {
       id: `testi_${Date.now()}`,
       name: name.trim(),
@@ -74,11 +99,19 @@ router.post('/', async (req, res) => {
       company: (company || '').trim(),
       quote: quote.trim(),
       avatar: avatar || 'assets/clients/Tife Ojo Consults.png',
-      order: count + 1,
+      order: 1,
       createdAt: new Date().toISOString()
     };
 
-    await col.insertOne({ ...newTesti });
+    try {
+      const col = await getCollection('testimonials');
+      const count = await col.countDocuments();
+      newTesti.order = count + 1;
+      await col.insertOne({ ...newTesti });
+    } catch (mErr) {
+      console.warn('Atlas testimonial insert note:', mErr.message);
+    }
+
     syncTestimonialToLocalDb('insert', newTesti);
     res.status(201).json({ success: true, data: newTesti, testimonial: newTesti });
   } catch (err) {
@@ -91,26 +124,39 @@ router.post('/', async (req, res) => {
 router.put('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const col = await getCollection('testimonials');
-    
     const updateData = { ...req.body };
     delete updateData._id;
     delete updateData.id;
 
-    const query = { $or: [{ id: id }] };
-    if (ObjectId.isValid(id)) query.$or.push({ _id: new ObjectId(id) });
+    let updated = null;
 
-    await col.updateOne(query, { $set: updateData });
-    const updated = await col.findOne(query);
+    try {
+      const col = await getCollection('testimonials');
+      const query = { $or: [{ id: id }] };
+      if (ObjectId.isValid(id)) query.$or.push({ _id: new ObjectId(id) });
+
+      await col.updateOne(query, { $set: updateData });
+      const found = await col.findOne(query);
+      if (found) {
+        const { _id, ...clean } = found;
+        updated = clean;
+      }
+    } catch (mErr) {
+      console.warn('Atlas testimonial update note:', mErr.message);
+    }
 
     syncTestimonialToLocalDb('update', { id, ...updateData });
+
+    if (!updated) {
+      const localList = readLocalDbTestimonials();
+      updated = localList.find(t => t.id === id);
+    }
 
     if (!updated) {
       return res.status(404).json({ success: false, error: 'Testimonial not found.' });
     }
 
-    const { _id, ...clean } = updated;
-    res.json({ success: true, data: clean, testimonial: clean });
+    res.json({ success: true, data: updated, testimonial: updated });
   } catch (err) {
     console.error('Error updating testimonial:', err);
     res.status(500).json({ success: false, error: 'Failed to update testimonial' });
@@ -121,17 +167,16 @@ router.put('/:id', async (req, res) => {
 router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const col = await getCollection('testimonials');
-    
-    const query = { $or: [{ id: id }] };
-    if (ObjectId.isValid(id)) query.$or.push({ _id: new ObjectId(id) });
-
-    const result = await col.deleteOne(query);
-    syncTestimonialToLocalDb('delete', { id });
-
-    if (result.deletedCount === 0) {
-      return res.status(404).json({ success: false, error: 'Testimonial not found.' });
+    try {
+      const col = await getCollection('testimonials');
+      const query = { $or: [{ id: id }] };
+      if (ObjectId.isValid(id)) query.$or.push({ _id: new ObjectId(id) });
+      await col.deleteOne(query);
+    } catch (mErr) {
+      console.warn('Atlas delete testimonial note:', mErr.message);
     }
+
+    syncTestimonialToLocalDb('delete', { id });
 
     res.json({ success: true, message: 'Testimonial deleted successfully.' });
   } catch (err) {
