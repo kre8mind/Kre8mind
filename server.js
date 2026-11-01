@@ -172,7 +172,12 @@ app.get('/sitemap.xml', async (req, res) => {
     }
 
     // Baseline project guarantees
-    const defaultProjIds = ['proj_1788486163854'];
+    const defaultProjIds = [
+      'proj_1788486163854',
+      'proj_1788730498860',
+      'proj_1788740631023',
+      'proj_1788740829980'
+    ];
     defaultProjIds.forEach(id => {
       if (!urlMap.has(`${baseUrl}/project/${id}`)) {
         urlMap.set(`${baseUrl}/project/${id}`, {
@@ -815,7 +820,14 @@ async function findJournalArticle(identifier) {
 
 // Project / Case Study Deep Link Route with Dynamic Social Meta Preview
 app.get(['/project/:id', '/case-study/:id'], async (req, res) => {
-  const proj = await findProject(req.params.id);
+  const id = req.params.id;
+  
+  // 301 Redirect for legacy placeholder IDs previously crawled by search engines
+  if (['proj_01', 'proj_02', 'proj_03'].includes(id)) {
+    return res.redirect(301, '/projects');
+  }
+
+  const proj = await findProject(id);
   const baseUrl = getBaseUrl(req);
 
   if (proj) {
@@ -846,13 +858,45 @@ app.get(['/project/:id', '/case-study/:id'], async (req, res) => {
         }
       }
     };
-    return res.send(renderHtmlWithSocialMeta('projects.html', meta, req));
+    let html = renderHtmlWithSocialMeta('projects.html', meta, req);
+
+    // Inject dedicated server-rendered case study hero section into HTML body for Googlebot!
+    const slices = Array.isArray(proj.caseStudySlices) ? proj.caseStudySlices.map(s => `
+      <div style="margin-bottom: 36px; border-radius: 12px; overflow: hidden; background: #141414; border: 1px solid rgba(255,255,255,0.06);">
+        <img src="${s.url}" alt="${escapeHtml(s.caption || proj.title)}" style="width: 100%; height: auto; display: block;" loading="lazy" />
+        ${s.caption ? `<p style="padding: 14px 20px; font-family: var(--font-mono, monospace); font-size: 13px; color: #a1a1aa; margin: 0; background: #111;">${escapeHtml(s.caption)}</p>` : ''}
+      </div>
+    `).join('') : '';
+
+    const heroCover = proj.image ? `
+      <div style="margin: 36px 0; border-radius: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);">
+        <img src="${proj.image}" alt="${escapeHtml(proj.title)}" style="width: 100%; height: auto; display: block;" />
+      </div>` : '';
+
+    const caseStudySection = `
+    <!-- Crawlable Server-Rendered Case Study Dedicated View -->
+    <section class="case-study-hero" style="padding: 120px 0 60px; background: #080808; border-bottom: 1px solid rgba(255,255,255,0.08);">
+      <div class="section-container" style="max-width: 1100px; margin: 0 auto; padding: 0 24px;">
+        <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 16px;">
+          <span style="display: inline-block; padding: 4px 12px; border-radius: 999px; background: rgba(255,255,255,0.08); font-family: var(--font-mono, monospace); font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #fff;">${escapeHtml(proj.category || 'CASE STUDY')}</span>
+          <span style="font-family: var(--font-mono, monospace); font-size: 13px; color: #71717a;">${escapeHtml(proj.timeline || proj.year || '2026')}</span>
+        </div>
+        <h1 style="font-size: clamp(2.5rem, 5.5vw, 4.2rem); font-weight: 700; color: #fff; line-height: 1.1; margin: 0 0 20px 0; letter-spacing: -0.02em;">${escapeHtml(proj.title)}</h1>
+        <p style="font-size: clamp(1.1rem, 2vw, 1.3rem); line-height: 1.6; color: #d4d4d8; max-width: 800px; margin: 0 0 32px 0;">${escapeHtml(proj.summary || '')}</p>
+        ${heroCover}
+        ${slices}
+      </div>
+    </section>
+    `;
+
+    html = html.replace('<main>', `<main>\n${caseStudySection}`);
+    return res.send(html);
   }
 
-  // Fallback to general projects
-  return res.send(renderHtmlWithSocialMeta('projects.html', {
-    title: 'Selected Projects & Case Studies | Kre8mind',
-    description: 'Explore selected case studies and digital products crafted by Kre8mind Studio.',
+  // Proper 404 for non-existent projects
+  return res.status(404).send(renderHtmlWithSocialMeta('projects.html', {
+    title: 'Project Not Found | Kre8mind',
+    description: 'The requested project case study could not be found.',
     image: '/assets/social-cover.jpg',
     url: `${baseUrl}/projects`,
     type: 'website'
@@ -934,12 +978,44 @@ app.get('/journal/:id', async (req, res) => {
         }
       }
     };
-    return res.send(renderHtmlWithSocialMeta('journal.html', meta, req));
+    let html = renderHtmlWithSocialMeta('journal.html', meta, req);
+
+    // Format paragraphs
+    const paragraphs = (article.content || '')
+      .split(/\n\s*\n/)
+      .filter(p => p.trim())
+      .map(p => `<p style="font-size: 1.15rem; line-height: 1.8; color: #d4d4d8; margin-bottom: 24px;">${escapeHtml(p.trim())}</p>`)
+      .join('');
+
+    const articleHero = `
+    <!-- Crawlable Server-Rendered Full Article Dedicated View -->
+    <article class="journal-full-article" style="padding: 120px 0 60px; background: #080808; border-bottom: 1px solid rgba(255,255,255,0.08);">
+      <div class="section-container" style="max-width: 860px; margin: 0 auto; padding: 0 24px;">
+        <div style="font-family: var(--font-mono, monospace); font-size: 13px; color: #a1a1aa; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 16px;">
+          ESSAY • ${escapeHtml(article.category || 'INSIGHTS')}
+        </div>
+        <h1 style="font-size: clamp(2.2rem, 5vw, 3.8rem); font-weight: 700; color: #fff; line-height: 1.15; margin: 0 0 24px 0; letter-spacing: -0.02em;">
+          ${escapeHtml(article.title)}
+        </h1>
+        ${article.image ? `
+        <div style="margin: 32px 0 48px; border-radius: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);">
+          <img src="${article.image}" alt="${escapeHtml(article.title)}" style="width: 100%; height: auto; display: block;" />
+        </div>` : ''}
+        <div class="journal-article-body" style="color: #d4d4d8;">
+          ${paragraphs}
+        </div>
+      </div>
+    </article>
+    `;
+
+    html = html.replace('<main>', `<main>\n${articleHero}`);
+    return res.send(html);
   }
 
-  return res.send(renderHtmlWithSocialMeta('journal.html', {
-    title: 'Journal & Insights | Kre8mind',
-    description: 'Thoughts and perspectives on interface clarity, user psychology, design systems, and building modern software.',
+  // Proper 404 for non-existent articles
+  return res.status(404).send(renderHtmlWithSocialMeta('journal.html', {
+    title: 'Article Not Found | Kre8mind Journal',
+    description: 'The requested journal article could not be found.',
     image: '/assets/social-cover.jpg',
     url: `${baseUrl}/journal`,
     type: 'website'
