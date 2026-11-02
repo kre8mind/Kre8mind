@@ -340,6 +340,37 @@
     }
     .form-textarea { min-height: 90px; resize: vertical; }
 
+    /* Password Input Wrapper & Toggle */
+    .password-input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+      width: 100%;
+    }
+    .password-input-wrapper .form-input {
+      width: 100%;
+      padding-right: 42px;
+    }
+    .password-toggle-btn {
+      position: absolute;
+      right: 1px;
+      top: 1px;
+      bottom: 1px;
+      width: 38px;
+      background: transparent;
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--text-muted);
+      padding: 0;
+      transition: color 0.15s;
+    }
+    .password-toggle-btn:hover {
+      color: var(--text);
+    }
+
     /* Case Study Upload Area (Behance style) */
     .case-study-toggle-box {
       background: var(--surface);
@@ -619,7 +650,21 @@
       <form id="auth-form">
         <div class="form-group">
           <label class="form-label" for="admin-pass">Studio Password</label>
-          <input type="password" id="admin-pass" class="form-input" placeholder="••••••••" required autofocus>
+          <div class="password-input-wrapper">
+            <input type="password" id="admin-pass" class="form-input" placeholder="••••••••" required autofocus>
+            <button type="button" class="password-toggle-btn" aria-label="Toggle password visibility" data-target="admin-pass" title="Show/Hide Password">
+              <svg class="eye-icon eye-show" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+              <svg class="eye-icon eye-hide" style="display:none;" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"/>
+                <path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/>
+                <path d="M17.479 17.499A10.75 10.75 0 0 1 2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.417-5.467"/>
+                <line x1="2" x2="22" y1="2" y2="22"/>
+              </svg>
+            </button>
+          </div>
         </div>
         <button type="submit" class="btn-studio" style="width: 100%; justify-content: center; padding: 12px;">ENTER DASHBOARD ↗</button>
         <div id="auth-error" style="color: #ef4444; font-size: 12px; margin-top: 10px; display: none;"></div>
@@ -882,15 +927,33 @@
         <form id="change-password-form">
           <div class="form-group">
             <label class="form-label" for="current-pwd">Current Password *</label>
-            <input type="password" id="current-pwd" class="form-input" placeholder="Enter current password (default: kre8mind2026)">
+            <div class="password-input-wrapper">
+              <input type="password" id="current-pwd" class="form-input" placeholder="Enter current password">
+              <button type="button" class="password-toggle-btn" aria-label="Toggle password visibility" data-target="current-pwd" title="Show/Hide Password">
+                <svg class="eye-icon eye-show" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg class="eye-icon eye-hide" style="display:none;" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"/><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/><path d="M17.479 17.499A10.75 10.75 0 0 1 2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.417-5.467"/><line x1="2" x2="22" y1="2" y2="22"/></svg>
+              </button>
+            </div>
           </div>
           <div class="form-group">
             <label class="form-label" for="new-pwd">New Password *</label>
-            <input type="password" id="new-pwd" class="form-input" minlength="8" required placeholder="Minimum 8 characters">
+            <div class="password-input-wrapper">
+              <input type="password" id="new-pwd" class="form-input" minlength="8" required placeholder="Minimum 8 characters">
+              <button type="button" class="password-toggle-btn" aria-label="Toggle password visibility" data-target="new-pwd" title="Show/Hide Password">
+                <svg class="eye-icon eye-show" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg class="eye-icon eye-hide" style="display:none;" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"/><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/><path d="M17.479 17.499A10.75 10.75 0 0 1 2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.417-5.467"/><line x1="2" x2="22" y1="2" y2="22"/></svg>
+              </button>
+            </div>
           </div>
           <div class="form-group">
             <label class="form-label" for="confirm-new-pwd">Confirm New Password *</label>
-            <input type="password" id="confirm-new-pwd" class="form-input" minlength="8" required placeholder="Repeat new password">
+            <div class="password-input-wrapper">
+              <input type="password" id="confirm-new-pwd" class="form-input" minlength="8" required placeholder="Repeat new password">
+              <button type="button" class="password-toggle-btn" aria-label="Toggle password visibility" data-target="confirm-new-pwd" title="Show/Hide Password">
+                <svg class="eye-icon eye-show" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg class="eye-icon eye-hide" style="display:none;" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"/><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/><path d="M17.479 17.499A10.75 10.75 0 0 1 2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.417-5.467"/><line x1="2" x2="22" y1="2" y2="22"/></svg>
+              </button>
+            </div>
           </div>
           <button type="submit" class="btn-studio" style="width: 100%; justify-content: center; margin-top: 10px;">
             UPDATE PASSWORD ↗

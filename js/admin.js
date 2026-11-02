@@ -29,6 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initTestimonialsCMS();
   initAnalytics();
   initSecurity();
+  initPasswordToggles();
 });
 
 /* --------------------------------------------------------------------------
@@ -1493,4 +1494,34 @@ function updateMetricCounts() {
 function escapeHtml(str) {
   if (!str) return '';
   return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+/* --------------------------------------------------------------------------
+   11. Password Visibility Toggle
+   -------------------------------------------------------------------------- */
+function initPasswordToggles() {
+  document.querySelectorAll('.password-toggle-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const targetId = btn.getAttribute('data-target');
+      const input = document.getElementById(targetId);
+      if (!input) return;
+
+      const eyeShow = btn.querySelector('.eye-show');
+      const eyeHide = btn.querySelector('.eye-hide');
+
+      if (input.type === 'password') {
+        input.type = 'text';
+        btn.setAttribute('aria-label', 'Hide password');
+        if (eyeShow) eyeShow.style.display = 'none';
+        if (eyeHide) eyeHide.style.display = 'block';
+      } else {
+        input.type = 'password';
+        btn.setAttribute('aria-label', 'Show password');
+        if (eyeShow) eyeShow.style.display = 'block';
+        if (eyeHide) eyeHide.style.display = 'none';
+      }
+      input.focus();
+    });
+  });
 }
